@@ -368,53 +368,6 @@ function handleFailClick() {
   handleGenerateClick();
 }
 
-// ==========================================================================
-// 6. Batch Generation
-// ==========================================================================
-function handleBatchGenerate(count) {
-  const batchListElem = document.getElementById("batchList");
-  const batchSection = document.getElementById("batchSection");
-  batchListElem.innerHTML = "";
-
-  const generatedList = [];
-  let attempts = 0;
-
-  while (generatedList.length < count && attempts < count * 20) {
-    const item = generateUniqueUpiId();
-    if (!generatedList.some(g => g.id === item.id)) {
-      generatedList.push(item);
-    }
-    attempts++;
-  }
-
-  generatedList.forEach(item => {
-    const itemDiv = document.createElement("div");
-    itemDiv.className = "batch-item";
-    itemDiv.innerHTML = `
-      <span>${item.id}</span>
-      <button class="copy-mini" title="복사" data-id="${item.id}">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-      </button>
-    `;
-    batchListElem.appendChild(itemDiv);
-  });
-
-  // Attach event listener for batch copy buttons
-  batchListElem.querySelectorAll(".copy-mini").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const idToCopy = e.currentTarget.getAttribute("data-id");
-      copyTextToClipboard(idToCopy);
-      showToast(`복사됨: ${idToCopy}`, "info");
-    });
-  });
-
-  batchSection.style.display = "block";
-  batchSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
 function escapeHtml(str) {
   if (!str) return "";
   return str.replace(/[&<>"']/g, m => ({
@@ -603,18 +556,6 @@ function bindEvents() {
   document.getElementById("btnCopy").addEventListener("click", handleCopyClick);
   document.getElementById("btnMarkSuccess").addEventListener("click", handleSuccessClick);
   document.getElementById("btnMarkFail").addEventListener("click", handleFailClick);
-
-  // Batch Generation Buttons
-  document.querySelectorAll(".btn-batch").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const count = parseInt(e.currentTarget.getAttribute("data-count"), 10);
-      handleBatchGenerate(count);
-    });
-  });
-
-  document.getElementById("btnCloseBatch").addEventListener("click", () => {
-    document.getElementById("batchSection").style.display = "none";
-  });
 
   // Export Success List
   document.getElementById("btnExportSuccess").addEventListener("click", () => {

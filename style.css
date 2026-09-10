@@ -672,67 +672,6 @@ body {
   border-radius: 2px;
   margin-top: 2px;
   word-break: break-word;
-}
-
-/* Batch Bar */
-.batch-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.batch-btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-batch {
-  background: var(--bg-pill);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-normal);
-}
-
-.btn-batch:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--text-primary);
-}
-
-/* ==========================================================================
-   Batch Results Card
-   ========================================================================== */
-.batch-results-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-card);
-  animation: fadeIn 0.3s ease;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.section-header h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
 .btn-subtle {
   background: transparent;
   border: 1px solid var(--border-subtle);
@@ -753,37 +692,6 @@ body {
   background: var(--fail-bg);
   color: var(--fail-color);
   border-color: var(--fail-border);
-}
-
-.batch-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 12px;
-}
-
-.batch-item {
-  background: #060911;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-}
-
-.batch-item .copy-mini {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 4px;
-  transition: var(--transition-normal);
-}
-
-.batch-item .copy-mini:hover {
-  color: var(--accent-primary);
 }
 
 /* ==========================================================================
