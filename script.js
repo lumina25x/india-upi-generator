@@ -49,6 +49,8 @@ const COMMON_SIMPLE_NUMBERS = [
 // ==========================================================================
 // 2. State & Storage Management & Helpers
 // ==========================================================================
+const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzsZyHJHsV96TikY6SuXPfiUwgxoG-htAdvNk60pfC-HlCXhEpEtvV-TN4s2OLyEK0a/exec";
+
 const STORAGE_KEYS = {
   SUCCESS: "upi_success_list_v1",
   FAILED: "upi_failed_list_v1",
@@ -66,7 +68,7 @@ function getFormattedNow() {
 let state = {
   currentId: null,
   currentMeta: null,
-  successList: [], // array of { id, timestamp }
+  successList: [], // array of { id, timestamp, memo }
   failedList: [],  // array of { id, timestamp }
   failedSet: new Set(), // Set of strings for O(1) candidate exclusion lookup
   totalCount: 0
@@ -80,7 +82,72 @@ document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
   updateStats();
   renderLists();
+  fetchGlobalSheetData();
 });
+
+async function fetchGlobalSheetData() {
+  if (!GOOGLE_SHEET_API_URL) return;
+  try {
+    const resp = await fetch(GOOGLE_SHEET_API_URL);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    let updated = false;
+
+    // Merge remote failed IDs into state.failedSet & state.failedList
+    if (data.failed && Array.isArray(data.failed)) {
+      data.failed.forEach(id => {
+        if (!state.failedSet.has(id)) {
+          state.failedSet.add(id);
+          state.failedList.unshift({
+            id: id,
+            timestamp: getFormattedNow()
+          });
+          updated = true;
+        }
+      });
+    }
+
+    // Merge remote success IDs into state.successList
+    if (data.success && Array.isArray(data.success)) {
+      data.success.forEach(item => {
+        const id = typeof item === "string" ? item : item.id;
+        const exists = state.successList.some(s => s.id === id);
+        if (!exists) {
+          state.successList.unshift({
+            id: id,
+            timestamp: item.timestamp || getFormattedNow(),
+            memo: item.memo || "성공 확인 완료 👍"
+          });
+          updated = true;
+        }
+      });
+    }
+
+    if (updated) {
+      saveStoredData();
+      updateStats();
+      renderLists();
+      showToast("☁️ 구글 시트와 실시간 동기화되었습니다.", "info");
+    }
+  } catch (err) {
+    console.log("Google Sheets sync note:", err);
+  }
+}
+
+function syncToGoogleSheet(payload) {
+  if (!GOOGLE_SHEET_API_URL) return;
+  try {
+    // Send as text/plain with no-cors to prevent CORS preflight error in Google Apps Script
+    fetch(GOOGLE_SHEET_API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(payload)
+    }).catch(e => console.log("Sheet post note:", e));
+  } catch (err) {
+    console.log("Sheet sync error:", err);
+  }
+}
 
 function loadStoredData() {
   try {
@@ -334,6 +401,14 @@ function submitSuccessVerification() {
   updateStats();
   renderLists();
 
+  // Sync to Google Sheet in background
+  syncToGoogleSheet({
+    id: state.currentId,
+    type: "SUCCESS",
+    timestamp: now,
+    memo: memo
+  });
+
   closeSuccessModal();
   showToast(`🎉 실제 성공 사례로 인증 등록되었습니다! (${state.currentId})`, "success");
 
@@ -361,6 +436,14 @@ function handleFailClick() {
   saveStoredData();
   updateStats();
   renderLists();
+
+  // Sync to Google Sheet in background
+  syncToGoogleSheet({
+    id: failedId,
+    type: "FAIL",
+    timestamp: now,
+    memo: ""
+  });
 
   showToast(`⛔ 제외 목록에 등록되었습니다. 다음 생성 시 제외됩니다.`, "fail");
 
