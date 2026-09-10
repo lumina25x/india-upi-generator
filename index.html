@@ -44,6 +44,73 @@
       </div>
     </header>
 
+    <!-- Collapsible Guide: What is UPI and How it is structured -->
+    <section class="guide-accordion-section">
+      <details class="guide-details" id="upiGuideDetails">
+        <summary class="guide-summary">
+          <div class="summary-left">
+            <span class="guide-icon">📖</span>
+            <span class="guide-summary-title">인도 UPI ID란 무엇이고 어떻게 만들어지나요? (클릭하여 펼치기)</span>
+          </div>
+          <svg class="accordion-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
+        
+        <div class="guide-content-body">
+          <div class="guide-grid">
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">💡</span>
+                <h4>UPI란 무엇인가요?</h4>
+              </div>
+              <p>
+                <strong>UPI(Unified Payments Interface)</strong>는 인도 국립결제공사(NPCI)가 운영하는 인도의 표준 실시간 계좌이체 시스템입니다.
+                복잡한 은행 계좌번호 대신 이메일 형태의 <strong>가상 결제 주소(VPA, username@handle)</strong> 하나로 송금과 결제를 처리합니다.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">🎯</span>
+                <h4>왜 가상 생성 ID가 필요한가요?</h4>
+              </div>
+              <p>
+                인도 유튜브 프리미엄 또는 애플 구독 갱신 시, 인도 금융 당국 규정으로 인해 <strong>유효한 인도 결제수단 등록 칸</strong>을 필수로 채워야 갱신이 진행됩니다.
+                실제 결제는 인도 기프트카드(루피 잔액)로 차감되더라도, 통과용으로 <strong>규격에 맞는 UPI ID</strong>가 등록되어 있어야 합니다.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">⚙️</span>
+                <h4>어떤 구조로 만들어지나요?</h4>
+              </div>
+              <p class="guide-code-lead">
+                기본 골격: <code>username@handle</code>
+              </p>
+              <ul class="guide-list">
+                <li><strong>앞부분 (username)</strong>: 성인층 흔한 이름(Rahul, Priya, Sneha 등) + <code>12</code>, <code>123</code>, <code>1234</code> 등 단순 숫자 또는 성씨 조합.</li>
+                <li><strong>뒷부분 (@handle)</strong>: PhonePe(<code>@ybl</code>), Paytm(<code>@paytm</code>), Google Pay(<code>@oksbi</code>) 등 공인 결제망 은행 식별자.</li>
+                <li><strong>영문 소문자 필수</strong>: 대문자가 섞이면 시스템 인식 오류가 발생하므로 <strong>전원 소문자</strong>로만 생성됩니다.</li>
+              </ul>
+            </div>
+
+            <div class="guide-card tip-highlight">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">🚀</span>
+                <h4>성공률을 극대화하는 핵심 팁</h4>
+              </div>
+              <p>
+                인터넷 블로그에 공개된 고정 ID는 수많은 이용자가 동시에 써서 '너무 많은 계정 연결 에러'로 차단됩니다.<br>
+                본 생성기에서 <strong>인도 흔한 이름 + 단순 숫자(123 등)</strong> 조합으로 새로운 ID를 뽑아 입력하시면 높은 확률로 바로 뚫립니다!
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
     <!-- Main Generator Hero Card -->
     <main class="generator-card">
       <div class="card-glow"></div>
