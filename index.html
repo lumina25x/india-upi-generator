@@ -20,7 +20,7 @@
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
-      <div class="header-badge">🇮🇳 India UPI ID Generator • ☁️ 구글 시트 실시간 연동됨</div>
+      <div class="header-badge">🇮🇳 India UPI ID Generator</div>
       <h1 class="main-title">인도 UPI ID 스마트 생성기</h1>
       <p class="subtitle">
         인도 유튜브 프리미엄 우회 갱신 및 가상 결제수단 등록용 ID 생성기입니다.<br>
@@ -185,10 +185,10 @@
             </button>
             <button class="btn-feedback btn-fail" id="btnMarkFail">
               <span class="btn-icon">👎</span>
-              실패했어요 (조건없이 즉시 제외)
+              실패했어요
             </button>
           </div>
-          <p class="feedback-hint">※ 실패 버튼은 누르는 즉시 조건 없이 제외 목록에 등록되며 새 ID가 바로 추천됩니다.</p>
+          <p class="feedback-hint">※ 실패 버튼을 누르면 제외 목록에 등록되며 새 ID가 바로 추천됩니다.</p>
         </div>
       </div>
     </main>
@@ -202,7 +202,6 @@
             <span class="icon-bubble success-bubble">✓</span>
             <h2>성공 기록 (<span id="successCounter">0</span>)</h2>
           </div>
-          <button class="btn-subtle" id="btnExportSuccess" title="텍스트로 내보내기">내보내기</button>
         </div>
         <p class="column-desc">실제 결제/갱신에 성공한 유효 ID 목록입니다.</p>
         <div class="list-wrapper" id="successListContainer">
@@ -218,9 +217,8 @@
             <span class="icon-bubble failed-bubble">✕</span>
             <h2>제외(실패) 목록 (<span id="failedCounter">0</span>)</h2>
           </div>
-          <button class="btn-subtle danger" id="btnClearFailed" title="실패 목록 초기화">전체 삭제</button>
         </div>
-        <p class="column-desc">중복이나 에러로 차단된 ID입니다. (자동 생성에서 제외됨)</p>
+        <p class="column-desc">에러로 차단된 ID입니다. (자동 생성에서 제외됨)</p>
         <div class="list-wrapper" id="failedListContainer">
           <div class="empty-state" id="emptyFailed">등록된 실패 건이 없습니다.</div>
           <ul class="id-list" id="failedList"></ul>
@@ -291,8 +289,11 @@
           </div>
 
           <div class="form-group">
-            <label for="successMemoInput">감사 인사 또는 성공 팁 입력 (직접 입력 가능)</label>
-            <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다! 감사합니다." maxlength="70">
+            <div class="label-with-counter">
+              <label for="successMemoInput">감사 인사 또는 성공 팁 입력 (직접 입력 가능)</label>
+              <span class="char-counter" id="charCounter">0/35</span>
+            </div>
+            <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다! 감사합니다." maxlength="35">
           </div>
         </div>
 
@@ -310,7 +311,14 @@
 
     <!-- Footer -->
     <footer class="app-footer">
-      <p>Data stored locally in your browser (LocalStorage). Open Source on GitHub.</p>
+      <div class="footer-blog-banner">
+        <span class="blog-banner-icon">📝</span>
+        <span class="blog-banner-label">공식 블로그:</span>
+        <a href="https://review-gratin.tistory.com/" target="_blank" rel="noopener noreferrer" class="blog-link-btn" title="블로그 방문하기">
+          review-gratin.tistory.com 바로가기 ↗
+        </a>
+      </div>
+      <p class="footer-copy">Data stored locally in your browser & Google Sheets. Open Source on GitHub.</p>
     </footer>
   </div>
 

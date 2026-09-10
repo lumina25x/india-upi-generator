@@ -366,6 +366,9 @@ function openSuccessModal() {
   const memoInput = document.getElementById("successMemoInput");
   memoInput.value = "";
   
+  const charCounter = document.getElementById("charCounter");
+  if (charCounter) charCounter.textContent = "0/35";
+
   // Reset chips active state
   document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
   
@@ -640,35 +643,14 @@ function bindEvents() {
   document.getElementById("btnMarkSuccess").addEventListener("click", handleSuccessClick);
   document.getElementById("btnMarkFail").addEventListener("click", handleFailClick);
 
-  // Export Success List
-  document.getElementById("btnExportSuccess").addEventListener("click", () => {
-    if (state.successList.length === 0) {
-      showToast("내보낼 성공 목록이 없습니다.", "info");
-      return;
-    }
-    const textData = state.successList.map(item => item.id).join("\n");
-    const blob = new Blob([textData], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `upi_success_ids_${new Date().toISOString().slice(0,10)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("성공 목록이 텍스트 파일로 저장되었습니다.", "success");
-  });
-
-  // Clear Failed List
-  document.getElementById("btnClearFailed").addEventListener("click", () => {
-    if (state.failedList.length === 0) return;
-    if (confirm("제외(실패) 목록을 전부 초기화하시겠습니까?")) {
-      state.failedSet.clear();
-      state.failedList = [];
-      saveStoredData();
-      updateStats();
-      renderLists();
-      showToast("실패 목록이 초기화되었습니다.", "info");
-    }
-  });
+  // Memo character counter
+  const memoInput = document.getElementById("successMemoInput");
+  const charCounter = document.getElementById("charCounter");
+  if (memoInput && charCounter) {
+    memoInput.addEventListener("input", () => {
+      charCounter.textContent = `${memoInput.value.length}/35`;
+    });
+  }
 
   // Modal Event Listeners
   document.getElementById("btnCloseSuccessModal").addEventListener("click", closeSuccessModal);
@@ -687,17 +669,23 @@ function bindEvents() {
     chip.addEventListener("click", () => {
       document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
-      const memoInput = document.getElementById("successMemoInput");
-      memoInput.value = chip.getAttribute("data-text");
-      memoInput.focus();
+      if (memoInput) {
+        memoInput.value = chip.getAttribute("data-text");
+        if (charCounter) {
+          charCounter.textContent = `${memoInput.value.length}/35`;
+        }
+        memoInput.focus();
+      }
     });
   });
 
   // Enter key in memo input submits verification
-  document.getElementById("successMemoInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      submitSuccessVerification();
-    }
-  });
+  if (memoInput) {
+    memoInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitSuccessVerification();
+      }
+    });
+  }
 }
