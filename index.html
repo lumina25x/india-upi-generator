@@ -104,18 +104,24 @@
 
         <!-- Feedback Section (Only shown when ID is generated) -->
         <div class="feedback-prompt" id="feedbackPrompt" style="display: none;">
-          <div class="feedback-label">방금 생성된 ID 등록 결과는 어떠셨나요?</div>
+          <div class="feedback-header-box">
+            <div class="feedback-badge">실제 시도 피드백</div>
+            <div class="feedback-title">방금 생성된 ID를 결제창에 실제로 입력해 보셨나요?</div>
+            <p class="feedback-desc">
+              다음 사용자분들께 실질적인 도움이 될 수 있도록, <strong>실제로 결제/등록을 시도해 보신 후 사실에 기반한 결과</strong>를 선택해 주세요. 🙏
+            </p>
+          </div>
           <div class="feedback-buttons">
             <button class="btn-feedback btn-success" id="btnMarkSuccess">
               <span class="btn-icon">👍</span>
-              성공했어요! (성공란 저장)
+              성공했어요! (검증 사례 등록)
             </button>
             <button class="btn-feedback btn-fail" id="btnMarkFail">
               <span class="btn-icon">👎</span>
-              실패했어요 (다음 생성서 제외)
+              실패했어요 (조건없이 즉시 제외)
             </button>
           </div>
-          <p class="feedback-hint">※ 실패 처리 시 이 ID는 영구 제외되어 다시는 생성되지 않습니다.</p>
+          <p class="feedback-hint">※ 실패 버튼은 누르는 즉시 조건 없이 제외 목록에 등록되며 새 ID가 바로 추천됩니다.</p>
         </div>
 
         <!-- Batch Generator Drawer Toggle -->
@@ -200,6 +206,58 @@
         </div>
       </div>
     </section>
+
+    <!-- Success Verification Modal (Anti-accidental click device) -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">🎉</span>
+            <div>
+              <h3 class="modal-title">실제 성공 사례로 인증 등록</h3>
+              <p class="modal-subtitle">성공한 ID: <strong id="modalSuccessId" class="modal-highlight-id"></strong></p>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseSuccessModal" title="닫기">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-guide-box">
+            <p>
+              다른 사용자분들에게 신뢰할 수 있는 정보를 제공하기 위해<br>
+              <strong>간단한 감사 인사나 성공 꿀팁(후기)</strong>을 선택하거나 남겨주세요!
+            </p>
+          </div>
+
+          <!-- Preset Quick Chips -->
+          <div class="chip-section">
+            <span class="chip-label">빠른 선택 칩 (클릭 시 자동 입력):</span>
+            <div class="preset-chips" id="presetChips">
+              <button type="button" class="tag-chip" data-text="바로 갱신 성공했습니다! 👍">⚡ 바로 갱신 성공!</button>
+              <button type="button" class="tag-chip" data-text="123 숫자 붙여서 바로 뚫렸어요! 🔥">💡 123 조합으로 성공</button>
+              <button type="button" class="tag-chip" data-text="유튜브 앱 동기화까지 완료했습니다 📱">📱 유튜브 앱 동기화 완료</button>
+              <button type="button" class="tag-chip" data-text="감사합니다! 덕분에 살았습니다 🙏">🙏 감사합니다! 살았습니다</button>
+              <button type="button" class="tag-chip" data-text="PC 웹에서 갱신하니 바로 되네요 💻">💻 PC 웹에서 갱신 성공</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="successMemoInput">감사 인사 또는 성공 팁 입력 (직접 입력 가능)</label>
+            <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다! 감사합니다." maxlength="70">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
+          <button type="button" class="btn-confirm-success" id="btnSubmitSuccess">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            실제 성공 사례로 등록 완료
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer class="app-footer">

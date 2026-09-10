@@ -290,13 +290,39 @@ function handleCopyClick() {
 
 function handleSuccessClick() {
   if (!state.currentId) return;
+  openSuccessModal();
+}
 
+function openSuccessModal() {
+  if (!state.currentId) return;
+  document.getElementById("modalSuccessId").textContent = state.currentId;
+  const memoInput = document.getElementById("successMemoInput");
+  memoInput.value = "";
+  
+  // Reset chips active state
+  document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
+  
+  document.getElementById("successModal").style.display = "flex";
+  setTimeout(() => memoInput.focus(), 150);
+}
+
+function closeSuccessModal() {
+  document.getElementById("successModal").style.display = "none";
+}
+
+function submitSuccessVerification() {
+  if (!state.currentId) return;
+
+  const memoInput = document.getElementById("successMemoInput");
+  const memo = memoInput.value.trim() || "실제 결제/등록 성공 확인됨 👍";
   const now = getFormattedNow();
+
   const exists = state.successList.some(item => item.id === state.currentId);
   if (!exists) {
     state.successList.unshift({
       id: state.currentId,
-      timestamp: now
+      timestamp: now,
+      memo: memo
     });
   }
 
@@ -308,9 +334,10 @@ function handleSuccessClick() {
   updateStats();
   renderLists();
 
-  showToast(`🎉 성공 기록에 추가되었습니다! (${state.currentId})`, "success");
+  closeSuccessModal();
+  showToast(`🎉 실제 성공 사례로 인증 등록되었습니다! (${state.currentId})`, "success");
 
-  // Optional: prompt next generation
+  // Hide feedback prompt
   document.getElementById("feedbackPrompt").style.display = "none";
 }
 
@@ -388,6 +415,17 @@ function handleBatchGenerate(count) {
   batchSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[m]);
+}
+
 // ==========================================================================
 // 7. Render Lists (Success vs Failed)
 // ==========================================================================
@@ -408,6 +446,7 @@ function renderLists() {
         <div class="item-main">
           <span class="item-id-text">${item.id}</span>
           <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
+          ${item.memo ? `<span class="item-memo">💬 ${escapeHtml(item.memo)}</span>` : ""}
         </div>
         <div class="item-actions">
           <button class="btn-item-action copy" data-id="${item.id}" title="복사">
@@ -604,6 +643,37 @@ function bindEvents() {
       updateStats();
       renderLists();
       showToast("실패 목록이 초기화되었습니다.", "info");
+    }
+  });
+
+  // Modal Event Listeners
+  document.getElementById("btnCloseSuccessModal").addEventListener("click", closeSuccessModal);
+  document.getElementById("btnCancelSuccessModal").addEventListener("click", closeSuccessModal);
+  document.getElementById("btnSubmitSuccess").addEventListener("click", submitSuccessVerification);
+
+  // Close modal when clicking dark overlay outside modal card
+  document.getElementById("successModal").addEventListener("click", (e) => {
+    if (e.target.id === "successModal") {
+      closeSuccessModal();
+    }
+  });
+
+  // Preset Chips selection
+  document.querySelectorAll("#presetChips .tag-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      const memoInput = document.getElementById("successMemoInput");
+      memoInput.value = chip.getAttribute("data-text");
+      memoInput.focus();
+    });
+  });
+
+  // Enter key in memo input submits verification
+  document.getElementById("successMemoInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitSuccessVerification();
     }
   });
 }
