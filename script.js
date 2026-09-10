@@ -494,9 +494,6 @@ function renderLists() {
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
           </button>
-          <button class="btn-item-action delete" data-index="${index}" title="삭제">
-            ✕
-          </button>
         </div>
       `;
       successListElem.appendChild(li);
@@ -520,45 +517,17 @@ function renderLists() {
           <span class="item-id-text">${item.id}</span>
           <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
         </div>
-        <div class="item-actions">
-          <button class="btn-item-action delete" data-id="${item.id}" data-index="${index}" title="제외 해제">
-            ✕
-          </button>
-        </div>
       `;
       failedListElem.appendChild(li);
     });
   }
 
-  // Bind item action listeners
+  // Bind copy button listener for success list
   successListElem.querySelectorAll(".btn-item-action.copy").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const text = e.currentTarget.getAttribute("data-id");
       copyTextToClipboard(text);
       showToast(`복사됨: ${text}`, "info");
-    });
-  });
-
-  successListElem.querySelectorAll(".btn-item-action.delete").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
-      state.successList.splice(idx, 1);
-      saveStoredData();
-      updateStats();
-      renderLists();
-    });
-  });
-
-  failedListElem.querySelectorAll(".btn-item-action.delete").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const id = e.currentTarget.getAttribute("data-id");
-      const idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
-      state.failedSet.delete(id);
-      state.failedList.splice(idx, 1);
-      saveStoredData();
-      updateStats();
-      renderLists();
-      showToast(`제외 목록에서 삭제되었습니다 (${id})`, "info");
     });
   });
 }
