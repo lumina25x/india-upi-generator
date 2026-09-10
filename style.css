@@ -657,6 +657,36 @@ body {
   font-size: 0.86rem;
   font-family: var(--font-mono);
   transition: var(--transition-normal);
+  gap: 12px;
+}
+
+.item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.item-id-text {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.item-timestamp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.success-item .item-timestamp {
+  color: rgba(52, 211, 153, 0.75);
+}
+
+.failed-item .item-timestamp {
+  color: rgba(251, 113, 133, 0.75);
 }
 
 .id-list-item:hover {

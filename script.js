@@ -47,7 +47,7 @@ const COMMON_SIMPLE_NUMBERS = [
 ];
 
 // ==========================================================================
-// 2. State & Storage Management
+// 2. State & Storage Management & Helpers
 // ==========================================================================
 const STORAGE_KEYS = {
   SUCCESS: "upi_success_list_v1",
@@ -55,11 +55,20 @@ const STORAGE_KEYS = {
   TOTAL_COUNT: "upi_total_generated_count"
 };
 
+function getFormattedNow() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  const dateStr = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())}`;
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  return `${dateStr} ${timeStr}`;
+}
+
 let state = {
   currentId: null,
   currentMeta: null,
-  successList: [],
-  failedSet: new Set(),
+  successList: [], // array of { id, timestamp }
+  failedList: [],  // array of { id, timestamp }
+  failedSet: new Set(), // Set of strings for O(1) candidate exclusion lookup
   totalCount: 0
 };
 
@@ -77,13 +86,22 @@ function loadStoredData() {
   try {
     const storedSuccess = localStorage.getItem(STORAGE_KEYS.SUCCESS);
     if (storedSuccess) {
-      state.successList = JSON.parse(storedSuccess);
+      const parsed = JSON.parse(storedSuccess);
+      state.successList = parsed.map(item => {
+        if (typeof item === "string") return { id: item, timestamp: getFormattedNow() };
+        if (item.timestamp) return item;
+        return { id: item.id, timestamp: `${item.date || ''} ${item.time || ''}`.trim() || getFormattedNow() };
+      });
     }
 
     const storedFailed = localStorage.getItem(STORAGE_KEYS.FAILED);
     if (storedFailed) {
-      const arr = JSON.parse(storedFailed);
-      state.failedSet = new Set(arr);
+      const parsed = JSON.parse(storedFailed);
+      state.failedList = parsed.map(item => {
+        if (typeof item === "string") return { id: item, timestamp: getFormattedNow() };
+        return item;
+      });
+      state.failedSet = new Set(state.failedList.map(f => f.id));
     }
 
     const storedTotal = localStorage.getItem(STORAGE_KEYS.TOTAL_COUNT);
@@ -98,7 +116,7 @@ function loadStoredData() {
 function saveStoredData() {
   try {
     localStorage.setItem(STORAGE_KEYS.SUCCESS, JSON.stringify(state.successList));
-    localStorage.setItem(STORAGE_KEYS.FAILED, JSON.stringify(Array.from(state.failedSet)));
+    localStorage.setItem(STORAGE_KEYS.FAILED, JSON.stringify(state.failedList));
     localStorage.setItem(STORAGE_KEYS.TOTAL_COUNT, state.totalCount.toString());
   } catch (err) {
     console.error("Failed to save local storage:", err);
@@ -273,18 +291,18 @@ function handleCopyClick() {
 function handleSuccessClick() {
   if (!state.currentId) return;
 
-  // Check if already in successList
+  const now = getFormattedNow();
   const exists = state.successList.some(item => item.id === state.currentId);
   if (!exists) {
     state.successList.unshift({
       id: state.currentId,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      date: new Date().toLocaleDateString()
+      timestamp: now
     });
   }
 
   // If it was somehow in failedSet, remove it
   state.failedSet.delete(state.currentId);
+  state.failedList = state.failedList.filter(item => item.id !== state.currentId);
 
   saveStoredData();
   updateStats();
@@ -300,7 +318,15 @@ function handleFailClick() {
   if (!state.currentId) return;
 
   const failedId = state.currentId;
-  state.failedSet.add(failedId);
+  const now = getFormattedNow();
+
+  if (!state.failedSet.has(failedId)) {
+    state.failedSet.add(failedId);
+    state.failedList.unshift({
+      id: failedId,
+      timestamp: now
+    });
+  }
 
   // Remove from success if exists
   state.successList = state.successList.filter(item => item.id !== failedId);
@@ -379,7 +405,10 @@ function renderLists() {
       const li = document.createElement("li");
       li.className = "id-list-item success-item";
       li.innerHTML = `
-        <span class="item-id-text">${item.id}</span>
+        <div class="item-main">
+          <span class="item-id-text">${item.id}</span>
+          <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
+        </div>
         <div class="item-actions">
           <button class="btn-item-action copy" data-id="${item.id}" title="복사">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -401,18 +430,20 @@ function renderLists() {
   const emptyFailedElem = document.getElementById("emptyFailed");
   failedListElem.innerHTML = "";
 
-  const failedArray = Array.from(state.failedSet);
-  if (failedArray.length === 0) {
+  if (state.failedList.length === 0) {
     emptyFailedElem.style.display = "flex";
   } else {
     emptyFailedElem.style.display = "none";
-    failedArray.forEach((id) => {
+    state.failedList.forEach((item, index) => {
       const li = document.createElement("li");
       li.className = "id-list-item failed-item";
       li.innerHTML = `
-        <span class="item-id-text">${id}</span>
+        <div class="item-main">
+          <span class="item-id-text">${item.id}</span>
+          <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
+        </div>
         <div class="item-actions">
-          <button class="btn-item-action delete" data-id="${id}" title="제외 해제">
+          <button class="btn-item-action delete" data-id="${item.id}" data-index="${index}" title="제외 해제">
             ✕
           </button>
         </div>
@@ -443,7 +474,9 @@ function renderLists() {
   failedListElem.querySelectorAll(".btn-item-action.delete").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const id = e.currentTarget.getAttribute("data-id");
+      const idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
       state.failedSet.delete(id);
+      state.failedList.splice(idx, 1);
       saveStoredData();
       updateStats();
       renderLists();
@@ -455,10 +488,10 @@ function renderLists() {
 function updateStats() {
   document.getElementById("statTotalCount").textContent = state.totalCount;
   document.getElementById("statSuccessCount").textContent = state.successList.length;
-  document.getElementById("statFailedCount").textContent = state.failedSet.size;
+  document.getElementById("statFailedCount").textContent = state.failedList.length;
 
   document.getElementById("successCounter").textContent = state.successList.length;
-  document.getElementById("failedCounter").textContent = state.failedSet.size;
+  document.getElementById("failedCounter").textContent = state.failedList.length;
 }
 
 // ==========================================================================
@@ -563,9 +596,10 @@ function bindEvents() {
 
   // Clear Failed List
   document.getElementById("btnClearFailed").addEventListener("click", () => {
-    if (state.failedSet.size === 0) return;
+    if (state.failedList.length === 0) return;
     if (confirm("제외(실패) 목록을 전부 초기화하시겠습니까?")) {
       state.failedSet.clear();
+      state.failedList = [];
       saveStoredData();
       updateStats();
       renderLists();
