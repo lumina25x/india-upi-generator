@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인도 UPI ID 자동 생성기 - 실시간 성공/실패 피드백 시스템</title>
+  <meta name="description" content="유튜브 프리미엄 등 인도 결제 갱신을 위한 인도 가상 UPI ID 자동 생성기. 성공/실패 기록 및 실패 ID 자동 제외 기능 탑재.">
+  <meta property="og:title" content="인도 UPI ID 자동 생성기">
+  <meta property="og:description" content="유튜브 프리미엄 인도 우회 결제 갱신용 UPI ID 실시간 생성기. 실패 건 자동 필터링 및 성공 사례 공유.">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-badge">🇮🇳 India UPI ID Generator</div>
+      <h1 class="main-title">인도 UPI ID 스마트 생성기</h1>
+      <p class="subtitle">
+        인도 유튜브 프리미엄 우회 갱신 및 가상 결제수단 등록용 ID 생성기입니다.<br>
+        실패한 ID는 <strong>자동으로 영구 제외</strong>되며, 성공한 ID는 별도 기록되어 누적 관리됩니다.
+      </p>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-pill stat-total">
+          <span class="stat-label">총 생성 횟수</span>
+          <span class="stat-value" id="statTotalCount">0</span>
+        </div>
+        <div class="stat-pill stat-success">
+          <span class="stat-label">성공 누적</span>
+          <span class="stat-value" id="statSuccessCount">0</span>
+        </div>
+        <div class="stat-pill stat-failed">
+          <span class="stat-label">제외(실패) 등록</span>
+          <span class="stat-value" id="statFailedCount">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Generator Hero Card -->
+    <main class="generator-card">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <div class="generator-options">
+          <div class="option-group">
+            <label for="patternSelect">생성 모드 선택</label>
+            <select id="patternSelect" class="styled-select">
+              <option value="smart" selected>🔥 추천: 123/단순숫자 조합 (성공률 최고)</option>
+              <option value="name_only">이름 + 단순 숫자 (예: sneha123@paytm)</option>
+              <option value="name_surname">이름.성씨 조합 (예: rahul.verma@ybl)</option>
+              <option value="name_surname_num">이름.성 + 숫자 조합 (예: priya.patel45@oksbi)</option>
+              <option value="all_random">전체 패턴 무작위 셔플</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label for="handleSelect">결제 앱 / 은행 지정</label>
+            <select id="handleSelect" class="styled-select">
+              <option value="all" selected>전체 은행 랜덤 (PhonePe, Paytm, GPay, SBI)</option>
+              <option value="paytm">Paytm (@paytm, @ptsbi, @ptaxis)</option>
+              <option value="phonepe">PhonePe (@ybl, @ibl, @axl)</option>
+              <option value="gpay">Google Pay (@oksbi, @okicici, @okhdfcbank)</option>
+              <option value="sbi">SBI/기타 국영은행 (@sbi, @upi)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Generated ID Display Box -->
+        <div class="id-display-container">
+          <div class="id-display-wrapper">
+            <span class="id-text placeholder" id="currentUpiDisplay">버튼을 눌러 ID를 생성하세요</span>
+            <button class="btn-copy" id="btnCopy" title="클립보드 복사" disabled>
+              <svg class="copy-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copyBtnText">복사</span>
+            </button>
+          </div>
+
+          <div class="id-meta-info" id="idMetaInfo" style="display: none;">
+            <span class="meta-tag" id="metaAppTag">PhonePe</span>
+            <span class="meta-tag" id="metaNameTag">Priya</span>
+            <span class="meta-pattern" id="metaPatternText">이름 + 숫자 조합</span>
+          </div>
+        </div>
+
+        <!-- Feedback & Action Buttons -->
+        <div class="action-buttons-group">
+          <button class="btn-primary" id="btnGenerate">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            새로운 UPI ID 생성
+          </button>
+        </div>
+
+        <!-- Feedback Section (Only shown when ID is generated) -->
+        <div class="feedback-prompt" id="feedbackPrompt" style="display: none;">
+          <div class="feedback-label">방금 생성된 ID 등록 결과는 어떠셨나요?</div>
+          <div class="feedback-buttons">
+            <button class="btn-feedback btn-success" id="btnMarkSuccess">
+              <span class="btn-icon">👍</span>
+              성공했어요! (성공란 저장)
+            </button>
+            <button class="btn-feedback btn-fail" id="btnMarkFail">
+              <span class="btn-icon">👎</span>
+              실패했어요 (다음 생성서 제외)
+            </button>
+          </div>
+          <p class="feedback-hint">※ 실패 처리 시 이 ID는 영구 제외되어 다시는 생성되지 않습니다.</p>
+        </div>
+
+        <!-- Batch Generator Drawer Toggle -->
+        <div class="batch-bar">
+          <span>한 번에 여러 개 필요하신가요?</span>
+          <div class="batch-btn-group">
+            <button class="btn-batch" data-count="5">5개 생성</button>
+            <button class="btn-batch" data-count="10">10개 생성</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Batch Results Modal / Area (Hidden initially) -->
+    <section class="batch-results-card" id="batchSection" style="display: none;">
+      <div class="section-header">
+        <h3>⚡ 일괄 생성된 ID 목록</h3>
+        <button class="btn-subtle" id="btnCloseBatch">닫기</button>
+      </div>
+      <div class="batch-grid" id="batchList"></div>
+    </section>
+
+    <!-- Records Dashboard (Success vs Failed/Excluded) -->
+    <section class="records-grid">
+      <!-- Success Column -->
+      <div class="record-column success-column">
+        <div class="column-header">
+          <div class="title-with-icon">
+            <span class="icon-bubble success-bubble">✓</span>
+            <h2>성공 기록 (<span id="successCounter">0</span>)</h2>
+          </div>
+          <button class="btn-subtle" id="btnExportSuccess" title="텍스트로 내보내기">내보내기</button>
+        </div>
+        <p class="column-desc">실제 결제/갱신에 성공한 유효 ID 목록입니다.</p>
+        <div class="list-wrapper" id="successListContainer">
+          <div class="empty-state" id="emptySuccess">아직 등록된 성공 건이 없습니다.<br>성공 버튼을 눌러 기록해 보세요!</div>
+          <ul class="id-list" id="successList"></ul>
+        </div>
+      </div>
+
+      <!-- Failed / Excluded Column -->
+      <div class="record-column failed-column">
+        <div class="column-header">
+          <div class="title-with-icon">
+            <span class="icon-bubble failed-bubble">✕</span>
+            <h2>제외(실패) 목록 (<span id="failedCounter">0</span>)</h2>
+          </div>
+          <button class="btn-subtle danger" id="btnClearFailed" title="실패 목록 초기화">전체 삭제</button>
+        </div>
+        <p class="column-desc">중복이나 에러로 차단된 ID입니다. (자동 생성에서 제외됨)</p>
+        <div class="list-wrapper" id="failedListContainer">
+          <div class="empty-state" id="emptyFailed">등록된 실패 건이 없습니다.</div>
+          <ul class="id-list" id="failedList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guide / Tips Section -->
+    <section class="tips-section">
+      <h3>💡 인도 우회 갱신 꿀팁</h3>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-num">01</div>
+          <div class="tip-body">
+            <strong>123 등 단순 숫자 조합이 가장 잘 먹힙니다</strong>
+            <p>인도 인구 14억 중 흔한 이름과 단순 숫자(12, 123, 1234)는 실제 계좌가 존재할 확률이 가장 높아 결제망 통과율이 매우 높습니다.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">02</div>
+          <div class="tip-body">
+            <strong>영문 소문자만 사용하세요</strong>
+            <p>UPI 정식 규격(VPA) 상 대문자가 섞이면 유효하지 않은 주소(Invalid Address) 오류가 발생할 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">03</div>
+          <div class="tip-body">
+            <strong>실패 시 즉시 다른 번호로 재시도</strong>
+            <p>너무 많은 계정이 등록되었다는 에러가 뜨면 바로 '실패'를 누르고 새로 생성하여 3~5회 정도 시도하면 바로 뚫립니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Data stored locally in your browser (LocalStorage). Open Source on GitHub.</p>
+    </footer>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
