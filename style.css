@@ -45,6 +45,11 @@
   padding: 0;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   background-color: var(--bg-main);
   background-image: 
@@ -367,11 +372,14 @@ body {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 640px) {
   .generator-options {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
@@ -379,6 +387,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .option-group label {
@@ -390,15 +401,29 @@ body {
 }
 
 .styled-select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background-color: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 11px 36px 11px 14px;
   font-size: 0.9rem;
   outline: none;
   transition: var(--transition-normal);
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .styled-select:focus {
@@ -1150,13 +1175,17 @@ body {
 .footer-blog-banner {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
   background: rgba(99, 102, 241, 0.08);
   border: 1px solid rgba(99, 102, 241, 0.25);
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: var(--radius-full);
   margin-bottom: 6px;
   transition: var(--transition-normal);
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .footer-blog-banner:hover {
@@ -1167,25 +1196,37 @@ body {
 
 .blog-banner-icon {
   font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .blog-banner-label {
   font-weight: 600;
   color: #cbd5e1;
   font-size: 0.88rem;
+  white-space: nowrap;
 }
 
 .blog-link-btn {
   color: #38bdf8;
-  text-decoration: none;
   font-weight: 700;
   font-size: 0.88rem;
+  white-space: nowrap;
   transition: color 0.2s ease;
 }
 
-.blog-link-btn:hover {
+.footer-blog-banner:hover .blog-link-btn {
   color: #7dd3fc;
   text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .footer-blog-banner {
+    padding: 7px 12px;
+    gap: 6px;
+  }
+  .blog-banner-label, .blog-link-btn {
+    font-size: 0.8rem;
+  }
 }
 
 .footer-copy {
@@ -1246,4 +1287,18 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 20px 12px 48px;
+  }
+  .app-container {
+    gap: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .generator-card {
+    padding: 22px 16px;
+  }
 }
