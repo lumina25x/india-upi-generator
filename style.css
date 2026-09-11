@@ -1349,95 +1349,51 @@ body {
   white-space: nowrap;
 }
 
+.affiliate-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 12px 0;
+}
+
+.affiliate-feature-pill {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
 .affiliate-action-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.btn-promo-copy {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px dashed rgba(234, 179, 8, 0.5);
-  border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: var(--transition-normal);
-  font-family: inherit;
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.btn-promo-copy:hover {
-  background: rgba(234, 179, 8, 0.12);
-  border-color: #facc15;
-}
-
-.btn-promo-copy.copied {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
-  color: #34d399;
-}
-
-.promo-label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.promo-code {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.82rem;
-  color: #facc15;
-  letter-spacing: 0.05em;
-}
-
-.promo-copy-btn-text {
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 1px 6px;
-  border-radius: 3px;
-  color: #e2e8f0;
+  margin-top: 8px;
 }
 
 .btn-goingbus-direct {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  background: #4f46e5;
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   color: #fff;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 7px 12px;
+  padding: 10px 8px;
   border-radius: var(--radius-sm);
   text-decoration: none;
   transition: var(--transition-normal);
+  width: 100%;
+  box-sizing: border-box;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
 }
 
 .btn-goingbus-direct:hover {
-  background: #4338ca;
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
-}
-
-@media (max-width: 480px) {
-  .affiliate-action-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .btn-promo-copy,
-  .btn-goingbus-direct {
-    width: 100%;
-    justify-content: center;
-    box-sizing: border-box;
-  }
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
 }

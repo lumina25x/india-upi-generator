@@ -6,8 +6,7 @@
 // GoingBus Affiliate Configuration (Phase 1)
 // ==========================================================================
 const GOINGBUS_CONFIG = {
-  promoCode: "DISCOUNT10", // 10% 할인 프로모션 코드
-  affiliateUrl: "https://goingbus.com" // 제휴 레퍼럴 링크
+  affiliateUrl: "https://goingbus.com?s=1kO9X8Oz" // 사용자 고유 제휴 레퍼럴 링크
 };
 
 
@@ -549,6 +548,137 @@ function updateStats() {
 
   document.getElementById("successCounter").textContent = state.successList.length;
   document.getElementById("failedCounter").textContent = state.failedList.length;
+
+  // Real-time Big Data Statistics Computation
+  computeAndRenderSuccessStats();
+}
+
+function computeAndRenderSuccessStats() {
+  const list = state.successList || [];
+  const total = list.length;
+
+  const rankingElem = document.getElementById("bankRankingList");
+  const patternElem = document.getElementById("patternStatBody");
+  const testimonialElem = document.getElementById("testimonialsList");
+
+  if (!rankingElem || !patternElem || !testimonialElem) return;
+
+  if (total === 0) {
+    rankingElem.innerHTML = `<div class="stats-empty">통계 데이터 수집 중입니다...</div>`;
+    patternElem.innerHTML = `<div class="stats-empty">통계 데이터 수집 중입니다...</div>`;
+    testimonialElem.innerHTML = `<div class="stats-empty">등록된 후기가 없습니다.</div>`;
+    return;
+  }
+
+  // 1. Group by Bank Categories
+  const bankCounts = {
+    paytm: { label: "Paytm (@paytm, @ptyes)", count: 0, color: "#38bdf8" },
+    sbi: { label: "SBI / 국영 (@sbi, @oksbi, @upi)", count: 0, color: "#34d399" },
+    phonepe: { label: "PhonePe (@ybl, @ibl, @axl)", count: 0, color: "#a78bfa" },
+    others: { label: "기타 은행 (@icici, @kotak 등)", count: 0, color: "#fb923c" }
+  };
+
+  let numPatternCount = 0;
+  let nameOnlyCount = 0;
+  const validTestimonials = [];
+
+  list.forEach(item => {
+    if (!item || !item.id) return;
+    const fullId = item.id.toLowerCase();
+    const parts = fullId.split("@");
+    const user = parts[0] || "";
+    const h = "@" + (parts[1] || "");
+
+    // Bank classification
+    if (h.includes("paytm") || h.startsWith("@pt")) {
+      bankCounts.paytm.count++;
+    } else if (h === "@sbi" || h === "@oksbi" || h === "@upi") {
+      bankCounts.sbi.count++;
+    } else if (h === "@ybl" || h === "@ibl" || h === "@axl") {
+      bankCounts.phonepe.count++;
+    } else {
+      bankCounts.others.count++;
+    }
+
+    // Pattern classification (has numbers or not)
+    if (/\d/.test(user)) {
+      numPatternCount++;
+    } else {
+      nameOnlyCount++;
+    }
+
+    // Meaningful Testimonials
+    if (item.memo && !item.memo.includes("실제 결제/등록 성공 확인됨")) {
+      validTestimonials.push({
+        id: item.id,
+        memo: item.memo,
+        time: item.timestamp || ""
+      });
+    }
+  });
+
+  // Sort banks by count descending
+  const sortedBanks = Object.values(bankCounts).sort((a, b) => b.count - a.count);
+
+  // Render Bank Ranking
+  rankingElem.innerHTML = sortedBanks.map((b, idx) => {
+    const pct = total > 0 ? ((b.count / total) * 100).toFixed(1) : "0.0";
+    const rankBadge = idx === 0 ? "🥇 1위" : idx === 1 ? "🥈 2위" : idx === 2 ? "🥉 3위" : "4위";
+    return `
+      <div class="bank-rank-row">
+        <div class="bank-rank-info">
+          <div>
+            <span class="bank-rank-badge ${idx === 0 ? 'top-rank' : ''}">${rankBadge}</span>
+            <span class="bank-rank-name">${b.label}</span>
+          </div>
+          <span class="bank-rank-pct">${pct}% (${b.count}건)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${pct}%; background-color: ${b.color};"></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Render Pattern Stat
+  const numPct = total > 0 ? ((numPatternCount / total) * 100).toFixed(1) : "0.0";
+  const namePct = total > 0 ? ((nameOnlyCount / total) * 100).toFixed(1) : "0.0";
+
+  patternElem.innerHTML = `
+    <div class="pattern-compare-row highlight">
+      <div class="pattern-info">
+        <span class="pattern-label">🔥 이름 + 123/단순숫자 조합</span>
+        <span class="pattern-value">${numPct}% (${numPatternCount}건)</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill top-pattern" style="width: ${numPct}%;"></div>
+      </div>
+    </div>
+    <div class="pattern-compare-row">
+      <div class="pattern-info">
+        <span class="pattern-label">⚡ 이름.성씨 / 문자 조합</span>
+        <span class="pattern-value">${namePct}% (${nameOnlyCount}건)</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill sub-pattern" style="width: ${namePct}%;"></div>
+      </div>
+    </div>
+  `;
+
+  // Render Testimonials
+  if (validTestimonials.length > 0) {
+    testimonialElem.innerHTML = validTestimonials.map(t => `
+      <div class="testimonial-card">
+        <div class="testimonial-bubble">💬 "${escapeHtml(t.memo)}"</div>
+        <div class="testimonial-meta">
+          <span class="test-id">${escapeHtml(t.id)}</span>
+          <span class="test-time">${escapeHtml(t.time)}</span>
+        </div>
+      </div>
+    `).join("");
+  } else {
+    testimonialElem.innerHTML = `<div class="stats-empty">등록된 후기가 없습니다.</div>`;
+  }
 }
 
 // ==========================================================================
@@ -617,30 +747,7 @@ function showToast(message, type = "info") {
 // 9. Event Listeners
 // ==========================================================================
 function bindEvents() {
-  // GoingBus Affiliate Promo Code Copy (Phase 1)
-  const btnPromoCopy = document.getElementById("btnCopyGoingbusPromo");
-  if (btnPromoCopy) {
-    btnPromoCopy.addEventListener("click", () => {
-      const code = GOINGBUS_CONFIG.promoCode;
-      copyTextToClipboard(code);
-      
-      const copyStatus = document.getElementById("goingbusCopyStatus");
-      btnPromoCopy.classList.add("copied");
-      if (copyStatus) copyStatus.textContent = "복사됨!";
-      
-      showToast(`🎉 10% 할인코드 [${code}]가 복사되었습니다! 결제 시 입력하세요.`, "success");
-      
-      setTimeout(() => {
-        btnPromoCopy.classList.remove("copied");
-        if (copyStatus) copyStatus.textContent = "복사";
-      }, 2000);
-    });
-  }
-
-  // Set initial link & promo code
-  const promoTextElem = document.getElementById("goingbusPromoCodeText");
-  if (promoTextElem) promoTextElem.textContent = GOINGBUS_CONFIG.promoCode;
-
+  // Set GoingBus Affiliate Link
   const directLinkElem = document.getElementById("goingbusAffiliateLink");
   if (directLinkElem) directLinkElem.href = GOINGBUS_CONFIG.affiliateUrl;
 
