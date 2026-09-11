@@ -157,6 +157,53 @@
           </div>
         </div>
 
+        <!-- Block Alert & GoingBus Conversion Banner (Shown on 100 attempts limit) -->
+        <div class="block-alert-banner" id="blockAlertBanner" style="display: none;">
+          <div class="block-timer-badge">
+            <span class="timer-icon">⏳</span>
+            <span>생성 한도(100회) 도달 &bull; <strong><span id="blockTimerText">30분 00초</span></strong> 후 자동 해제</span>
+          </div>
+
+          <div class="block-content">
+            <div class="block-warning-box">
+              <div class="block-warning-header">
+                <span class="block-warning-icon">🛑</span>
+                <h4>누적 100회 시도 완료 (30분 일시 대기)</h4>
+              </div>
+              <p>
+                연속 100회 시도 동안 적합한 ID를 찾지 못하셨거나 결제창에서 거절되셨나요?<br>
+                반복적인 결제 시도는 구글 시스템에 의해 <strong>계정 일시 정지(잠금)</strong>로 이어질 수 있어 30분간 생성이 일시 중단됩니다.
+              </p>
+            </div>
+
+            <div class="goingbus-conversion-box">
+              <div class="conversion-header">
+                <span class="conversion-pill">💡 가장 빠르고 안전한 대안</span>
+                <h3>우회 막힘 & 정지 걱정 없는 <span class="highlight-brand">GoingBus</span></h3>
+              </div>
+              <p class="conversion-desc">
+                인도 우회 스트레스 없이, <strong>월 3,000원대</strong>로 안전하게 유튜브 프리미엄을 즉시 시청하세요! (자동 갱신 & 가족 계정 공유)
+              </p>
+              <div class="conversion-benefits">
+                <div class="benefit-item">⚡ 인도 우회 번거로움 ZERO (즉시 활성화)</div>
+                <div class="benefit-item">🛡️ 본인 구글 계정 안전 보호 (정지 위험 0%)</div>
+                <div class="benefit-item">💰 공식 구독료 대비 최대 80% 할인</div>
+              </div>
+              <div class="conversion-actions">
+                <a href="https://goingbus.com?s=1kO9X8Oz" target="_blank" rel="noopener noreferrer" class="btn-goingbus-convert" title="고잉버스 공식 사이트 새창 이동">
+                  <span>고잉버스 바로가기 (추가 할인 자동 적용)</span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+                <a href="https://review-gratin.tistory.com/" target="_blank" rel="noopener noreferrer" class="btn-blog-convert" title="우회 가이드 블로그 새창 이동">
+                  공식 블로그 우회 꿀팁 정독하기 ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Feedback & Action Buttons -->
         <div class="action-buttons-group">
           <button class="btn-primary" id="btnGenerate">
@@ -165,6 +212,9 @@
             </svg>
             새로운 UPI ID 생성
           </button>
+          <div class="generation-quota-info" id="generationQuotaInfo">
+            시도 횟수: <span id="quotaCountDisplay">0</span> / 100회 (100회 도달 시 30분 대기)
+          </div>
         </div>
 
         <!-- Feedback Section (Only shown when ID is generated) -->

@@ -1721,3 +1721,251 @@ body {
   padding: 20px 0;
 }
 
+/* ==========================================================================
+   Rate Limiting & GoingBus Conversion Banner (30-min Block & 10s Cooldown)
+   ========================================================================== */
+
+/* Cooldown Button States */
+.btn-primary.cooldown-active {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+  border-color: #64748b !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.btn-primary.quota-blocked {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  border-color: #475569 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.generation-quota-info {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 6px;
+  letter-spacing: -0.01em;
+  opacity: 0.85;
+}
+
+.generation-quota-info span {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* 30-min Block Alert Banner */
+.block-alert-banner {
+  background: linear-gradient(145deg, rgba(26, 20, 35, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 16px 0 20px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(245, 158, 11, 0.15);
+  animation: bannerSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.block-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+.block-timer-badge strong span {
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+}
+
+.block-warning-box {
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid #ef4444;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.block-warning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.block-warning-header h4 {
+  font-size: 0.9rem;
+  color: #fca5a5;
+  margin: 0;
+  font-weight: 700;
+}
+
+.block-warning-box p {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.block-warning-box strong {
+  color: #f87171;
+}
+
+/* GoingBus Conversion Box inside Banner */
+.goingbus-conversion-box {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(56, 189, 248, 0.1) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: left;
+}
+
+.conversion-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.conversion-pill {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.conversion-header h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.highlight-brand {
+  color: #38bdf8;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.conversion-desc {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  word-break: keep-all;
+}
+
+.conversion-desc strong {
+  color: #facc15;
+}
+
+.conversion-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.benefit-item {
+  font-size: 0.74rem;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.conversion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-goingbus-convert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #2563eb 100%);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-goingbus-convert:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #3b82f6 100%);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+.btn-blog-convert {
+  display: inline-block;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px;
+  transition: color 0.2s ease;
+}
+
+.btn-blog-convert:hover {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .block-alert-banner {
+    padding: 14px;
+  }
+  .conversion-benefits {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .btn-goingbus-convert {
+    font-size: 0.84rem;
+    padding: 10px 14px;
+  }
+}
+
+
