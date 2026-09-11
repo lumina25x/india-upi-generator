@@ -84,11 +84,37 @@ let state = {
 };
 
 // ==========================================================================
+// Rate Limiting & Abuse Prevention Configuration
+// ==========================================================================
+const RATE_LIMIT_CONFIG = {
+  BURST_WINDOW_MS: 5000,          // 5초
+  BURST_MAX_CLICKS: 5,             // 5초 내 5회 이상 클릭 시
+  BURST_COOLDOWN_SEC: 10,          // 10초 쿨다운
+  
+  MAX_QUOTA_COUNT: 100,            // 누적 100회
+  BLOCK_DURATION_MS: 30 * 60 * 1000 // 30분 차단 (1,800,000ms)
+};
+
+const RATE_STORAGE_KEYS = {
+  QUOTA_COUNT: "upi_quota_count_v1",
+  BLOCK_UNTIL: "upi_block_until_v1"
+};
+
+let rateState = {
+  quotaCount: 0,
+  blockUntil: 0,
+  recentClicks: [], // click timestamps within 5 seconds
+  burstInterval: null,
+  blockInterval: null
+};
+
+// ==========================================================================
 // 3. Initialization
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   loadStoredData();
   bindEvents();
+  initRateLimiting();
   updateStats();
   renderLists();
   fetchGlobalSheetData();
@@ -314,9 +340,174 @@ function generateUniqueUpiId() {
 }
 
 // ==========================================================================
-// 5. UI Update & Actions
+// 5. Rate Limiting Management (30-min Block & 10s Cooldown)
+// ==========================================================================
+function initRateLimiting() {
+  try {
+    const storedQuota = localStorage.getItem(RATE_STORAGE_KEYS.QUOTA_COUNT);
+    if (storedQuota) {
+      rateState.quotaCount = parseInt(storedQuota, 10) || 0;
+    }
+
+    const storedBlock = localStorage.getItem(RATE_STORAGE_KEYS.BLOCK_UNTIL);
+    if (storedBlock) {
+      rateState.blockUntil = parseInt(storedBlock, 10) || 0;
+    }
+  } catch (e) {
+    console.error("Rate limit storage load error:", e);
+  }
+
+  updateQuotaDisplay();
+
+  const now = Date.now();
+  if (rateState.blockUntil > now) {
+    activateBlockState();
+  } else if (rateState.blockUntil > 0 && rateState.blockUntil <= now) {
+    unblockState();
+  }
+}
+
+function updateQuotaDisplay() {
+  const quotaElem = document.getElementById("quotaCountDisplay");
+  if (quotaElem) {
+    quotaElem.textContent = Math.min(rateState.quotaCount, RATE_LIMIT_CONFIG.MAX_QUOTA_COUNT);
+  }
+}
+
+function activateBlockState() {
+  const banner = document.getElementById("blockAlertBanner");
+  const btn = document.getElementById("btnGenerate");
+  if (banner) banner.style.display = "block";
+
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add("quota-blocked");
+    btn.innerHTML = `<span style="margin-right:6px;">🔒</span> 30분 대기 중 (100회 한도 도달)`;
+  }
+
+  if (rateState.blockInterval) {
+    clearInterval(rateState.blockInterval);
+  }
+
+  function tickBlockTimer() {
+    const remaining = rateState.blockUntil - Date.now();
+    if (remaining <= 0) {
+      unblockState();
+      showToast("🎉 30분이 경과하여 생성 제한이 해제되었습니다.", "success");
+      return;
+    }
+
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    const timerElem = document.getElementById("blockTimerText");
+    if (timerElem) {
+      timerElem.textContent = `${mins}분 ${secs.toString().padStart(2, '0')}초`;
+    }
+  }
+
+  tickBlockTimer();
+  rateState.blockInterval = setInterval(tickBlockTimer, 1000);
+}
+
+function unblockState() {
+  if (rateState.blockInterval) {
+    clearInterval(rateState.blockInterval);
+    rateState.blockInterval = null;
+  }
+
+  rateState.blockUntil = 0;
+  rateState.quotaCount = 0;
+  try {
+    localStorage.removeItem(RATE_STORAGE_KEYS.BLOCK_UNTIL);
+    localStorage.setItem(RATE_STORAGE_KEYS.QUOTA_COUNT, "0");
+  } catch (e) {}
+
+  updateQuotaDisplay();
+
+  const banner = document.getElementById("blockAlertBanner");
+  if (banner) banner.style.display = "none";
+
+  const btn = document.getElementById("btnGenerate");
+  if (btn) {
+    btn.disabled = false;
+    btn.classList.remove("quota-blocked");
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+      </svg>
+      새로운 UPI ID 생성
+    `;
+  }
+}
+
+function triggerBurstCooldown() {
+  const btn = document.getElementById("btnGenerate");
+  if (!btn || btn.classList.contains("quota-blocked")) return;
+
+  btn.disabled = true;
+  btn.classList.add("cooldown-active");
+
+  let remainingSec = RATE_LIMIT_CONFIG.BURST_COOLDOWN_SEC;
+
+  function updateBtnCooldownText() {
+    btn.innerHTML = `<span style="margin-right:6px;">⏳</span> 과도한 연속 클릭 (${remainingSec}초 대기 중...)`;
+  }
+
+  updateBtnCooldownText();
+  showToast("⚠️ 5초 동안 5회 이상 연속 클릭이 감지되었습니다. 10초간 잠시 대기해 주세요.", "fail");
+
+  if (rateState.burstInterval) {
+    clearInterval(rateState.burstInterval);
+  }
+
+  rateState.burstInterval = setInterval(() => {
+    remainingSec--;
+    if (remainingSec <= 0) {
+      clearInterval(rateState.burstInterval);
+      rateState.burstInterval = null;
+      rateState.recentClicks = [];
+
+      // If user became quota-blocked in the meantime, don't restore
+      if (rateState.blockUntil > Date.now()) return;
+
+      btn.disabled = false;
+      btn.classList.remove("cooldown-active");
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
+        새로운 UPI ID 생성
+      `;
+      showToast("대기 시간이 종료되었습니다. 다시 생성하실 수 있습니다.", "info");
+    } else {
+      updateBtnCooldownText();
+    }
+  }, 1000);
+}
+
+// ==========================================================================
+// 6. UI Update & Actions
 // ==========================================================================
 function handleGenerateClick() {
+  const now = Date.now();
+
+  // 1. Check 30-min Block
+  if (rateState.blockUntil > now) {
+    showToast("🛑 생성 한도(100회)에 도달하여 30분간 대기 중입니다.", "fail");
+    return;
+  }
+
+  // 2. Check 10-s Burst Cooldown
+  const btn = document.getElementById("btnGenerate");
+  if (btn && btn.classList.contains("cooldown-active")) {
+    return;
+  }
+
+  // 3. Track Burst Clicks (within 5 seconds)
+  rateState.recentClicks = rateState.recentClicks.filter(t => now - t < RATE_LIMIT_CONFIG.BURST_WINDOW_MS);
+  rateState.recentClicks.push(now);
+  const isBurstTriggered = rateState.recentClicks.length >= RATE_LIMIT_CONFIG.BURST_MAX_CLICKS;
+
   const candidate = generateUniqueUpiId();
   if (!candidate) {
     showToast("사용 가능한 조합을 생성하지 못했습니다. 설정을 변경해 보세요.", "fail");
@@ -355,6 +546,29 @@ function handleGenerateClick() {
   wrapper.classList.add("highlighted");
 
   updateStats();
+
+  // 4. Increment Quota Counter
+  rateState.quotaCount++;
+  try {
+    localStorage.setItem(RATE_STORAGE_KEYS.QUOTA_COUNT, rateState.quotaCount.toString());
+  } catch (e) {}
+  updateQuotaDisplay();
+
+  // 5. Check if 100-attempt Quota reached
+  if (rateState.quotaCount >= RATE_LIMIT_CONFIG.MAX_QUOTA_COUNT) {
+    rateState.blockUntil = Date.now() + RATE_LIMIT_CONFIG.BLOCK_DURATION_MS;
+    try {
+      localStorage.setItem(RATE_STORAGE_KEYS.BLOCK_UNTIL, rateState.blockUntil.toString());
+    } catch (e) {}
+    activateBlockState();
+    showToast("🛑 누적 100회 시도 완료: 30분간 생성이 일시 중단됩니다.", "fail");
+    return;
+  }
+
+  // 6. Trigger Burst Cooldown if 5 clicks in 5 seconds
+  if (isBurstTriggered) {
+    triggerBurstCooldown();
+  }
 }
 
 function handleCopyClick() {
