@@ -31,10 +31,6 @@
 
       <!-- Stats Bar -->
       <div class="stats-bar" id="statsBar">
-        <div class="stat-pill stat-total">
-          <span class="stat-label">총 생성 횟수</span>
-          <span class="stat-value" id="statTotalCount">0</span>
-        </div>
         <div class="stat-pill stat-success">
           <span class="stat-label">성공 누적</span>
           <span class="stat-value" id="statSuccessCount">0</span>
@@ -195,6 +191,66 @@
       </div>
     </main>
 
+    <!-- Real-time Big Data Success Patterns Statistics Dashboard -->
+    <section class="live-stats-section">
+      <div class="stats-section-header">
+        <div class="stats-header-title-row">
+          <div class="live-indicator-badge">
+            <span class="pulse-dot"></span>
+            <span>LIVE 실시간 연동 분석</span>
+          </div>
+          <h2 class="stats-main-title">📊 실시간 빅데이터 성공 패턴 분석</h2>
+        </div>
+        <p class="stats-header-desc">
+          실시간 누적된 실제 결제 성공 데이터를 자동 분석한 통계입니다. 결제 앱 및 모드 선택에 참고하세요!
+        </p>
+      </div>
+
+      <div class="live-stats-grid">
+        <!-- Card 1: Bank Handles Success Ranking -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">🏆</span>
+            <div>
+              <h3>결제망 / 은행별 성공 랭킹</h3>
+              <p class="stat-card-sub">어떤 핸들이 가장 잘 뚫릴까요?</p>
+            </div>
+          </div>
+          <div class="bank-ranking-list" id="bankRankingList">
+            <div class="stats-empty">통계 데이터를 불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Pattern Distribution -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">💡</span>
+            <div>
+              <h3>검증된 성공 조합 패턴</h3>
+              <p class="stat-card-sub">성공자들의 선택 유형 (4대 패턴)</p>
+            </div>
+          </div>
+          <div class="pattern-stat-body" id="patternStatBody">
+            <div class="stats-empty">통계 데이터를 불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Real User Testimonials Feed -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">💬</span>
+            <div>
+              <h3>실시간 생생 후기 & 팁</h3>
+              <p class="stat-card-sub">실제 사용자 직접 작성 후기</p>
+            </div>
+          </div>
+          <div class="testimonials-scroll-box" id="testimonialsList">
+            <div class="stats-empty">등록된 후기를 불러오는 중...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Records Dashboard (Success vs Failed/Excluded) -->
     <section class="records-grid">
       <!-- Success Column -->
@@ -343,7 +399,7 @@
         <span class="blog-banner-label">공식 블로그:</span>
         <span class="blog-link-btn">review-gratin.tistory.com ↗</span>
       </a>
-      <p class="footer-copy">Data stored locally in your browser & Google Sheets. Open Source on GitHub.</p>
+      <p class="footer-copy">Real-time Verified India UPI Database. Open Source on GitHub.</p>
     </footer>
   </div>
 

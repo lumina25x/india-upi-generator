@@ -136,7 +136,7 @@ async function fetchGlobalSheetData() {
       saveStoredData();
       updateStats();
       renderLists();
-      showToast("☁️ 구글 시트와 실시간 동기화되었습니다.", "info");
+      showToast("⚡ 실시간 최신 데이터가 동기화되었습니다.", "info");
     }
   } catch (err) {
     console.log("Google Sheets sync note:", err);
@@ -542,7 +542,9 @@ function renderLists() {
 }
 
 function updateStats() {
-  document.getElementById("statTotalCount").textContent = state.totalCount;
+  const totalElem = document.getElementById("statTotalCount");
+  if (totalElem) totalElem.textContent = state.totalCount;
+
   document.getElementById("statSuccessCount").textContent = state.successList.length;
   document.getElementById("statFailedCount").textContent = state.failedList.length;
 
@@ -578,9 +580,27 @@ function computeAndRenderSuccessStats() {
     others: { label: "기타 은행 (@icici, @kotak 등)", count: 0, color: "#fb923c" }
   };
 
-  let numPatternCount = 0;
-  let nameOnlyCount = 0;
-  const validTestimonials = [];
+  // 2. Group by 4 Detailed Structural Patterns
+  const patternCounts = {
+    name_num: { label: "이름 + 123/단순숫자", count: 0, color: "#10b981", desc: "예: sneha123" },
+    name_dot_surname: { label: "이름.성씨 점(.) 구분", count: 0, color: "#38bdf8", desc: "예: amit.rao" },
+    name_concat: { label: "이름+성씨 붙여쓰기", count: 0, color: "#a78bfa", desc: "예: ritujoshi" },
+    name_dot_num: { label: "이름.성+숫자 복합", count: 0, color: "#fb923c", desc: "예: priya.patel45" }
+  };
+
+  // Preset chip & default text set to strictly filter out
+  const PRESET_CHIP_TEXTS = new Set([
+    "나마스테 🙏 덕분에 성공했습니다!",
+    "바로 갱신 성공했습니다! 👍",
+    "123 숫자 붙여서 바로 뚫렸어요! 🔥",
+    "유튜브 앱 동기화까지 완료했습니다 📱",
+    "감사합니다! 덕분에 살았습니다 🙏",
+    "실제 결제/등록 성공 확인됨 👍",
+    "실제 결제/등록 성공 확인됨",
+    "성공 확인 완료 👍"
+  ]);
+
+  const purelyTypedReviews = [];
 
   list.forEach(item => {
     if (!item || !item.id) return;
@@ -600,18 +620,27 @@ function computeAndRenderSuccessStats() {
       bankCounts.others.count++;
     }
 
-    // Pattern classification (has numbers or not)
-    if (/\d/.test(user)) {
-      numPatternCount++;
+    // 4-Type Detailed Pattern Classification
+    if (user.includes(".")) {
+      if (/\d/.test(user)) {
+        patternCounts.name_dot_num.count++;
+      } else {
+        patternCounts.name_dot_surname.count++;
+      }
+    } else if (/\d/.test(user)) {
+      patternCounts.name_num.count++;
     } else {
-      nameOnlyCount++;
+      patternCounts.name_concat.count++;
     }
 
-    // Meaningful Testimonials
-    if (item.memo && !item.memo.includes("실제 결제/등록 성공 확인됨")) {
-      validTestimonials.push({
+    // Purely user-typed custom reviews filter
+    const memo = (item.memo || "").trim();
+    const isPreset = PRESET_CHIP_TEXTS.has(memo);
+    const isTestId = fullId.includes("test_") || memo.includes("테스트 성공");
+    if (memo && !isPreset && !isTestId) {
+      purelyTypedReviews.push({
         id: item.id,
-        memo: item.memo,
+        memo: memo,
         time: item.timestamp || ""
       });
     }
@@ -640,44 +669,45 @@ function computeAndRenderSuccessStats() {
     `;
   }).join("");
 
-  // Render Pattern Stat
-  const numPct = total > 0 ? ((numPatternCount / total) * 100).toFixed(1) : "0.0";
-  const namePct = total > 0 ? ((nameOnlyCount / total) * 100).toFixed(1) : "0.0";
+  // Sort patterns by count descending
+  const sortedPatterns = Object.values(patternCounts).sort((a, b) => b.count - a.count);
 
-  patternElem.innerHTML = `
-    <div class="pattern-compare-row highlight">
-      <div class="pattern-info">
-        <span class="pattern-label">🔥 이름 + 123/단순숫자 조합</span>
-        <span class="pattern-value">${numPct}% (${numPatternCount}건)</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill top-pattern" style="width: ${numPct}%;"></div>
-      </div>
-    </div>
-    <div class="pattern-compare-row">
-      <div class="pattern-info">
-        <span class="pattern-label">⚡ 이름.성씨 / 문자 조합</span>
-        <span class="pattern-value">${namePct}% (${nameOnlyCount}건)</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill sub-pattern" style="width: ${namePct}%;"></div>
-      </div>
-    </div>
-  `;
-
-  // Render Testimonials
-  if (validTestimonials.length > 0) {
-    testimonialElem.innerHTML = validTestimonials.map(t => `
-      <div class="testimonial-card">
-        <div class="testimonial-bubble">💬 "${escapeHtml(t.memo)}"</div>
-        <div class="testimonial-meta">
-          <span class="test-id">${escapeHtml(t.id)}</span>
-          <span class="test-time">${escapeHtml(t.time)}</span>
+  // Render 4-Type Detailed Pattern Stat
+  patternElem.innerHTML = sortedPatterns.map((p, idx) => {
+    const pct = total > 0 ? ((p.count / total) * 100).toFixed(1) : "0.0";
+    const rankBadge = idx === 0 ? "🥇 1위" : idx === 1 ? "🥈 2위" : idx === 2 ? "🥉 3위" : "4위";
+    return `
+      <div class="pattern-compare-row">
+        <div class="pattern-info">
+          <div>
+            <span class="bank-rank-badge ${idx === 0 ? 'top-rank' : ''}">${rankBadge}</span>
+            <span class="pattern-label">${p.label}</span>
+          </div>
+          <span class="pattern-value">${pct}% (${p.count}건)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${pct}%; background-color: ${p.color};"></div>
         </div>
       </div>
-    `).join("");
+    `;
+  }).join("");
+
+  // Render Purely Typed User Testimonials
+  if (purelyTypedReviews.length > 0) {
+    testimonialElem.innerHTML = purelyTypedReviews.map(t => {
+      const dateOnly = (t.time || "").split(" ")[0] || "";
+      return `
+        <div class="testimonial-card">
+          <div class="testimonial-bubble">💬 "${escapeHtml(t.memo)}"</div>
+          <div class="testimonial-meta">
+            <span class="test-id">${escapeHtml(t.id)}</span>
+            <span class="test-time">${escapeHtml(dateOnly)}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
   } else {
-    testimonialElem.innerHTML = `<div class="stats-empty">등록된 후기가 없습니다.</div>`;
+    testimonialElem.innerHTML = `<div class="stats-empty">직접 작성된 후기가 아직 없습니다.</div>`;
   }
 }
 
