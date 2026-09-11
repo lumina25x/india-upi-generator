@@ -1234,6 +1234,21 @@ body {
   color: var(--text-muted);
 }
 
+.footer-disclaimer {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  max-width: 680px;
+  line-height: 1.5;
+  margin: 6px 0 2px;
+  opacity: 0.8;
+  word-break: keep-all;
+  padding: 0 12px;
+}
+
+.footer-disclaimer strong {
+  color: #cbd5e1;
+}
+
 /* ==========================================================================
    Toast Notification
    ========================================================================== */
