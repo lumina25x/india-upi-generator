@@ -3,6 +3,16 @@
  */
 
 // ==========================================================================
+// GoingBus Affiliate Configuration (Phase 1)
+// ==========================================================================
+const GOINGBUS_CONFIG = {
+  promoCode: "DISCOUNT10", // 10% 할인 프로모션 코드
+  affiliateUrl: "https://goingbus.com" // 제휴 레퍼럴 링크
+};
+
+
+
+// ==========================================================================
 // 1. 대규모 인도 성인 이름 & 대표 성씨 & 공식 핸들 DB
 // ==========================================================================
 const INDIAN_FIRST_NAMES = [
@@ -607,6 +617,33 @@ function showToast(message, type = "info") {
 // 9. Event Listeners
 // ==========================================================================
 function bindEvents() {
+  // GoingBus Affiliate Promo Code Copy (Phase 1)
+  const btnPromoCopy = document.getElementById("btnCopyGoingbusPromo");
+  if (btnPromoCopy) {
+    btnPromoCopy.addEventListener("click", () => {
+      const code = GOINGBUS_CONFIG.promoCode;
+      copyTextToClipboard(code);
+      
+      const copyStatus = document.getElementById("goingbusCopyStatus");
+      btnPromoCopy.classList.add("copied");
+      if (copyStatus) copyStatus.textContent = "복사됨!";
+      
+      showToast(`🎉 10% 할인코드 [${code}]가 복사되었습니다! 결제 시 입력하세요.`, "success");
+      
+      setTimeout(() => {
+        btnPromoCopy.classList.remove("copied");
+        if (copyStatus) copyStatus.textContent = "복사";
+      }, 2000);
+    });
+  }
+
+  // Set initial link & promo code
+  const promoTextElem = document.getElementById("goingbusPromoCodeText");
+  if (promoTextElem) promoTextElem.textContent = GOINGBUS_CONFIG.promoCode;
+
+  const directLinkElem = document.getElementById("goingbusAffiliateLink");
+  if (directLinkElem) directLinkElem.href = GOINGBUS_CONFIG.affiliateUrl;
+
   document.getElementById("btnGenerate").addEventListener("click", handleGenerateClick);
   document.getElementById("btnCopy").addEventListener("click", handleCopyClick);
   document.getElementById("btnMarkSuccess").addEventListener("click", handleSuccessClick);

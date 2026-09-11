@@ -1302,3 +1302,142 @@ body {
     padding: 22px 16px;
   }
 }
+
+/* ==========================================================================
+   Affiliate Tip Card Styling (Phase 1: GoingBus)
+   ========================================================================== */
+.tip-affiliate-card {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.06) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.tip-affiliate-card:hover {
+  border-color: rgba(234, 179, 8, 0.6);
+  box-shadow: 0 4px 20px rgba(234, 179, 8, 0.12);
+  transform: translateY(-2px);
+}
+
+.tip-affiliate-card .tip-num {
+  color: #eab308;
+}
+
+.tip-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.tip-title-row strong {
+  margin-bottom: 0;
+  color: #fff;
+}
+
+.affiliate-price-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  white-space: nowrap;
+}
+
+.affiliate-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-promo-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px dashed rgba(234, 179, 8, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  font-family: inherit;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.btn-promo-copy:hover {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: #facc15;
+}
+
+.btn-promo-copy.copied {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.promo-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.promo-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #facc15;
+  letter-spacing: 0.05em;
+}
+
+.promo-copy-btn-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #e2e8f0;
+}
+
+.btn-goingbus-direct {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: var(--transition-normal);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-goingbus-direct:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+}
+
+@media (max-width: 480px) {
+  .affiliate-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-promo-copy,
+  .btn-goingbus-direct {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
