@@ -117,9 +117,10 @@
           <div class="option-group">
             <label for="patternSelect">생성 모드 선택</label>
             <select id="patternSelect" class="styled-select">
-              <option value="smart" selected>🔥 추천: 빅데이터 최적화 모드 (성공 비중 83% 집중)</option>
-              <option value="name_only">이름 + 골든 숫자 (12, 1234, 99 등)</option>
+              <option value="smart" selected>🔥 추천: 123/단순숫자 조합 (성공률 최고)</option>
+              <option value="name_only">이름 + 단순 숫자 (예: sneha123@paytm)</option>
               <option value="name_surname">이름.성씨 조합 (예: rahul.verma@ybl)</option>
+              <option value="name_surname_num">이름.성 + 숫자 조합 (예: priya.patel45@oksbi)</option>
               <option value="all_random">전체 패턴 무작위 셔플</option>
             </select>
           </div>
@@ -127,11 +128,11 @@
           <div class="option-group">
             <label for="handleSelect">결제 앱 / 은행 지정</label>
             <select id="handleSelect" class="styled-select">
-              <option value="all" selected>🔥 추천: 빅데이터 1위 핸들 자동 배정 (@ybl, @kotak 우선)</option>
-              <option value="phonepe">PhonePe (@ybl, @ibl) - 성공률 27.4% 1위</option>
-              <option value="sbi">SBI / 공공 UPI (@sbi, @upi) - 성공률 22.8% 2위</option>
-              <option value="paytm">Paytm (@ptyes, @paytm, @ptaxis)</option>
-              <option value="gpay">Google Pay (@oksbi, @okhdfcbank)</option>
+              <option value="all" selected>전체 은행 랜덤 (PhonePe, Paytm, GPay, SBI)</option>
+              <option value="paytm">Paytm (@paytm, @ptsbi, @ptaxis)</option>
+              <option value="phonepe">PhonePe (@ybl, @ibl, @axl)</option>
+              <option value="gpay">Google Pay (@oksbi, @okicici, @okhdfcbank)</option>
+              <option value="sbi">SBI/기타 국영은행 (@sbi, @upi)</option>
             </select>
           </div>
         </div>
