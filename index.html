@@ -431,36 +431,33 @@
             <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다! 감사합니다." maxlength="35">
           </div>
 
-          <!-- Alternative 1: 0-KRW Coffee Sponsorship Card for Coupang -->
+          <!-- Alternative 1: 0-KRW Coffee Sponsorship Banner for Coupang -->
           <div class="modal-coffee-sponsor-card">
             <div class="coffee-sponsor-header">
               <span class="coffee-badge">☕ 0원 따뜻한 후원</span>
-              <span class="coffee-title">연 18만 원 절약 성공! 제작자에게 0원 커피 선물하기</span>
+              <span class="coffee-title">연 18만 원 절약 성공! 0원 커피 선물에 동참해 주세요</span>
             </div>
             <p class="coffee-desc">
-              유튜브 프리미엄 갱신 성공을 진심으로 축하드립니다! 🎉<br>
-              본 도구로 구독료를 절약하셨다면, <strong>쿠팡 1초 방문(추가 비용 0원)</strong>으로 제작자에게 따뜻한 캔커피 한 잔을 후원해 주세요. 무료 서버 유지에 큰 힘이 됩니다! 🙏
+              유튜브 프리미엄 우회 갱신 성공을 축하드립니다! 🎉<br>
+              아래 버튼을 누르시면 <strong>성공 사례가 즉시 등록</strong>되며, <strong>쿠팡 1초 방문(추가 비용 0원)</strong>으로 제작자에게 따뜻한 캔커피 한 잔이 함께 선물됩니다. 무료 서버 유지에 큰 힘이 됩니다! 🙏
             </p>
-            <div class="coffee-action-row">
-              <a href="https://link.coupang.com/a/g03lOjRufc" target="_blank" rel="noopener noreferrer" class="btn-coffee-sponsor" id="btnCoffeeSponsor">
-                <span class="coffee-btn-icon">☕</span>
-                <span>0원으로 캔커피 하나 후원하기 (쿠팡 1초 방문)</span>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"></path>
-                </svg>
-              </a>
-            </div>
             <p class="coupang-ftc-notice-mini">※ 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
-          <button type="button" class="btn-confirm-success" id="btnSubmitSuccess">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"></polyline>
+        <div class="modal-footer success-modal-actions-footer">
+          <div class="success-actions-left">
+            <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
+            <button type="button" class="btn-subtle btn-skip-coupang" id="btnSubmitSuccessOnly" title="쿠팡 방문 없이 성공 사례만 등록합니다">
+              방문 없이 등록만 하기
+            </button>
+          </div>
+          <button type="button" class="btn-confirm-success-coupang" id="btnSubmitSuccessWithCoupang">
+            <span class="coffee-btn-icon">☕</span>
+            <span class="btn-main-text">성공 등록 완료 & 0원 커피 후원 (쿠팡 접속)</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"></path>
             </svg>
-            실제 성공 사례로 등록 완료
           </button>
         </div>
       </div>

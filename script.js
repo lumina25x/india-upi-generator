@@ -754,7 +754,16 @@ function closeSuccessModal() {
   document.getElementById("successModal").style.display = "none";
 }
 
-function submitSuccessVerification() {
+function submitSuccessWithCoupang() {
+  if (!state.currentId) return;
+  // 1. Submit success verification
+  submitSuccessVerification(true);
+
+  // 2. Open Coupang in new tab
+  window.open(COUPANG_CONFIG.affiliateUrl, "_blank", "noopener,noreferrer");
+}
+
+function submitSuccessVerification(isWithCoupang = false) {
   if (!state.currentId) return;
 
   const memoInput = document.getElementById("successMemoInput");
@@ -787,7 +796,12 @@ function submitSuccessVerification() {
   });
 
   closeSuccessModal();
-  showToast(`🎉 실제 성공 사례로 인증 등록되었습니다! (${state.currentId})`, "success");
+
+  if (isWithCoupang) {
+    showToast(`🎉 성공 사례 등록 완료! 소중한 0원 커피 후원에 감사드립니다 ☕`, "success");
+  } else {
+    showToast(`🎉 실제 성공 사례로 인증 등록되었습니다! (${state.currentId})`, "success");
+  }
 
   // Hide feedback prompt
   document.getElementById("feedbackPrompt").style.display = "none";
@@ -1163,7 +1177,21 @@ function bindEvents() {
   // Modal Event Listeners
   document.getElementById("btnCloseSuccessModal").addEventListener("click", closeSuccessModal);
   document.getElementById("btnCancelSuccessModal").addEventListener("click", closeSuccessModal);
-  document.getElementById("btnSubmitSuccess").addEventListener("click", submitSuccessVerification);
+
+  const btnSubmitWithCoupang = document.getElementById("btnSubmitSuccessWithCoupang");
+  if (btnSubmitWithCoupang) {
+    btnSubmitWithCoupang.addEventListener("click", submitSuccessWithCoupang);
+  }
+
+  const btnSubmitOnly = document.getElementById("btnSubmitSuccessOnly");
+  if (btnSubmitOnly) {
+    btnSubmitOnly.addEventListener("click", () => submitSuccessVerification(false));
+  }
+
+  const btnSubmitOld = document.getElementById("btnSubmitSuccess");
+  if (btnSubmitOld) {
+    btnSubmitOld.addEventListener("click", submitSuccessWithCoupang);
+  }
 
   // Close modal when clicking dark overlay outside modal card
   document.getElementById("successModal").addEventListener("click", (e) => {
@@ -1187,12 +1215,12 @@ function bindEvents() {
     });
   });
 
-  // Enter key in memo input submits verification
+  // Enter key in memo input submits verification with Coupang support
   if (memoInput) {
     memoInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        submitSuccessVerification();
+        submitSuccessWithCoupang();
       }
     });
   }
