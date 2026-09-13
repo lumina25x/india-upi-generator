@@ -1968,4 +1968,294 @@ body {
   }
 }
 
+/* ==========================================================================
+   Daily Quota Info & Badges
+   ========================================================================== */
+.generation-quota-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.quota-divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
+.quota-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.quota-badge.daily-badge {
+  color: #fdba74;
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.25);
+  font-weight: 500;
+}
+
+.quota-badge.daily-badge strong {
+  color: #f97316;
+  font-weight: 700;
+}
+
+.quota-badge.daily-badge.unlocked {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  font-weight: 700;
+}
+
+.quota-badge.abuse-badge {
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Coupang Partners 10-Attempt Unlock Modal
+   ========================================================================== */
+.modal-coupang-card-container {
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.85), 0 0 25px rgba(249, 115, 22, 0.15) !important;
+  max-width: 520px;
+}
+
+.coupang-modal-header {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.15) 0%, rgba(225, 29, 72, 0.12) 100%) !important;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.2) !important;
+}
+
+.coupang-modal-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fb923c;
+  background: rgba(249, 115, 22, 0.18);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.coupang-guide-banner {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.coupang-guide-banner .guide-lead {
+  font-size: 0.86rem;
+  color: #f1f5f9;
+  margin: 0 0 6px 0;
+  line-height: 1.45;
+}
+
+.coupang-guide-banner .guide-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.coupang-guide-banner strong {
+  color: #fdba74;
+}
+
+.coupang-perks-box {
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.perks-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #fdba74;
+  margin: 0 0 10px 0;
+}
+
+.perks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.perk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.perk-icon {
+  font-size: 1.05rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.perk-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.perk-text strong {
+  font-size: 0.82rem;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.perk-text span {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.coupang-action-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-coupang-unlock {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+  border: 1px solid rgba(251, 146, 60, 0.5);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-coupang-unlock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(234, 88, 12, 0.6);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%);
+}
+
+.btn-coupang-unlock:active {
+  transform: translateY(0);
+}
+
+.btn-coupang-icon {
+  font-size: 1.2rem;
+}
+
+.btn-coupang-label {
+  letter-spacing: -0.01em;
+}
+
+.coupang-ftc-notice {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 4px 0 0 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.coupang-modal-footer {
+  justify-content: center !important;
+  padding: 14px 24px !important;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Success Modal Coupang Recommendation Card
+   ========================================================================== */
+.modal-coupang-reward {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.reward-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reward-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.reward-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.reward-desc {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.btn-coupang-reward-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(249, 115, 22, 0.18);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #fdba74;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.btn-coupang-reward-link:hover {
+  background: rgba(249, 115, 22, 0.35);
+  color: #fff;
+  border-color: rgba(249, 115, 22, 0.6);
+  transform: translateY(-1px);
+}
+
+.coupang-ftc-notice-mini {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  opacity: 0.85;
+}
+
+
 

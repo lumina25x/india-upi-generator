@@ -213,7 +213,9 @@
             새로운 UPI ID 생성
           </button>
           <div class="generation-quota-info" id="generationQuotaInfo">
-            시도 횟수: <span id="quotaCountDisplay">0</span> / 100회 (100회 도달 시 30분 대기)
+            <span class="quota-badge daily-badge" id="dailyQuotaBadge">오늘 무료: <strong id="dailyCountDisplay">0</strong> / 10회</span>
+            <span class="quota-divider">•</span>
+            <span class="quota-badge abuse-badge" title="봇 및 어뷰징 방지 안전 제한">누적 시도: <span id="quotaCountDisplay">0</span> / 100회</span>
           </div>
         </div>
 
@@ -428,6 +430,21 @@
             </div>
             <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다! 감사합니다." maxlength="35">
           </div>
+
+          <!-- Bonus Recommendation Card for Coupang -->
+          <div class="modal-coupang-reward">
+            <div class="reward-header">
+              <span class="reward-badge">🎧 결제 성공 기념 꿀팁</span>
+              <span class="reward-title">유튜브 뮤직 200% 즐기는 노캔 이어폰 특가</span>
+            </div>
+            <p class="reward-desc">
+              구독 등록 축하드립니다! 유튜브 뮤직 고음질을 제대로 즐길 수 있는 특가 이어폰/헤드셋을 확인해 보세요.
+            </p>
+            <a href="https://link.coupang.com/a/g03lOjRufc" target="_blank" rel="noopener noreferrer" class="btn-coupang-reward-link" id="btnSuccessCoupangLink">
+              <span>쿠팡 특가전 구경하기 ↗</span>
+            </a>
+            <p class="coupang-ftc-notice-mini">※ 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -438,6 +455,74 @@
             </svg>
             실제 성공 사례로 등록 완료
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coupang Partners Daily Unlimited Unlock Modal -->
+    <div class="modal-overlay" id="coupangUnlockModal" style="display: none;">
+      <div class="modal-card modal-coupang-card-container">
+        <div class="modal-header coupang-modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">🎁</span>
+            <div>
+              <div class="coupang-modal-pill">기본 무료 10회 완료</div>
+              <h3 class="modal-title">오늘 하루 무제한 생성 잠금 해제</h3>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseCoupangModal" title="닫기">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="coupang-guide-banner">
+            <p class="guide-lead">
+              본 사이트는 <strong>24시간 실시간 DB 서버 비용</strong>을 자체 충당하여 무료로 운영 중입니다.
+            </p>
+            <p class="guide-sub">
+              아래 버튼을 눌러 <strong>쿠팡을 1초만 방문</strong>해 주시면 서버 유지에 큰 도움이 되며, <strong>오늘 하루 동안 횟수 제한 없이 무제한 생성</strong>이 즉시 잠금 해제됩니다! 🙏
+            </p>
+          </div>
+
+          <div class="coupang-perks-box">
+            <h4 class="perks-title">🔓 지금 잠금 해제 시 제공되는 혜택</h4>
+            <div class="perks-list">
+              <div class="perk-item">
+                <span class="perk-icon">⚡</span>
+                <div class="perk-text">
+                  <strong>오늘 하루 횟수 제한 완전 해제</strong>
+                  <span>추가 인증 없이 오늘 밤 12시까지 무제한 자유 생성</span>
+                </div>
+              </div>
+              <div class="perk-item">
+                <span class="perk-icon">🛡️</span>
+                <div class="perk-text">
+                  <strong>실패 ID 100% 자동 필터링</strong>
+                  <span>실시간 집계된 500+건 실패 조합 자동 제외</span>
+                </div>
+              </div>
+              <div class="perk-item">
+                <span class="perk-icon">☕</span>
+                <div class="perk-text">
+                  <strong>무료 서비스 유지 지원</strong>
+                  <span>별도 비용 결제 없이 1초 방문만으로 창작자 후원</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="coupang-action-box">
+            <button type="button" class="btn-coupang-unlock" id="btnCoupangUnlock">
+              <span class="btn-coupang-icon">🚀</span>
+              <span class="btn-coupang-label">쿠팡 1초 방문하고 오늘 무제한 해제하기</span>
+            </button>
+            <p class="coupang-ftc-notice">
+              ※ 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer coupang-modal-footer">
+          <button type="button" class="btn-subtle" id="btnSkipCoupangModal">다음에 하기 (창 닫기)</button>
         </div>
       </div>
     </div>

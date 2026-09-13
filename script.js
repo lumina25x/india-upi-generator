@@ -9,6 +9,93 @@ const GOINGBUS_CONFIG = {
   affiliateUrl: "https://goingbus.com?s=1kO9X8Oz" // 사용자 고유 제휴 레퍼럴 링크
 };
 
+// ==========================================================================
+// Coupang Partners Affiliate Configuration (Phase 2)
+// ==========================================================================
+const COUPANG_CONFIG = {
+  // 사용자의 Access Key/Secret Key 및 subId(indouidid)로 공식 생성된 제휴 딥링크
+  affiliateUrl: "https://link.coupang.com/a/g03lOjRufc",
+  subId: "indouidid",
+  partnerTag: "AF4221840",
+  freeDailyLimit: 10 // 10회 무료 생성 후 쿠팡 서포트 모달 표시
+};
+
+const COUPANG_STORAGE_KEYS = {
+  DAILY_DATA: "upi_coupang_daily_data_v1",
+  UNLOCKED_DATE: "upi_coupang_unlocked_date_v1"
+};
+
+function getTodayDateString() {
+  const d = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function isUnlimitedUnlockedToday() {
+  const today = getTodayDateString();
+  return localStorage.getItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE) === today;
+}
+
+function getDailyAttemptCount() {
+  try {
+    const stored = localStorage.getItem(COUPANG_STORAGE_KEYS.DAILY_DATA);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed.date === getTodayDateString()) {
+        return parseInt(parsed.count, 10) || 0;
+      }
+    }
+  } catch (e) {}
+  return 0;
+}
+
+function incrementDailyAttemptCount() {
+  const today = getTodayDateString();
+  const current = getDailyAttemptCount();
+  const next = current + 1;
+  try {
+    localStorage.setItem(COUPANG_STORAGE_KEYS.DAILY_DATA, JSON.stringify({ date: today, count: next }));
+  } catch (e) {}
+  return next;
+}
+
+function unlockUnlimitedToday() {
+  const today = getTodayDateString();
+  try {
+    localStorage.setItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE, today);
+  } catch (e) {}
+  updateQuotaDisplay();
+}
+
+function openCoupangModal() {
+  const modal = document.getElementById("coupangUnlockModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function closeCoupangModal() {
+  const modal = document.getElementById("coupangUnlockModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function handleCoupangUnlockClick() {
+  unlockUnlimitedToday();
+  closeCoupangModal();
+
+  // 새 창으로 쿠팡 제휴 딥링크(subId: indouidid) 열기
+  window.open(COUPANG_CONFIG.affiliateUrl, "_blank", "noopener,noreferrer");
+
+  showToast("🎉 오늘 하루 무제한 생성이 잠금 해제되었습니다! 마음껏 이용해 보세요.", "success");
+
+  // 사용자 편의를 위해 즉시 1개 자동 생성
+  setTimeout(() => {
+    handleGenerateClick();
+  }, 400);
+}
+
 
 
 // ==========================================================================
@@ -402,6 +489,25 @@ function updateQuotaDisplay() {
   if (quotaElem) {
     quotaElem.textContent = Math.min(rateState.quotaCount, RATE_LIMIT_CONFIG.MAX_QUOTA_COUNT);
   }
+
+  const dailyCountElem = document.getElementById("dailyCountDisplay");
+  const dailyBadgeElem = document.getElementById("dailyQuotaBadge");
+
+  if (isUnlimitedUnlockedToday()) {
+    if (dailyBadgeElem) {
+      dailyBadgeElem.className = "quota-badge daily-badge unlocked";
+      dailyBadgeElem.innerHTML = `✨ 오늘 무제한 활성화됨`;
+    }
+  } else {
+    const count = getDailyAttemptCount();
+    if (dailyCountElem) {
+      dailyCountElem.textContent = Math.min(count, COUPANG_CONFIG.freeDailyLimit);
+    }
+    if (dailyBadgeElem) {
+      dailyBadgeElem.className = "quota-badge daily-badge";
+      dailyBadgeElem.innerHTML = `오늘 무료: <strong id="dailyCountDisplay">${Math.min(count, COUPANG_CONFIG.freeDailyLimit)}</strong> / ${COUPANG_CONFIG.freeDailyLimit}회`;
+    }
+  }
 }
 
 function activateBlockState() {
@@ -533,7 +639,17 @@ function handleGenerateClick() {
     return;
   }
 
-  // 3. Track Burst Clicks (within 5 seconds)
+  // 3. Check Daily 10-Attempt Free Limit for Coupang Unlock
+  if (!isUnlimitedUnlockedToday()) {
+    const dailyCount = getDailyAttemptCount();
+    if (dailyCount >= COUPANG_CONFIG.freeDailyLimit) {
+      openCoupangModal();
+      showToast("🎁 기본 무료 10회 생성 완료! 쿠팡 1초 방문 시 오늘 무제한 이용이 가능합니다.", "info");
+      return;
+    }
+  }
+
+  // 4. Track Burst Clicks (within 5 seconds)
   rateState.recentClicks = rateState.recentClicks.filter(t => now - t < RATE_LIMIT_CONFIG.BURST_WINDOW_MS);
   rateState.recentClicks.push(now);
   const isBurstTriggered = rateState.recentClicks.length >= RATE_LIMIT_CONFIG.BURST_MAX_CLICKS;
@@ -548,6 +664,11 @@ function handleGenerateClick() {
   state.currentMeta = candidate;
   state.totalCount++;
   saveStoredData();
+
+  // Increment daily attempt count if not unlocked yet
+  if (!isUnlimitedUnlockedToday()) {
+    incrementDailyAttemptCount();
+  }
 
   // Display ID
   const displayElem = document.getElementById("currentUpiDisplay");
@@ -1075,4 +1196,39 @@ function bindEvents() {
       }
     });
   }
+
+  // Coupang Unlock Modal Event Listeners
+  const btnCloseCoupang = document.getElementById("btnCloseCoupangModal");
+  if (btnCloseCoupang) btnCloseCoupang.addEventListener("click", closeCoupangModal);
+
+  const btnSkipCoupang = document.getElementById("btnSkipCoupangModal");
+  if (btnSkipCoupang) btnSkipCoupang.addEventListener("click", closeCoupangModal);
+
+  const btnCoupangUnlock = document.getElementById("btnCoupangUnlock");
+  if (btnCoupangUnlock) btnCoupangUnlock.addEventListener("click", handleCoupangUnlockClick);
+
+  const coupangModal = document.getElementById("coupangUnlockModal");
+  if (coupangModal) {
+    coupangModal.addEventListener("click", (e) => {
+      if (e.target.id === "coupangUnlockModal") {
+        closeCoupangModal();
+      }
+    });
+  }
+
+  // Debug Helpers for Local Testing (Console)
+  window.__debugSetCoupangAttempts = function(n) {
+    const today = getTodayDateString();
+    localStorage.setItem(COUPANG_STORAGE_KEYS.DAILY_DATA, JSON.stringify({ date: today, count: n }));
+    localStorage.removeItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE);
+    updateQuotaDisplay();
+    console.log(`[DEBUG] Set Coupang daily attempts to ${n}`);
+  };
+
+  window.__debugResetCoupang = function() {
+    localStorage.removeItem(COUPANG_STORAGE_KEYS.DAILY_DATA);
+    localStorage.removeItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE);
+    updateQuotaDisplay();
+    console.log("[DEBUG] Coupang limit and unlock status reset.");
+  };
 }
