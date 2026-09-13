@@ -673,6 +673,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -680,8 +681,9 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  padding: 20px;
+  padding: 16px;
   animation: fadeIn 0.25s ease;
+  box-sizing: border-box;
 }
 
 .modal-card {
@@ -690,6 +692,8 @@ body {
   border-radius: var(--radius-lg);
   max-width: 560px;
   width: 100%;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(16, 185, 129, 0.3);
   display: flex;
   flex-direction: column;
@@ -712,9 +716,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 18px 24px;
   border-bottom: 1px solid var(--border-subtle);
   background: rgba(16, 185, 129, 0.06);
+  flex-shrink: 0;
 }
 
 .modal-title-group {
@@ -761,10 +766,25 @@ body {
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-full);
 }
 
 .modal-guide-box {
@@ -2314,21 +2334,188 @@ body {
 }
 
 @media (max-width: 580px) {
+  .modal-overlay {
+    padding: 8px 6px !important;
+    align-items: center !important;
+  }
+
+  .modal-card {
+    max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: var(--radius-md) !important;
+    width: 100% !important;
+  }
+
+  .modal-header {
+    padding: 12px 16px !important;
+  }
+
+  .modal-badge-icon {
+    font-size: 1.3rem !important;
+  }
+
+  .modal-title {
+    font-size: 1rem !important;
+  }
+
+  .modal-subtitle {
+    font-size: 0.78rem !important;
+  }
+
+  .modal-body {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+
+  .modal-guide-box {
+    padding: 8px 10px !important;
+    font-size: 0.76rem !important;
+    line-height: 1.38 !important;
+  }
+
+  .chip-section {
+    gap: 5px !important;
+  }
+
+  .chip-label {
+    font-size: 0.72rem !important;
+  }
+
+  .preset-chips {
+    gap: 4px !important;
+  }
+
+  .tag-chip {
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .form-group {
+    gap: 4px !important;
+  }
+
+  .form-group label {
+    font-size: 0.74rem !important;
+  }
+
+  .styled-input {
+    padding: 8px 10px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .modal-coffee-sponsor-card {
+    padding: 9px 11px !important;
+    gap: 5px !important;
+    margin-top: 2px !important;
+  }
+
+  .coffee-badge {
+    font-size: 0.62rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .coffee-title {
+    font-size: 0.78rem !important;
+  }
+
+  .coffee-desc {
+    font-size: 0.7rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .coupang-ftc-notice-mini {
+    font-size: 0.62rem !important;
+    margin: 1px 0 0 0 !important;
+  }
+
   .success-modal-actions-footer {
-    flex-direction: column-reverse;
-    gap: 12px;
-    align-items: stretch;
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    flex-shrink: 0 !important;
   }
+
   .btn-confirm-success-coupang {
-    width: 100%;
-    font-size: 0.82rem;
-    padding: 12px 14px;
-    white-space: normal;
-    text-align: center;
+    width: 100% !important;
+    font-size: 0.82rem !important;
+    padding: 11px 12px !important;
+    white-space: normal !important;
+    text-align: center !important;
   }
+
   .success-actions-left {
-    justify-content: space-between;
-    width: 100%;
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+
+  .btn-skip-coupang {
+    font-size: 0.74rem !important;
+    padding: 4px 6px !important;
+  }
+
+  .btn-subtle {
+    font-size: 0.76rem !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Coupang Unlock Modal Mobile Optimization */
+  .coupang-modal-header {
+    padding: 12px 14px !important;
+  }
+
+  .coupang-modal-pill {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .coupang-guide-banner {
+    padding: 8px 10px !important;
+  }
+
+  .coupang-guide-banner .guide-lead {
+    font-size: 0.78rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .coupang-guide-banner .guide-sub {
+    font-size: 0.72rem !important;
+  }
+
+  .coupang-perks-box {
+    padding: 10px !important;
+  }
+
+  .perks-title {
+    font-size: 0.76rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .perks-list {
+    gap: 6px !important;
+  }
+
+  .perk-text strong {
+    font-size: 0.76rem !important;
+  }
+
+  .perk-text span {
+    font-size: 0.68rem !important;
+  }
+
+  .btn-coupang-unlock {
+    padding: 11px 14px !important;
+    font-size: 0.86rem !important;
+  }
+
+  .coupang-ftc-notice {
+    font-size: 0.65rem !important;
+  }
+
+  .coupang-modal-footer {
+    padding: 10px 14px !important;
   }
 }
 
