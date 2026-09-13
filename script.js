@@ -130,7 +130,10 @@ async function fetchGlobalSheetData() {
 
     // Merge remote failed IDs into state.failedSet & state.failedList
     if (data.failed && Array.isArray(data.failed)) {
-      data.failed.forEach(id => {
+      data.failed.forEach(rawId => {
+        if (!rawId && rawId !== 0) return;
+        const id = String(rawId).trim();
+        if (!id) return;
         if (!state.failedSet.has(id)) {
           state.failedSet.add(id);
           state.failedList.unshift({
@@ -145,15 +148,30 @@ async function fetchGlobalSheetData() {
     // Merge remote success IDs into state.successList
     if (data.success && Array.isArray(data.success)) {
       data.success.forEach(item => {
-        const id = typeof item === "string" ? item : item.id;
+        if (!item) return;
+        const id = typeof item === "string" ? item.trim() : String(item.id || "").trim();
+        if (!id) return;
         const exists = state.successList.some(s => s.id === id);
+        const memoStr = (item.memo !== undefined && item.memo !== null && String(item.memo).trim() !== "")
+          ? String(item.memo).trim()
+          : "성공 확인 완료 👍";
+        const timeStr = (item.timestamp !== undefined && item.timestamp !== null)
+          ? String(item.timestamp).trim()
+          : getFormattedNow();
+
         if (!exists) {
           state.successList.unshift({
             id: id,
-            timestamp: item.timestamp || getFormattedNow(),
-            memo: item.memo || "성공 확인 완료 👍"
+            timestamp: timeStr,
+            memo: memoStr
           });
           updated = true;
+        } else {
+          // Keep existing memo sanitized
+          const existing = state.successList.find(s => s.id === id);
+          if (existing) {
+            existing.memo = String(existing.memo ?? memoStr ?? "").trim() || "성공 확인 완료 👍";
+          }
         }
       });
     }
@@ -189,21 +207,33 @@ function loadStoredData() {
     const storedSuccess = localStorage.getItem(STORAGE_KEYS.SUCCESS);
     if (storedSuccess) {
       const parsed = JSON.parse(storedSuccess);
-      state.successList = parsed.map(item => {
-        if (typeof item === "string") return { id: item, timestamp: getFormattedNow() };
-        if (item.timestamp) return item;
-        return { id: item.id, timestamp: `${item.date || ''} ${item.time || ''}`.trim() || getFormattedNow() };
-      });
+      if (Array.isArray(parsed)) {
+        state.successList = parsed.map(item => {
+          if (!item) return null;
+          if (typeof item === "string") return { id: item, timestamp: getFormattedNow(), memo: "성공 확인 완료 👍" };
+          return {
+            id: String(item.id || "").trim(),
+            timestamp: String(item.timestamp || `${item.date || ''} ${item.time || ''}`).trim() || getFormattedNow(),
+            memo: String(item.memo ?? "").trim() || "성공 확인 완료 👍"
+          };
+        }).filter(item => Boolean(item && item.id));
+      }
     }
 
     const storedFailed = localStorage.getItem(STORAGE_KEYS.FAILED);
     if (storedFailed) {
       const parsed = JSON.parse(storedFailed);
-      state.failedList = parsed.map(item => {
-        if (typeof item === "string") return { id: item, timestamp: getFormattedNow() };
-        return item;
-      });
-      state.failedSet = new Set(state.failedList.map(f => f.id));
+      if (Array.isArray(parsed)) {
+        state.failedList = parsed.map(item => {
+          if (!item) return null;
+          if (typeof item === "string") return { id: item, timestamp: getFormattedNow() };
+          return {
+            id: String(item.id || "").trim(),
+            timestamp: String(item.timestamp || `${item.date || ''} ${item.time || ''}`).trim() || getFormattedNow()
+          };
+        }).filter(item => Boolean(item && item.id));
+        state.failedSet = new Set(state.failedList.map(f => f.id));
+      }
     }
 
     const storedTotal = localStorage.getItem(STORAGE_KEYS.TOTAL_COUNT);
@@ -678,8 +708,8 @@ function handleFailClick() {
 }
 
 function escapeHtml(str) {
-  if (!str) return "";
-  return str.replace(/[&<>"']/g, m => ({
+  if (str === null || str === undefined) return "";
+  return String(str).replace(/[&<>"']/g, m => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -818,7 +848,7 @@ function computeAndRenderSuccessStats() {
 
   list.forEach(item => {
     if (!item || !item.id) return;
-    const fullId = item.id.toLowerCase();
+    const fullId = String(item.id || "").toLowerCase();
     const parts = fullId.split("@");
     const user = parts[0] || "";
     const h = "@" + (parts[1] || "");
@@ -848,14 +878,14 @@ function computeAndRenderSuccessStats() {
     }
 
     // Purely user-typed custom reviews filter
-    const memo = (item.memo || "").trim();
+    const memo = String(item.memo ?? "").trim();
     const isPreset = PRESET_CHIP_TEXTS.has(memo);
     const isTestId = fullId.includes("test_") || memo.includes("테스트 성공");
     if (memo && !isPreset && !isTestId) {
       purelyTypedReviews.push({
-        id: item.id,
+        id: String(item.id),
         memo: memo,
-        time: item.timestamp || ""
+        time: String(item.timestamp || "")
       });
     }
   });
