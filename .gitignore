@@ -1,0 +1,4 @@
+# Local scratch and credentials
+scratch/
+*.log
+.env
