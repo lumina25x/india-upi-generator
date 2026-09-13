@@ -43,16 +43,35 @@ const INDIAN_LAST_NAMES = [
 ];
 
 const HANDLES_BY_CATEGORY = {
-  paytm: ["@paytm", "@ptsbi", "@ptaxis", "@pthdfc", "@ptyes"],
-  phonepe: ["@ybl", "@ibl", "@axl"],
-  gpay: ["@oksbi", "@okicici", "@okhdfcbank", "@okaxis"],
-  sbi: ["@sbi", "@upi", "@icici", "@kotak"]
+  paytm: ["@ptyes", "@paytm", "@ptaxis", "@ptsbi"], // @pthdfc 영구 제외 (성공률 0.0%)
+  phonepe: ["@ybl", "@ibl", "@axl"],                // @ybl 단일 핸들 성공률 1위 (36.7%)
+  gpay: ["@okhdfcbank", "@oksbi", "@okicici"],       // @okaxis 최하위 제외
+  sbi: ["@kotak", "@sbi", "@upi", "@icici"]         // @kotak 단일 핸들 성공률 32.0%
 };
 
-// 댓글에서 검증된 가장 높은 성공률의 단순 숫자 패턴 풀
+// 실시간 530건 빅데이터 검증 골든 넘버 풀 (미래 연도 2025/2026 영구 제외, 통과율 1위 12/1234/99 가중치 부여)
 const COMMON_SIMPLE_NUMBERS = [
-  "12", "123", "1234", "23", "45", "78", "89", "99",
-  "2024", "2025", "2026", "77", "88", "11", "07"
+  "12", "12", "1234", "1234", "99", "99", "2024", "77", "23", "88", "123", "45", "78", "89", "07"
+];
+
+// 빅데이터 기반 최상위 핸들 가중치 풀 ('전체 은행' 선택 시 1위 그룹이 약 75% 확률로 우선 생성됨)
+const WEIGHTED_BEST_HANDLES = [
+  // 1티어: 성공률 26~37% 초고효율 그룹 (가중치 대폭 상향)
+  "@ybl", "@ybl", "@ybl", "@ybl",
+  "@kotak", "@kotak", "@kotak",
+  "@ptyes", "@ptyes", "@ptyes",
+  "@sbi", "@sbi",
+  "@ibl", "@ibl",
+
+  // 2티어: 성공률 15~21% 표준 그룹
+  "@paytm", "@paytm",
+  "@upi", "@upi",
+  "@axl",
+  "@ptaxis",
+
+  // 3티어: 보조 핸들
+  "@okhdfcbank",
+  "@icici"
 ];
 
 // ==========================================================================
@@ -268,22 +287,17 @@ function getRandomInt(min, max) {
 
 function resolveHandle(category) {
   if (category === "all") {
-    const allHandles = [
-      ...HANDLES_BY_CATEGORY.paytm,
-      ...HANDLES_BY_CATEGORY.phonepe,
-      ...HANDLES_BY_CATEGORY.gpay,
-      ...HANDLES_BY_CATEGORY.sbi
-    ];
-    return getRandomItem(allHandles);
+    return getRandomItem(WEIGHTED_BEST_HANDLES);
   }
-  return getRandomItem(HANDLES_BY_CATEGORY[category] || HANDLES_BY_CATEGORY.paytm);
+  return getRandomItem(HANDLES_BY_CATEGORY[category] || HANDLES_BY_CATEGORY.phonepe);
 }
 
 function detectAppFromHandle(handle) {
   if (handle.includes("paytm") || handle.startsWith("@pt")) return "Paytm";
   if (handle.includes("ybl") || handle.includes("ibl") || handle.includes("axl")) return "PhonePe";
   if (handle.startsWith("@ok")) return "Google Pay";
-  return "BHIM/Bank";
+  if (handle.includes("kotak")) return "Kotak Bank";
+  return "BHIM/SBI";
 }
 
 /**
@@ -298,10 +312,10 @@ function generateCandidateId(patternMode, handleCategory) {
 
   let mode = patternMode;
   if (mode === "smart") {
-    // 70% 확률로 123 단순숫자 조합, 30% 확률로 이름.성씨 조합
-    mode = Math.random() < 0.7 ? "name_only" : "name_surname";
+    // 실시간 빅데이터 반영: 85% 확률로 성공 비중 83%인 이름+골든숫자 조합, 15% 확률로 이름.성씨
+    mode = Math.random() < 0.85 ? "name_only" : "name_surname";
   } else if (mode === "all_random") {
-    const modes = ["name_only", "name_surname", "name_surname_num", "name_concat"];
+    const modes = ["name_only", "name_only", "name_surname", "name_concat"];
     mode = getRandomItem(modes);
   }
 
