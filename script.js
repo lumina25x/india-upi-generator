@@ -13,7 +13,7 @@ const GOINGBUS_CONFIG = {
 // Coupang Partners Affiliate Configuration (Phase 2)
 // ==========================================================================
 const COUPANG_CONFIG = {
-  // 사용자의 Access Key/Secret Key 및 subId(indouidid)로 공식 생성된 제휴 딥링크
+  // 사용자의 subId(indouidid)가 적용된 공식 쿠팡 직링크 (클릭 즉시 24시간 장바구니 쿠키 100% 귀속)
   affiliateUrl: "https://link.coupang.com/a/g03lOjRufc",
   subId: "indouidid",
   partnerTag: "AF4221840",
@@ -754,6 +754,38 @@ function closeSuccessModal() {
   document.getElementById("successModal").style.display = "none";
 }
 
+// Legal (Privacy Policy / Terms) Modal Functions
+function openLegalModal(tab = "privacy") {
+  const modal = document.getElementById("legalModal");
+  if (!modal) return;
+  modal.style.display = "flex";
+  switchLegalTab(tab);
+}
+
+function closeLegalModal() {
+  const modal = document.getElementById("legalModal");
+  if (modal) modal.style.display = "none";
+}
+
+function switchLegalTab(tab) {
+  const privacyTab = document.getElementById("legalTabPrivacy");
+  const termsTab = document.getElementById("legalTabTerms");
+  const privacyContent = document.getElementById("legalContentPrivacy");
+  const termsContent = document.getElementById("legalContentTerms");
+
+  if (tab === "privacy") {
+    if (privacyTab) privacyTab.classList.add("active");
+    if (termsTab) termsTab.classList.remove("active");
+    if (privacyContent) privacyContent.style.display = "block";
+    if (termsContent) termsContent.style.display = "none";
+  } else {
+    if (termsTab) termsTab.classList.add("active");
+    if (privacyTab) privacyTab.classList.remove("active");
+    if (termsContent) termsContent.style.display = "block";
+    if (privacyContent) privacyContent.style.display = "none";
+  }
+}
+
 function submitSuccessWithCoupang() {
   if (!state.currentId) return;
   // 1. Submit success verification
@@ -1243,6 +1275,31 @@ function bindEvents() {
       }
     });
   }
+
+  // Legal Modal Event Listeners
+  const btnOpenTerms = document.getElementById("btnOpenTermsModal");
+  if (btnOpenTerms) btnOpenTerms.addEventListener("click", () => openLegalModal("terms"));
+
+  const btnOpenPrivacy = document.getElementById("btnOpenPrivacyModal");
+  if (btnOpenPrivacy) btnOpenPrivacy.addEventListener("click", () => openLegalModal("privacy"));
+
+  const btnCloseLegal = document.getElementById("btnCloseLegalModal");
+  if (btnCloseLegal) btnCloseLegal.addEventListener("click", closeLegalModal);
+
+  const legalModal = document.getElementById("legalModal");
+  if (legalModal) {
+    legalModal.addEventListener("click", (e) => {
+      if (e.target.id === "legalModal") {
+        closeLegalModal();
+      }
+    });
+  }
+
+  const tabTerms = document.getElementById("legalTabTerms");
+  if (tabTerms) tabTerms.addEventListener("click", () => switchLegalTab("terms"));
+
+  const tabPrivacy = document.getElementById("legalTabPrivacy");
+  if (tabPrivacy) tabPrivacy.addEventListener("click", () => switchLegalTab("privacy"));
 
   // Debug Helpers for Local Testing (Console)
   window.__debugSetCoupangAttempts = function(n) {

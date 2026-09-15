@@ -53,6 +53,47 @@
   }
   </script>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "결제창에 생성된 ID를 넣었는데 '유효하지 않은 UPI ID'라고 뜹니다. 왜 그런가요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "구글/애플 결제망이 해당 은행 핸들의 실시간 유효성을 검증할 때 이미 너무 많은 사용자가 등록했거나 은행 점검 중일 때 발생합니다. 실패 버튼을 누르고 추천 모드(123 조합)로 3~5회 새로 생성하면 정상 승인됩니다."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "애플(iOS) 기프트카드 충전 후 결제창이 튕기거나 무한 반복됩니다. 어떻게 해결하나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "인도 애플 계정은 현지 결제수단(UPI 등)이 최소 1개 등록되어 있어야 결제 락(Lock)이 풀립니다. 발급받은 UPI ID를 등록하면 기프트카드 잔액에서 100% 정상 차감 승인됩니다."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "임의로 생성된 가상 UPI ID로 등록하면 타인 계좌에서 돈이 빠져나가나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "절대 출금되지 않습니다. UPI ID는 단순 식별자이며 실제 출금은 소유자의 UPI PIN 비밀번호 인증이 필요합니다. 또한 우회 결제는 미리 충전해둔 기프트카드 잔액에서 우선 차감됩니다."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "구글 결제 프로필 국가를 인도로 바꿀 때 주의할 점은 무엇인가요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "구글 결제 프로필 국가는 1년에 단 1회만 변경 가능합니다. 한국 메인 계정 변경 대신 인도 전용 부계정을 생성하여 가족 요금제로 공유하는 방식을 권장합니다."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -378,58 +419,107 @@
       </div>
     </section>
 
-    <!-- Guide / Tips Section -->
-    <section class="tips-section">
-      <h3>💡 인도 우회 갱신 꿀팁</h3>
-      <div class="tips-grid">
-        <div class="tip-card">
-          <div class="tip-num">01</div>
-          <div class="tip-body">
-            <strong>123 등 단순 숫자 조합이 가장 잘 먹힙니다</strong>
-            <p>인도 인구 14억 중 흔한 이름과 단순 숫자(12, 123, 1234)는 실제 계좌가 존재할 확률이 가장 높아 결제망 통과율이 매우 높습니다.</p>
-          </div>
+    <!-- Real Troubleshooting & Detailed FAQ Section -->
+    <section class="faq-section" id="faqSection">
+      <div class="faq-header-row">
+        <div class="faq-badge">
+          <span class="faq-badge-icon">💬</span>
+          <span>자주 묻는 질문 & 오류 해결</span>
         </div>
-        <div class="tip-card">
-          <div class="tip-num">02</div>
-          <div class="tip-body">
-            <strong>영문 소문자만 사용하세요</strong>
-            <p>UPI 정식 규격(VPA) 상 대문자가 섞이면 유효하지 않은 주소(Invalid Address) 오류가 발생할 수 있습니다.</p>
-          </div>
-        </div>
-        <div class="tip-card">
-          <div class="tip-num">03</div>
-          <div class="tip-body">
-            <strong>실패 시 즉시 다른 번호로 재시도</strong>
-            <p>너무 많은 계정이 등록되었다는 에러가 뜨면 바로 '실패'를 누르고 새로 생성하여 3~5회 정도 시도하면 바로 뚫립니다.</p>
-          </div>
-        </div>
-        <div class="tip-card tip-affiliate-card">
-          <div class="tip-num">04</div>
-          <div class="tip-body">
-            <div class="tip-title-row">
-              <strong>계속 막힐 때의 종결 대안</strong>
-              <span class="affiliate-price-tag">월 3,000원대</span>
+        <h2 class="faq-main-title">실전 트러블슈팅 & 상세 가이드 (FAQ)</h2>
+        <p class="faq-subtitle">
+          인도 결제 수단 등록 중 발생하는 대표적인 오류와 우회 갱신 해결책을 정리했습니다.
+        </p>
+      </div>
+
+      <div class="faq-accordion-list">
+        <!-- Q1 -->
+        <details class="faq-item" open>
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q1</span>
+              <span>결제창에 생성된 ID를 넣었는데 '유효하지 않은 UPI ID'라고 뜹니다. 왜 그런가요?</span>
             </div>
-            <p>우회 차단이나 해외 결제 오류로 지치셨다면, VPN 없이 안전한 <strong>합법 OTT 공유 플랫폼(GoingBus)</strong>으로 커피 한 잔 가격에 이용할 수 있습니다.</p>
-            <div class="affiliate-features-row">
-              <span class="affiliate-feature-pill">⚡ VPN 우회 불필요</span>
-              <span class="affiliate-feature-pill">🛡️ 계정 차단 걱정 제로</span>
-              <span class="affiliate-feature-pill">💰 월 3,000원대 최저가</span>
-            </div>
-            <div class="affiliate-action-row">
-              <a href="https://goingbus.com?s=1kO9X8Oz" id="goingbusAffiliateLink" target="_blank" rel="noopener noreferrer" class="btn-goingbus-direct highlight" title="고잉버스 공식 사이트 새창 이동">
-                <span>고잉버스 최저가 바로가기</span>
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-              </a>
-            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              구글과 애플 결제망은 등록 즉시 해당 가상 계좌의 형식(규격)과 은행 핸들(<code>@ybl</code>, <code>@paytm</code>, <code>@oksbi</code> 등)의 실시간 유효성을 검증합니다.
+            </p>
+            <p>
+              인터넷에 공개된 고정 ID처럼 이미 수많은 이용자가 동시에 등록하여 서버에서 차단되었거나, 해당 은행 결제망이 일시 점검 중일 때 발생합니다.<br>
+              <strong>해결법:</strong> 본 생성기에서 <strong>[실패했어요]</strong> 버튼을 누르시면 해당 ID는 영구 제외되며, 상단 <strong>[🔥 추천: 123/단순숫자 조합]</strong> 모드로 3~5회 새로 생성하여 입력하시면 정상 통과됩니다.
+            </p>
           </div>
-        </div>
+        </details>
+
+        <!-- Q2 -->
+        <details class="faq-item">
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q2</span>
+              <span>애플(iOS) 기프트카드 충전 후 결제창이 튕기거나 무한 반복됩니다. 어떻게 해결하나요?</span>
+            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              인도 애플 계정은 기프트카드 잔액이 넉넉해도 인도 중앙은행(RBI) 규정으로 인해 <strong>유효한 현지 결제수단(UPI ID)이 최소 1개 등록되어 있어야 결제 잠금(Lock)이 해제</strong>됩니다.
+            </p>
+            <p>
+              결제수단이 'None' 상태이면 시스템에서 결제창을 무한 반복시킵니다. 본 생성기에서 발급받은 UPI ID를 결제수단으로 1회 등록해 두시면, 실제 구독료는 <strong>충전해 둔 기프트카드 잔액에서 100% 정상 차감</strong>되어 갱신이 완료됩니다.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q3 -->
+        <details class="faq-item">
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q3</span>
+              <span>임의로 생성된 가상 UPI ID로 등록하면 타인 계좌에서 돈이 빠져나가나요?</span>
+            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              <strong>절대 출금되지 않습니다.</strong> UPI ID는 결제 경로를 지정하는 '가상 결제 식별자(VPA)'일 뿐입니다.
+            </p>
+            <p>
+              실제 계좌에서 돈이 출금되려면 계좌 소유자의 휴대폰 인도 은행 앱(PhonePe, Paytm 등)에서 <strong>소유자 본인의 6자리 보안 비밀번호(UPI PIN) 인증</strong>을 승인해야만 거래가 성립됩니다. 또한 우회 구독은 사용자가 미리 충전해 둔 계정 기프트카드 잔액에서 우선 차감되므로 타인 계좌 출금은 원천적으로 불가능합니다.
+            </p>
+          </div>
+        </details>
+
+        <!-- Q4 -->
+        <details class="faq-item">
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q4</span>
+              <span>구글 결제 프로필 국가를 인도로 바꿀 때 주의할 점은 무엇인가요?</span>
+            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              구글 공식 정책상 <strong>결제 프로필 국가는 1년에 단 1회만 변경</strong>할 수 있습니다.
+            </p>
+            <p>
+              기존에 사용하던 한국 메인 구글 계정의 국가를 인도로 바꿀 경우, 한국 구글 플레이 결제 및 국내 멤버십 이용에 제약이 생길 수 있습니다. 따라서 메인 계정 대신 <strong>인도 전용 서브(부) 구글 계정을 새로 만들어</strong> 유튜브 프리미엄 가족 요금제로 메인 계정을 초대하거나 부계정으로 단독 이용하시는 것을 강력히 권장합니다.
+            </p>
+          </div>
+        </details>
       </div>
     </section>
+
 
     <!-- Success Verification Modal (Anti-accidental click device) -->
     <div class="modal-overlay" id="successModal" style="display: none;">
@@ -488,15 +578,10 @@
         </div>
 
         <div class="modal-footer success-modal-actions-footer">
-          <div class="success-actions-left">
-            <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
-            <button type="button" class="btn-subtle btn-skip-coupang" id="btnSubmitSuccessOnly" title="쿠팡 방문 없이 성공 사례만 등록합니다">
-              방문 없이 등록만 하기
-            </button>
-          </div>
+          <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
           <button type="button" class="btn-confirm-success-coupang" id="btnSubmitSuccessWithCoupang">
             <span class="coffee-btn-icon">☕</span>
-            <span class="btn-main-text">성공 등록 완료 & 0원 커피 후원 (쿠팡 접속)</span>
+            <span class="btn-main-text">성공 등록 완료 & 0원 커피 후원 (쿠팡 1초 방문)</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"></path>
             </svg>
@@ -573,19 +658,102 @@
       </div>
     </div>
 
+    <!-- Legal (Privacy Policy & Terms of Service) Modal -->
+    <div class="modal-overlay" id="legalModal" style="display: none;">
+      <div class="modal-card legal-modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">📜</span>
+            <div>
+              <h3 class="modal-title">서비스 운영 정책 및 규정</h3>
+              <p class="modal-subtitle">이용약관 및 개인정보처리방침 안내</p>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseLegalModal" title="닫기">✕</button>
+        </div>
+
+        <div class="legal-tab-nav">
+          <button type="button" class="legal-tab-btn active" id="legalTabPrivacy">개인정보처리방침</button>
+          <button type="button" class="legal-tab-btn" id="legalTabTerms">이용약관 및 면책조항</button>
+        </div>
+
+        <div class="modal-body legal-modal-body">
+          <!-- Privacy Policy Content -->
+          <div class="legal-content-pane" id="legalContentPrivacy">
+            <h4 class="legal-pane-title">개인정보처리방침 (Privacy Policy)</h4>
+            <p class="legal-date">시행일자: 2026년 9월 1일 (최종 개정: 2026년 9월 16일)</p>
+            
+            <div class="legal-section">
+              <h5>1. 개인정보의 수집 및 이용 목적</h5>
+              <p>본 웹사이트('인도 UPI ID 스마트 생성기')는 별도의 회원가입 절차가 없으며, 이용자의 성명, 주민등록번호, 연락처, 실제 은행 계좌정보 등 어떠한 개인식별정보도 수집하거나 원격 서버에 저장하지 않습니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>2. 브라우저 로컬 저장소(LocalStorage)의 이용</h5>
+              <p>본 사이트는 사용자 편의(일일 무료 생성 횟수 체크, 사용자가 직접 등록한 성공/실패 ID 캐싱, 테마 설정)를 위해 웹 브라우저의 로컬 저장소(LocalStorage)를 활용합니다. 해당 정보는 오직 이용자의 기기 내 브라우저에만 보관되며 외부 서버로 무단 전송되지 않습니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>3. 구글 애드센스 및 타사 쿠키(Cookie) 안내</h5>
+              <p>본 사이트는 제3자 광고 사업자(Google AdSense 등)의 광고를 게재할 수 있습니다. Google을 포함한 제3자 공급업체는 이용자가 본 사이트 또는 다른 웹사이트를 방문한 기록을 바탕으로 맞춤형 광고를 제공하기 위해 쿠키(DoubleClick 쿠키 등)를 사용할 수 있습니다. 이용자는 언제든지 <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer" class="legal-link">Google 광고 설정</a>에서 맞춤 광고 게재를 비활성화하거나 관리할 수 있습니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>4. 제휴 마케팅 프로그램 안내</h5>
+              <p>본 사이트는 쿠팡 파트너스 등의 제휴 마케팅 링크를 포함하고 있으며, 이용자가 해당 링크를 통해 물품을 구매할 경우 사이트 운영자에게 소정의 수수료가 지급될 수 있습니다. 이는 이용자의 구매 가격에 어떠한 불이익이나 변동도 미치지 않습니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>5. 개인정보 보호책임자 및 문의</h5>
+              <p>서비스 이용 관련 문의 사항은 공식 블로그(review-gratin.tistory.com) 댓글 또는 방명록을 통해 접수하실 수 있습니다.</p>
+            </div>
+          </div>
+
+          <!-- Terms of Service Content -->
+          <div class="legal-content-pane" id="legalContentTerms" style="display: none;">
+            <h4 class="legal-pane-title">이용약관 (Terms of Service)</h4>
+            <p class="legal-date">시행일자: 2026년 9월 1일 (최종 개정: 2026년 9월 16일)</p>
+
+            <div class="legal-section">
+              <h5>1. 서비스의 목적 및 성격</h5>
+              <p>본 서비스는 인도 국립결제공사(NPCI)의 공개 규격 가상 결제 주소(VPA, username@handle) 형식 알고리즘을 연구하고, 결제 오류 상황에서의 식별자 호환성을 테스트하기 위한 비공식 편의 도구입니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>2. 법적 한계 및 면책 조항 (Disclaimer)</h5>
+              <p>본 사이트는 인도 정부, NPCI, Google LLC, Apple Inc. 또는 특정 인도 은행과 어떠한 공식 제휴 관계도 맺고 있지 않습니다. 본 도구에서 생성된 식별자를 실제 서비스에 등록하여 발생하는 계정 제재, 결제 실패, 구독 해지 등 모든 결과에 대한 법적 책임은 이용자 본인에게 있으며, 사이트 운영자는 이에 대해 어떠한 민·형사상 손해배상 책임도 부담하지 않습니다.</p>
+            </div>
+
+            <div class="legal-section">
+              <h5>3. 지적 재산권 및 서비스 변경</h5>
+              <p>본 사이트의 디자인, UI/UX 구조 및 코드는 공익적 연구 목적으로 공개되어 있으며, 운영자는 기술적 개선이나 정책 변경에 따라 사전 공지 없이 서비스의 전부 또는 일부를 수정하거나 중단할 수 있습니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer legal-modal-footer">
+          <button type="button" class="btn-primary btn-legal-close-btn" id="btnCloseLegalModalBottom">확인 및 닫기</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="app-footer">
-      <a href="https://review-gratin.tistory.com/" target="_blank" rel="noopener noreferrer" class="footer-blog-banner" title="리뷰 그라탕 공식 블로그 방문하기">
-        <span class="blog-banner-icon">📝</span>
-        <span class="blog-banner-label">공식 블로그:</span>
-        <span class="blog-link-btn">review-gratin.tistory.com ↗</span>
-      </a>
+      <div class="footer-legal-nav">
+        <button type="button" class="footer-legal-btn" id="btnOpenPrivacyModal">개인정보처리방침</button>
+        <span class="footer-legal-divider">•</span>
+        <button type="button" class="footer-legal-btn" id="btnOpenTermsModal">이용약관</button>
+        <span class="footer-legal-divider">•</span>
+        <a href="https://review-gratin.tistory.com/" target="_blank" rel="noopener noreferrer" class="footer-legal-link">공식 블로그 ↗</a>
+      </div>
+
       <p class="footer-disclaimer">
         ⚠️ <strong>면책 조항 (Disclaimer):</strong> 본 사이트는 인도 NPCI 표준 가상 결제 식별자(VPA) 포맷 연구 및 개인 테스트 목적으로 제작된 비공식 편의 도구이며, 실제 결제 결과 및 타사 서비스 이용에 대한 어떠한 법적 책임도 지지 않습니다.
       </p>
-      <p class="footer-copy">Real-time Verified India UPI Database. Open Source on GitHub.</p>
+      <p class="footer-copy">© 2026 India UPI ID Generator. Real-time Verified UPI Database. Open Source on GitHub.</p>
     </footer>
   </div>
+
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
