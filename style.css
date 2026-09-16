@@ -2648,6 +2648,40 @@ body {
   font-family: var(--font-mono);
 }
 
+.faq-tip-callout {
+  margin-top: 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: #e2e8f0;
+}
+
+.tip-callout-title {
+  font-weight: 700;
+  color: #34d399;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+
+.tip-callout-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tip-callout-list li {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.tip-callout-list li strong {
+  color: #f1f5f9;
+}
+
 /* ==========================================================================
    Footer Legal Navigation & Links
    ========================================================================== */

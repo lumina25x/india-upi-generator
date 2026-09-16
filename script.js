@@ -1286,6 +1286,9 @@ function bindEvents() {
   const btnCloseLegal = document.getElementById("btnCloseLegalModal");
   if (btnCloseLegal) btnCloseLegal.addEventListener("click", closeLegalModal);
 
+  const btnCloseLegalBottom = document.getElementById("btnCloseLegalModalBottom");
+  if (btnCloseLegalBottom) btnCloseLegalBottom.addEventListener("click", closeLegalModal);
+
   const legalModal = document.getElementById("legalModal");
   if (legalModal) {
     legalModal.addEventListener("click", (e) => {

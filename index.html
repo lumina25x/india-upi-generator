@@ -89,6 +89,14 @@
           "@type": "Answer",
           "text": "구글 결제 프로필 국가는 1년에 단 1회만 변경 가능합니다. 한국 메인 계정 변경 대신 인도 전용 부계정을 생성하여 가족 요금제로 공유하는 방식을 권장합니다."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "가상 UPI ID 등록 후 타인 신고나 도용이 불안합니다. Net Banking(넷뱅킹)으로 전환해도 되나요?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "애플(iOS) 인도 계정 이용자라면 가상 UPI로 최초 결제 락(Lock)을 해제한 후, 결제 수단을 [Net Banking ➔ 임의 은행 선택]으로 전환해 두시는 것을 적극 추천합니다. 개인 ID가 아닌 은행명만 등록되어 타인 신고 리스크가 0%가 되며, 실제 결제는 충전해 둔 기프트카드 잔액에서 안전하게 자동 차감됩니다."
+        }
       }
     ]
   }
@@ -434,7 +442,7 @@
 
       <div class="faq-accordion-list">
         <!-- Q1 -->
-        <details class="faq-item" open>
+        <details class="faq-item">
           <summary class="faq-summary">
             <div class="faq-q-title">
               <span class="faq-q-badge">Q1</span>
@@ -515,6 +523,36 @@
             <p>
               기존에 사용하던 한국 메인 구글 계정의 국가를 인도로 바꿀 경우, 한국 구글 플레이 결제 및 국내 멤버십 이용에 제약이 생길 수 있습니다. 따라서 메인 계정 대신 <strong>인도 전용 서브(부) 구글 계정을 새로 만들어</strong> 유튜브 프리미엄 가족 요금제로 메인 계정을 초대하거나 부계정으로 단독 이용하시는 것을 강력히 권장합니다.
             </p>
+          </div>
+        </details>
+
+        <!-- Q5 -->
+        <details class="faq-item">
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q5</span>
+              <span>가상 UPI ID 등록 후 타인 신고나 도용이 불안합니다. Net Banking(넷뱅킹)으로 전환해도 되나요?</span>
+            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              <strong>네! 아이폰/아이패드(애플 인도 계정) 이용자라면 심리적 안정을 위한 매우 영리한 실전 테크닉입니다.</strong>
+            </p>
+            <p>
+              우회 결제 커뮤니티의 많은 이용자들도 본 생성기에서 발급받은 UPI ID로 <strong>최초 결제창 무한반복 락(Lock)을 뚫은 뒤, 결제 수단을 [Net Banking ➔ State Bank of India 등 임의 은행 선택]으로 변경</strong>하여 유지하고 있습니다.
+            </p>
+            <div class="faq-tip-callout">
+              <div class="tip-callout-title">💡 넷뱅킹(Net Banking) 전환 유지의 장점 & 핵심 수칙:</div>
+              <ul class="tip-callout-list">
+                <li><strong>타인 신고/도용 리스크 0%:</strong> 특정 개인의 VPA(ID)가 아닌 단순 은행 기관명만 걸어두는 방식이므로 타인에 의한 무단 도용 신고 가능성이 물리적으로 없습니다.</li>
+                <li><strong>현지 결제수단 요건 100% 충족:</strong> 넷뱅킹 역시 인도 중앙은행(RBI) 공인 결제수단이므로 애플 시스템에서 결제 락이 다시 걸리지 않습니다.</li>
+                <li><strong>기프트카드 우선 차감:</strong> 실제 구독료는 충전해 둔 <strong>Apple ID 기프트카드 잔액에서 100% 우선 차감</strong>되므로 넷뱅킹 실제 계좌 이체 없이 안전하게 갱신됩니다.</li>
+                <li><strong>주의 (애플 계정 한정):</strong> 구글 플레이(안드로이드/PC 웹)는 정기 구독에 넷뱅킹 등록을 지원하지 않으므로, 이 방법은 <strong>애플 인앱 결제 계정에서만 활용 가능</strong>합니다.</li>
+              </ul>
+            </div>
           </div>
         </details>
       </div>
