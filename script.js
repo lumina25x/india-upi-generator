@@ -282,6 +282,10 @@ async function fetchGlobalData() {
       ? failCountRes.count 
       : state.failedList.length;
 
+    // 작성일자(timestamp) 기준 최신순(내림차순) 정렬
+    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+
     saveStoredData();
     updateStats(totalFailed);
     renderLists();
@@ -349,6 +353,10 @@ function loadStoredData() {
     if (storedTotal) {
       state.totalCount = parseInt(storedTotal, 10) || 0;
     }
+
+    // 로컬 스토리지 데이터도 작성일자(timestamp) 기준 최신순 정렬
+    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
   } catch (err) {
     console.error("Failed to load local storage:", err);
   }
@@ -1082,6 +1090,9 @@ function computeAndRenderSuccessStats() {
       });
     }
   });
+
+  // 생생 후기도 작성 시간(time) 기준 최신순(내림차순) 강제 정렬
+  purelyTypedReviews.sort((a, b) => String(b.time || "").localeCompare(String(a.time || "")));
 
   // Sort banks by count descending
   const sortedBanks = Object.values(bankCounts).sort((a, b) => b.count - a.count);
