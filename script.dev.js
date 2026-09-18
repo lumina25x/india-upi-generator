@@ -1,23 +1,22 @@
 /**
- * 인도 UPI ID 자동 생성기 & 성공/실패 피드백 관리 시스템
+ * 인도 UPI ID 자동 생성기 & Supabase 연동 개발 테스트 버전 (script.dev.js)
  */
 
 // ==========================================================================
 // GoingBus Affiliate Configuration (Phase 1)
 // ==========================================================================
 const GOINGBUS_CONFIG = {
-  affiliateUrl: "https://goingbus.com?s=1kO9X8Oz" // 사용자 고유 제휴 레퍼럴 링크
+  affiliateUrl: "https://goingbus.com?s=1kO9X8Oz"
 };
 
 // ==========================================================================
 // Coupang Partners Affiliate Configuration (Phase 2)
 // ==========================================================================
 const COUPANG_CONFIG = {
-  // 사용자의 subId(indouidid)가 적용된 공식 쿠팡 직링크 (클릭 즉시 24시간 장바구니 쿠키 100% 귀속)
   affiliateUrl: "https://link.coupang.com/a/g03lOjRufc",
   subId: "indouidid",
   partnerTag: "AF4221840",
-  freeDailyLimit: 10 // 10회 무료 생성 후 쿠팡 서포트 모달 표시
+  freeDailyLimit: 10
 };
 
 const COUPANG_STORAGE_KEYS = {
@@ -69,40 +68,28 @@ function unlockUnlimitedToday() {
 
 function openCoupangModal() {
   const modal = document.getElementById("coupangUnlockModal");
-  if (modal) {
-    modal.style.display = "flex";
-  }
+  if (modal) modal.style.display = "flex";
 }
 
 function closeCoupangModal() {
   const modal = document.getElementById("coupangUnlockModal");
-  if (modal) {
-    modal.style.display = "none";
-  }
+  if (modal) modal.style.display = "none";
 }
 
 function handleCoupangUnlockClick() {
   unlockUnlimitedToday();
   closeCoupangModal();
-
-  // 새 창으로 쿠팡 제휴 딥링크(subId: indouidid) 열기
   window.open(COUPANG_CONFIG.affiliateUrl, "_blank", "noopener,noreferrer");
-
   showToast("🎉 오늘 하루 무제한 생성이 잠금 해제되었습니다! 마음껏 이용해 보세요.", "success");
-
-  // 사용자 편의를 위해 즉시 1개 자동 생성
   setTimeout(() => {
     handleGenerateClick();
   }, 400);
 }
 
-
-
 // ==========================================================================
 // 1. 대규모 인도 성인 이름 & 대표 성씨 & 공식 핸들 DB
 // ==========================================================================
 const INDIAN_FIRST_NAMES = [
-  // 남성 이름 (Adult Common Male Names)
   "rahul", "amit", "rohit", "sanjay", "nikhil", "karan", "manish", "rajesh",
   "vikram", "suresh", "deepak", "gaurav", "sachin", "arjun", "vishal", "rohan",
   "anand", "ajay", "sunil", "akshay", "aditya", "mohit", "kunal", "pankaj",
@@ -111,7 +98,6 @@ const INDIAN_FIRST_NAMES = [
   "sumit", "ravi", "sourabh", "chetan", "varun", "dev", "mayank", "harsh",
   "ayush", "dhruv", "karthik", "shivam", "sidharth", "kabir", "yash", "hardik",
   
-  // 여성 이름 (Adult Common Female Names)
   "priya", "neha", "pooja", "sneha", "anjali", "divya", "swati", "nisha",
   "rekha", "preeti", "kajal", "priyanka", "shweta", "jyoti", "deepika", "pallavi",
   "aarti", "shilpa", "nidhi", "megha", "tara", "anita", "rhea", "riya",
@@ -136,24 +122,14 @@ const HANDLES_BY_CATEGORY = {
   sbi: ["@sbi", "@upi", "@icici", "@kotak"]
 };
 
-// 댓글에서 검증된 가장 높은 성공률의 단순 숫자 패턴 풀
 const COMMON_SIMPLE_NUMBERS = [
   "12", "123", "1234", "23", "45", "78", "89", "99",
   "2024", "2025", "2026", "77", "88", "11", "07"
 ];
 
 // ==========================================================================
+// 2. State & Storage Management & Supabase Client Init
 // ==========================================================================
-// 2. State & Storage Management & Supabase Connection
-// ==========================================================================
-let supabaseClient = null;
-
-function initSupabase() {
-  if (typeof SUPABASE_CONFIG !== "undefined" && window.supabase && typeof window.supabase.createClient === "function") {
-    supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-  }
-}
-
 const STORAGE_KEYS = {
   SUCCESS: "upi_success_list_v1",
   FAILED: "upi_failed_list_v1",
@@ -171,55 +147,62 @@ function getFormattedNow() {
 let state = {
   currentId: null,
   currentMeta: null,
-  successList: [], // array of { id, timestamp, memo }
-  failedList: [],  // array of { id, timestamp }
-  failedSet: new Set(), // Set of strings for O(1) candidate exclusion lookup
+  successList: [],
+  failedList: [],
+  failedSet: new Set(),
   totalCount: 0
 };
 
-// ==========================================================================
-// Rate Limiting & Abuse Prevention Configuration
-// ==========================================================================
-const RATE_LIMIT_CONFIG = {
-  BURST_WINDOW_MS: 5000,          // 5초
-  BURST_MAX_CLICKS: 5,             // 5초 내 5회 이상 클릭 시
-  BURST_COOLDOWN_SEC: 10,          // 10초 쿨다운
-  
-  MAX_QUOTA_COUNT: 100,            // 누적 100회
-  BLOCK_DURATION_MS: 30 * 60 * 1000 // 30분 차단 (1,800,000ms)
-};
+// Supabase Client 객체
+let supabaseClient = null;
 
-const RATE_STORAGE_KEYS = {
-  QUOTA_COUNT: "upi_quota_count_v1",
-  BLOCK_UNTIL: "upi_block_until_v1"
-};
+function isSupabaseConfigured() {
+  return Boolean(
+    typeof SUPABASE_CONFIG !== "undefined" &&
+    SUPABASE_CONFIG.url &&
+    SUPABASE_CONFIG.url !== "https://YOUR_SUPABASE_PROJECT_URL.supabase.co" &&
+    SUPABASE_CONFIG.url.startsWith("http") &&
+    SUPABASE_CONFIG.anonKey &&
+    SUPABASE_CONFIG.anonKey !== "YOUR_SUPABASE_ANON_KEY"
+  );
+}
 
-let rateState = {
-  quotaCount: 0,
-  blockUntil: 0,
-  recentClicks: [], // click timestamps within 5 seconds
-  burstInterval: null,
-  blockInterval: null
-};
-
-// ==========================================================================
-// 3. Initialization
-// ==========================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  loadStoredData();
-  bindEvents();
-  initRateLimiting();
-  updateStats();
-  renderLists();
-  initSupabase();
-  fetchGlobalData();
-});
-
-async function fetchGlobalData() {
-  if (!supabaseClient) initSupabase();
-  if (!supabaseClient) return;
+function initSupabase() {
+  if (!isSupabaseConfigured()) {
+    updateDevBannerStatus("unconfigured", "Supabase API 정보 입력 대기 중");
+    return null;
+  }
 
   try {
+    if (window.supabase && typeof window.supabase.createClient === "function") {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+      updateDevBannerStatus("connected", "🟢 Supabase 연결 대기");
+      return supabaseClient;
+    } else {
+      console.warn("Supabase SDK가 아직 로드되지 않았습니다.");
+      updateDevBannerStatus("warning", "Supabase SDK 로드 중...");
+    }
+  } catch (e) {
+    console.error("Supabase 초기화 오류:", e);
+    updateDevBannerStatus("error", `초기화 오류: ${e.message}`);
+  }
+  return null;
+}
+
+// ==========================================================================
+// Supabase Data Fetching & Syncing
+// ==========================================================================
+async function fetchGlobalSupabaseData() {
+  if (!supabaseClient) {
+    initSupabase();
+    if (!supabaseClient) return;
+  }
+
+  updateDevBannerStatus("loading", "⚡ Supabase 데이터 로드 중...");
+  const startTime = Date.now();
+
+  try {
+    // 성공 데이터 전체(498건)와 실패 데이터(최신 1000건) 및 총 실패 건수를 병렬 초고속 조회
     const [successRes, failRes, failCountRes] = await Promise.all([
       supabaseClient
         .from(SUPABASE_CONFIG.tableName || "upi_logs")
@@ -238,14 +221,18 @@ async function fetchGlobalData() {
         .eq("type", "FAIL")
     ]);
 
+    const elapsed = Date.now() - startTime;
+
     if (successRes.error || failRes.error) {
-      console.log("DB sync note:", successRes.error || failRes.error);
+      const err = successRes.error || failRes.error;
+      console.error("Supabase 조회 실패:", err);
+      updateDevBannerStatus("error", `조회 실패: ${err.message} (${elapsed}ms)`);
       return;
     }
 
     let updated = false;
 
-    // Merge remote failed IDs into state.failedSet & state.failedList
+    // 1. Merge failed IDs into state.failedSet & state.failedList
     if (failRes.data && Array.isArray(failRes.data)) {
       failRes.data.forEach(row => {
         const id = String(row.upi_id || "").trim();
@@ -261,7 +248,7 @@ async function fetchGlobalData() {
       });
     }
 
-    // Merge remote success IDs into state.successList
+    // 2. Merge success IDs into state.successList
     if (successRes.data && Array.isArray(successRes.data)) {
       successRes.data.forEach(row => {
         const id = String(row.upi_id || "").trim();
@@ -282,34 +269,147 @@ async function fetchGlobalData() {
       ? failCountRes.count 
       : state.failedList.length;
 
+    updateDevBannerStatus("connected", `🟢 Supabase 초고속 동기화 완료 (${elapsed}ms / 성공 ${state.successList.length}건, 제외 ${totalFailed}건)`);
+    console.log(`⚡ Supabase 응답 속도: ${elapsed}ms (성공: ${state.successList.length}건, 제외: ${totalFailed}건)`);
+
     saveStoredData();
     updateStats(totalFailed);
     renderLists();
+    showToast(`⚡ Supabase 실시간 동기화 완료 (${elapsed}ms - 성공 ${state.successList.length}건)`, "success");
   } catch (err) {
-    console.log("Data sync note:", err);
+    console.error("Supabase 데이터 조회 예외:", err);
+    updateDevBannerStatus("error", `조회 오류: ${err.message}`);
   }
 }
 
-function syncToDatabase(record) {
-  if (!supabaseClient) initSupabase();
-  if (!supabaseClient) return;
+async function syncToSupabase(record) {
+  if (!supabaseClient) {
+    console.log("Supabase 미설정으로 로컬에만 저장됩니다.");
+    return;
+  }
 
   try {
-    supabaseClient
+    const startTime = Date.now();
+    const { error } = await supabaseClient
       .from(SUPABASE_CONFIG.tableName || "upi_logs")
       .insert([{
         upi_id: record.id.toLowerCase(),
         type: record.type,
         timestamp: record.timestamp || getFormattedNow(),
         memo: record.memo || ""
-      }])
-      .then(({ error }) => {
-        if (error) console.log("DB sync note:", error.message);
-      });
+      }]);
+
+    const elapsed = Date.now() - startTime;
+    if (error) {
+      console.error("Supabase 저장 실패:", error);
+    } else {
+      console.log(`✅ Supabase 실시간 기록 완료 (${elapsed}ms):`, record.id, record.type);
+      updateDevBannerStatus("connected", `🟢 저장 완료 (${elapsed}ms) - ${record.id}`);
+    }
   } catch (err) {
-    console.log("DB sync error:", err);
+    console.error("Supabase 저장 중 오류:", err);
   }
 }
+
+// ==========================================================================
+// Dev Banner UI Helpers
+// ==========================================================================
+function updateDevBannerStatus(type, message) {
+  const statusElem = document.getElementById("devSupabaseStatusText");
+  const badgeElem = document.getElementById("devSupabaseBadge");
+  if (!statusElem) return;
+
+  statusElem.textContent = message;
+  if (badgeElem) {
+    badgeElem.className = `dev-status-badge ${type}`;
+  }
+}
+
+function openDevConfigModal() {
+  const modal = document.getElementById("devConfigModal");
+  if (modal) {
+    const urlInput = document.getElementById("devInputSupabaseUrl");
+    const keyInput = document.getElementById("devInputSupabaseKey");
+    if (urlInput) urlInput.value = (SUPABASE_CONFIG.url.includes("YOUR_SUPABASE") ? "" : SUPABASE_CONFIG.url);
+    if (keyInput) keyInput.value = (SUPABASE_CONFIG.anonKey.includes("YOUR_SUPABASE") ? "" : SUPABASE_CONFIG.anonKey);
+    modal.style.display = "flex";
+  }
+}
+
+function closeDevConfigModal() {
+  const modal = document.getElementById("devConfigModal");
+  if (modal) modal.style.display = "none";
+}
+
+function saveDevConfigFromModal() {
+  const urlInput = document.getElementById("devInputSupabaseUrl");
+  const keyInput = document.getElementById("devInputSupabaseKey");
+  if (!urlInput || !keyInput) return;
+
+  const url = urlInput.value.trim();
+  const anonKey = keyInput.value.trim();
+
+  if (!url.startsWith("http")) {
+    alert("올바른 Project URL을 입력하세요. (예: https://abcdef.supabase.co)");
+    return;
+  }
+  if (!anonKey || anonKey.length < 20) {
+    alert("올바른 anon public key를 입력하세요.");
+    return;
+  }
+
+  SUPABASE_CONFIG.url = url;
+  SUPABASE_CONFIG.anonKey = anonKey;
+
+  try {
+    localStorage.setItem("upi_supabase_dev_config", JSON.stringify({ url, anonKey }));
+  } catch (e) {}
+
+  closeDevConfigModal();
+  showToast("⚙️ Supabase 설정이 저장되었습니다. 연결을 시도합니다...", "info");
+
+  initSupabase();
+  fetchGlobalSupabaseData();
+}
+
+// ==========================================================================
+// Rate Limiting & Abuse Prevention Configuration
+// ==========================================================================
+const RATE_LIMIT_CONFIG = {
+  BURST_WINDOW_MS: 5000,
+  BURST_MAX_CLICKS: 5,
+  BURST_COOLDOWN_SEC: 10,
+  MAX_QUOTA_COUNT: 100,
+  BLOCK_DURATION_MS: 30 * 60 * 1000
+};
+
+const RATE_STORAGE_KEYS = {
+  QUOTA_COUNT: "upi_quota_count_v1",
+  BLOCK_UNTIL: "upi_block_until_v1"
+};
+
+let rateState = {
+  quotaCount: 0,
+  blockUntil: 0,
+  recentClicks: [],
+  burstInterval: null,
+  blockInterval: null
+};
+
+// ==========================================================================
+// 3. Initialization
+// ==========================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  loadStoredData();
+  bindEvents();
+  initRateLimiting();
+  updateStats();
+  renderLists();
+  
+  // Supabase 초기화 및 데이터 로드
+  initSupabase();
+  fetchGlobalSupabaseData();
+});
 
 function loadStoredData() {
   try {
@@ -365,7 +465,7 @@ function saveStoredData() {
 }
 
 // ==========================================================================
-// 4. UPI ID Generation Core (Excludes Failed IDs)
+// 4. UPI ID Generation Core
 // ==========================================================================
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -395,9 +495,6 @@ function detectAppFromHandle(handle) {
   return "BHIM/Bank";
 }
 
-/**
- * 단일 UPI ID 생성 (실패 목록 영구 제외 로직 포함)
- */
 function generateCandidateId(patternMode, handleCategory) {
   const fname = getRandomItem(INDIAN_FIRST_NAMES);
   const lname = getRandomItem(INDIAN_LAST_NAMES);
@@ -407,7 +504,6 @@ function generateCandidateId(patternMode, handleCategory) {
 
   let mode = patternMode;
   if (mode === "smart") {
-    // 70% 확률로 123 단순숫자 조합, 30% 확률로 이름.성씨 조합
     mode = Math.random() < 0.7 ? "name_only" : "name_surname";
   } else if (mode === "all_random") {
     const modes = ["name_only", "name_surname", "name_surname_num", "name_concat"];
@@ -416,27 +512,23 @@ function generateCandidateId(patternMode, handleCategory) {
 
   switch (mode) {
     case "name_only":
-      // [이름 + 12/123/단순숫자] (댓글 추천 1순위)
       const num = getRandomItem(COMMON_SIMPLE_NUMBERS);
       username = `${fname}${num}`;
       patternDescription = `이름 + 숫자 (${num})`;
       break;
 
     case "name_surname":
-      // [이름.성씨]
       username = `${fname}.${lname}`;
       patternDescription = `이름.성씨 조합`;
       break;
 
     case "name_surname_num":
-      // [이름.성씨 + 숫자]
       const snum = getRandomItem(["12", "123", getRandomInt(10, 99).toString()]);
       username = `${fname}.${lname}${snum}`;
       patternDescription = `이름.성씨 + 숫자 (${snum})`;
       break;
 
     case "name_concat":
-      // [이름성 붙여쓰기]
       username = `${fname}${lname}`;
       patternDescription = `이름+성 붙여쓰기`;
       break;
@@ -456,16 +548,13 @@ function generateCandidateId(patternMode, handleCategory) {
   };
 }
 
-/**
- * 실패 목록에 없는 고유한 ID를 찾을 때까지 반복 생성
- */
 function generateUniqueUpiId() {
   const patternMode = document.getElementById("patternSelect").value;
   const handleCategory = document.getElementById("handleSelect").value;
 
   let candidate = null;
   let attempts = 0;
-  const maxAttempts = 500; // 가드
+  const maxAttempts = 500;
 
   while (attempts < maxAttempts) {
     candidate = generateCandidateId(patternMode, handleCategory);
@@ -479,7 +568,7 @@ function generateUniqueUpiId() {
 }
 
 // ==========================================================================
-// 5. Rate Limiting Management (30-min Block & 10s Cooldown)
+// 5. Rate Limiting Management
 // ==========================================================================
 function initRateLimiting() {
   try {
@@ -625,7 +714,6 @@ function triggerBurstCooldown() {
       rateState.burstInterval = null;
       rateState.recentClicks = [];
 
-      // If user became quota-blocked in the meantime, don't restore
       if (rateState.blockUntil > Date.now()) return;
 
       btn.disabled = false;
@@ -649,19 +737,16 @@ function triggerBurstCooldown() {
 function handleGenerateClick() {
   const now = Date.now();
 
-  // 1. Check 30-min Block
   if (rateState.blockUntil > now) {
     showToast("🛑 생성 한도(100회)에 도달하여 30분간 대기 중입니다.", "fail");
     return;
   }
 
-  // 2. Check 10-s Burst Cooldown
   const btn = document.getElementById("btnGenerate");
   if (btn && btn.classList.contains("cooldown-active")) {
     return;
   }
 
-  // 3. Check Daily 10-Attempt Free Limit for Coupang Unlock
   if (!isUnlimitedUnlockedToday()) {
     const dailyCount = getDailyAttemptCount();
     if (dailyCount >= COUPANG_CONFIG.freeDailyLimit) {
@@ -671,7 +756,6 @@ function handleGenerateClick() {
     }
   }
 
-  // 4. Track Burst Clicks (within 5 seconds)
   rateState.recentClicks = rateState.recentClicks.filter(t => now - t < RATE_LIMIT_CONFIG.BURST_WINDOW_MS);
   rateState.recentClicks.push(now);
   const isBurstTriggered = rateState.recentClicks.length >= RATE_LIMIT_CONFIG.BURST_MAX_CLICKS;
@@ -687,47 +771,39 @@ function handleGenerateClick() {
   state.totalCount++;
   saveStoredData();
 
-  // Increment daily attempt count if not unlocked yet
   if (!isUnlimitedUnlockedToday()) {
     incrementDailyAttemptCount();
   }
 
-  // Display ID
   const displayElem = document.getElementById("currentUpiDisplay");
   displayElem.textContent = candidate.id;
   displayElem.classList.remove("placeholder");
 
-  // Display Meta
   const metaElem = document.getElementById("idMetaInfo");
   metaElem.style.display = "flex";
   document.getElementById("metaAppTag").textContent = candidate.app;
   document.getElementById("metaNameTag").textContent = candidate.name;
   document.getElementById("metaPatternText").textContent = candidate.patternDesc;
 
-  // Copy button enable
   const copyBtn = document.getElementById("btnCopy");
   copyBtn.disabled = false;
   resetCopyBtn();
 
-  // Show Feedback Prompt
   document.getElementById("feedbackPrompt").style.display = "flex";
 
-  // Flash highlight animation
   const wrapper = document.querySelector(".id-display-wrapper");
   wrapper.classList.remove("highlighted");
-  void wrapper.offsetWidth; // trigger reflow
+  void wrapper.offsetWidth;
   wrapper.classList.add("highlighted");
 
   updateStats();
 
-  // 4. Increment Quota Counter
   rateState.quotaCount++;
   try {
     localStorage.setItem(RATE_STORAGE_KEYS.QUOTA_COUNT, rateState.quotaCount.toString());
   } catch (e) {}
   updateQuotaDisplay();
 
-  // 5. Check if 100-attempt Quota reached
   if (rateState.quotaCount >= RATE_LIMIT_CONFIG.MAX_QUOTA_COUNT) {
     rateState.blockUntil = Date.now() + RATE_LIMIT_CONFIG.BLOCK_DURATION_MS;
     try {
@@ -738,7 +814,6 @@ function handleGenerateClick() {
     return;
   }
 
-  // 6. Trigger Burst Cooldown if 5 clicks in 5 seconds
   if (isBurstTriggered) {
     triggerBurstCooldown();
   }
@@ -765,7 +840,6 @@ function openSuccessModal() {
   const charCounter = document.getElementById("charCounter");
   if (charCounter) charCounter.textContent = "0/35";
 
-  // Reset chips active state
   document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
   
   document.getElementById("successModal").style.display = "flex";
@@ -776,7 +850,6 @@ function closeSuccessModal() {
   document.getElementById("successModal").style.display = "none";
 }
 
-// Legal (Privacy Policy / Terms) Modal Functions
 function openLegalModal(tab = "privacy") {
   const modal = document.getElementById("legalModal");
   if (!modal) return;
@@ -810,10 +883,7 @@ function switchLegalTab(tab) {
 
 function submitSuccessWithCoupang() {
   if (!state.currentId) return;
-  // 1. Submit success verification
   submitSuccessVerification(true);
-
-  // 2. Open Coupang in new tab
   window.open(COUPANG_CONFIG.affiliateUrl, "_blank", "noopener,noreferrer");
 }
 
@@ -833,7 +903,6 @@ function submitSuccessVerification(isWithCoupang = false) {
     });
   }
 
-  // If it was somehow in failedSet, remove it
   state.failedSet.delete(state.currentId);
   state.failedList = state.failedList.filter(item => item.id !== state.currentId);
 
@@ -841,8 +910,8 @@ function submitSuccessVerification(isWithCoupang = false) {
   updateStats();
   renderLists();
 
-  // Sync to Supabase in background
-  syncToDatabase({
+  // Supabase 실시간 비동기 저장
+  syncToSupabase({
     id: state.currentId,
     type: "SUCCESS",
     timestamp: now,
@@ -857,7 +926,6 @@ function submitSuccessVerification(isWithCoupang = false) {
     showToast(`🎉 실제 성공 사례로 인증 등록되었습니다! (${state.currentId})`, "success");
   }
 
-  // Hide feedback prompt
   document.getElementById("feedbackPrompt").style.display = "none";
 }
 
@@ -875,15 +943,14 @@ function handleFailClick() {
     });
   }
 
-  // Remove from success if exists
   state.successList = state.successList.filter(item => item.id !== failedId);
 
   saveStoredData();
   updateStats();
   renderLists();
 
-  // Sync to Supabase in background
-  syncToDatabase({
+  // Supabase 실시간 비동기 저장
+  syncToSupabase({
     id: failedId,
     type: "FAIL",
     timestamp: now,
@@ -891,8 +958,6 @@ function handleFailClick() {
   });
 
   showToast(`⛔ 제외 목록에 등록되었습니다. 다음 생성 시 제외됩니다.`, "fail");
-
-  // Automatically generate a new candidate right away!
   handleGenerateClick();
 }
 
@@ -908,10 +973,9 @@ function escapeHtml(str) {
 }
 
 // ==========================================================================
-// 7. Render Lists (Success vs Failed)
+// 7. Render Lists
 // ==========================================================================
 function renderLists() {
-  // Render Success List
   const successListElem = document.getElementById("successList");
   const emptySuccessElem = document.getElementById("emptySuccess");
   successListElem.innerHTML = "";
@@ -942,7 +1006,6 @@ function renderLists() {
     });
   }
 
-  // Render Failed List
   const failedListElem = document.getElementById("failedList");
   const emptyFailedElem = document.getElementById("emptyFailed");
   failedListElem.innerHTML = "";
@@ -964,7 +1027,6 @@ function renderLists() {
     });
   }
 
-  // Bind copy button listener for success list
   successListElem.querySelectorAll(".btn-item-action.copy").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const text = e.currentTarget.getAttribute("data-id");
@@ -988,7 +1050,6 @@ function updateStats(customFailCount) {
   document.getElementById("successCounter").textContent = state.successList.length;
   document.getElementById("failedCounter").textContent = failCount;
 
-  // Real-time Big Data Statistics Computation
   computeAndRenderSuccessStats();
 }
 
@@ -1009,7 +1070,6 @@ function computeAndRenderSuccessStats() {
     return;
   }
 
-  // 1. Group by Bank Categories
   const bankCounts = {
     paytm: { label: "Paytm (@paytm, @ptyes)", count: 0, color: "#38bdf8" },
     sbi: { label: "SBI / 국영 (@sbi, @oksbi, @upi)", count: 0, color: "#34d399" },
@@ -1017,7 +1077,6 @@ function computeAndRenderSuccessStats() {
     others: { label: "기타 은행 (@icici, @kotak 등)", count: 0, color: "#fb923c" }
   };
 
-  // 2. Group by 4 Detailed Structural Patterns
   const patternCounts = {
     name_num: { label: "이름 + 123/단순숫자", count: 0, color: "#10b981", desc: "예: sneha123" },
     name_dot_surname: { label: "이름.성씨 점(.) 구분", count: 0, color: "#38bdf8", desc: "예: amit.rao" },
@@ -1025,7 +1084,6 @@ function computeAndRenderSuccessStats() {
     name_dot_num: { label: "이름.성+숫자 복합", count: 0, color: "#fb923c", desc: "예: priya.patel45" }
   };
 
-  // Preset chip & default text set to strictly filter out
   const PRESET_CHIP_TEXTS = new Set([
     "나마스테 🙏 덕분에 성공했습니다!",
     "바로 갱신 성공했습니다! 👍",
@@ -1046,7 +1104,6 @@ function computeAndRenderSuccessStats() {
     const user = parts[0] || "";
     const h = "@" + (parts[1] || "");
 
-    // Bank classification
     if (h.includes("paytm") || h.startsWith("@pt")) {
       bankCounts.paytm.count++;
     } else if (h === "@sbi" || h === "@oksbi" || h === "@upi") {
@@ -1057,7 +1114,6 @@ function computeAndRenderSuccessStats() {
       bankCounts.others.count++;
     }
 
-    // 4-Type Detailed Pattern Classification
     if (user.includes(".")) {
       if (/\d/.test(user)) {
         patternCounts.name_dot_num.count++;
@@ -1070,7 +1126,6 @@ function computeAndRenderSuccessStats() {
       patternCounts.name_concat.count++;
     }
 
-    // Purely user-typed custom reviews filter
     const memo = String(item.memo ?? "").trim();
     const isPreset = PRESET_CHIP_TEXTS.has(memo);
     const isTestId = fullId.includes("test_") || memo.includes("테스트 성공");
@@ -1083,10 +1138,8 @@ function computeAndRenderSuccessStats() {
     }
   });
 
-  // Sort banks by count descending
   const sortedBanks = Object.values(bankCounts).sort((a, b) => b.count - a.count);
 
-  // Render Bank Ranking
   rankingElem.innerHTML = sortedBanks.map((b, idx) => {
     const pct = total > 0 ? ((b.count / total) * 100).toFixed(1) : "0.0";
     const rankBadge = idx === 0 ? "🥇 1위" : idx === 1 ? "🥈 2위" : idx === 2 ? "🥉 3위" : "4위";
@@ -1106,10 +1159,8 @@ function computeAndRenderSuccessStats() {
     `;
   }).join("");
 
-  // Sort patterns by count descending
   const sortedPatterns = Object.values(patternCounts).sort((a, b) => b.count - a.count);
 
-  // Render 4-Type Detailed Pattern Stat
   patternElem.innerHTML = sortedPatterns.map((p, idx) => {
     const pct = total > 0 ? ((p.count / total) * 100).toFixed(1) : "0.0";
     const rankBadge = idx === 0 ? "🥇 1위" : idx === 1 ? "🥈 2위" : idx === 2 ? "🥉 3위" : "4위";
@@ -1129,7 +1180,6 @@ function computeAndRenderSuccessStats() {
     `;
   }).join("");
 
-  // Render Purely Typed User Testimonials
   if (purelyTypedReviews.length > 0) {
     testimonialElem.innerHTML = purelyTypedReviews.map(t => {
       const dateOnly = (t.time || "").split(" ")[0] || "";
@@ -1153,9 +1203,7 @@ function computeAndRenderSuccessStats() {
 // ==========================================================================
 function copyTextToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).catch(err => {
-      fallbackCopy(text);
-    });
+    navigator.clipboard.writeText(text).catch(err => fallbackCopy(text));
   } else {
     fallbackCopy(text);
   }
@@ -1183,9 +1231,7 @@ function setCopyBtnCopied() {
   const text = document.getElementById("copyBtnText");
   btn.classList.add("copied");
   text.textContent = "복사완료!";
-  setTimeout(() => {
-    resetCopyBtn();
-  }, 2000);
+  setTimeout(() => resetCopyBtn(), 2000);
 }
 
 function resetCopyBtn() {
@@ -1214,7 +1260,6 @@ function showToast(message, type = "info") {
 // 9. Event Listeners
 // ==========================================================================
 function bindEvents() {
-  // Set GoingBus Affiliate Link
   const directLinkElem = document.getElementById("goingbusAffiliateLink");
   if (directLinkElem) directLinkElem.href = GOINGBUS_CONFIG.affiliateUrl;
 
@@ -1222,6 +1267,16 @@ function bindEvents() {
   document.getElementById("btnCopy").addEventListener("click", handleCopyClick);
   document.getElementById("btnMarkSuccess").addEventListener("click", handleSuccessClick);
   document.getElementById("btnMarkFail").addEventListener("click", handleFailClick);
+
+  // Dev Control Panel Events
+  const btnOpenDevSettings = document.getElementById("btnOpenDevSettings");
+  if (btnOpenDevSettings) btnOpenDevSettings.addEventListener("click", openDevConfigModal);
+
+  const btnCloseDevModal = document.getElementById("btnCloseDevModal");
+  if (btnCloseDevModal) btnCloseDevModal.addEventListener("click", closeDevConfigModal);
+
+  const btnSaveDevConfig = document.getElementById("btnSaveDevConfig");
+  if (btnSaveDevConfig) btnSaveDevConfig.addEventListener("click", saveDevConfigFromModal);
 
   // Memo character counter
   const memoInput = document.getElementById("successMemoInput");
@@ -1251,29 +1306,22 @@ function bindEvents() {
     btnSubmitOld.addEventListener("click", submitSuccessWithCoupang);
   }
 
-  // Close modal when clicking dark overlay outside modal card
   document.getElementById("successModal").addEventListener("click", (e) => {
-    if (e.target.id === "successModal") {
-      closeSuccessModal();
-    }
+    if (e.target.id === "successModal") closeSuccessModal();
   });
 
-  // Preset Chips selection
   document.querySelectorAll("#presetChips .tag-chip").forEach(chip => {
     chip.addEventListener("click", () => {
       document.querySelectorAll("#presetChips .tag-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       if (memoInput) {
         memoInput.value = chip.getAttribute("data-text");
-        if (charCounter) {
-          charCounter.textContent = `${memoInput.value.length}/35`;
-        }
+        if (charCounter) charCounter.textContent = `${memoInput.value.length}/35`;
         memoInput.focus();
       }
     });
   });
 
-  // Enter key in memo input submits verification with Coupang support
   if (memoInput) {
     memoInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -1283,7 +1331,6 @@ function bindEvents() {
     });
   }
 
-  // Coupang Unlock Modal Event Listeners
   const btnCloseCoupang = document.getElementById("btnCloseCoupangModal");
   if (btnCloseCoupang) btnCloseCoupang.addEventListener("click", closeCoupangModal);
 
@@ -1296,13 +1343,10 @@ function bindEvents() {
   const coupangModal = document.getElementById("coupangUnlockModal");
   if (coupangModal) {
     coupangModal.addEventListener("click", (e) => {
-      if (e.target.id === "coupangUnlockModal") {
-        closeCoupangModal();
-      }
+      if (e.target.id === "coupangUnlockModal") closeCoupangModal();
     });
   }
 
-  // Legal Modal Event Listeners
   const btnOpenTerms = document.getElementById("btnOpenTermsModal");
   if (btnOpenTerms) btnOpenTerms.addEventListener("click", () => openLegalModal("terms"));
 
@@ -1318,9 +1362,7 @@ function bindEvents() {
   const legalModal = document.getElementById("legalModal");
   if (legalModal) {
     legalModal.addEventListener("click", (e) => {
-      if (e.target.id === "legalModal") {
-        closeLegalModal();
-      }
+      if (e.target.id === "legalModal") closeLegalModal();
     });
   }
 
@@ -1329,20 +1371,4 @@ function bindEvents() {
 
   const tabPrivacy = document.getElementById("legalTabPrivacy");
   if (tabPrivacy) tabPrivacy.addEventListener("click", () => switchLegalTab("privacy"));
-
-  // Debug Helpers for Local Testing (Console)
-  window.__debugSetCoupangAttempts = function(n) {
-    const today = getTodayDateString();
-    localStorage.setItem(COUPANG_STORAGE_KEYS.DAILY_DATA, JSON.stringify({ date: today, count: n }));
-    localStorage.removeItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE);
-    updateQuotaDisplay();
-    console.log(`[DEBUG] Set Coupang daily attempts to ${n}`);
-  };
-
-  window.__debugResetCoupang = function() {
-    localStorage.removeItem(COUPANG_STORAGE_KEYS.DAILY_DATA);
-    localStorage.removeItem(COUPANG_STORAGE_KEYS.UNLOCKED_DATE);
-    updateQuotaDisplay();
-    console.log("[DEBUG] Coupang limit and unlock status reset.");
-  };
 }

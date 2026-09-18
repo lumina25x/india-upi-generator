@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[내부 개발] 인도 UPI ID 생성기 | Supabase DB 연동 테스트</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Dev Mode Top Sticky Header */
+    .dev-top-bar {
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .dev-bar-left, .dev-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dev-tag {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+    .dev-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #1e293b;
+      color: #94a3b8;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .dev-status-badge.connected {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .dev-status-badge.loading {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .dev-status-badge.unconfigured, .dev-status-badge.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .btn-dev-action {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-dev-action:hover {
+      background: #334155;
+      border-color: #64748b;
+    }
+    .btn-dev-back {
+      color: #94a3b8;
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .btn-dev-back:hover {
+      color: #f8fafc;
+      background: rgba(255,255,255,0.05);
+    }
+    .dev-modal-card {
+      max-width: 500px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .dev-modal-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Dev Top Sticky Control Bar -->
+  <div class="dev-top-bar" id="devTopBar">
+    <div class="dev-bar-left">
+      <span class="dev-tag">🧪 DEV TEST</span>
+      <span class="dev-status-badge unconfigured" id="devSupabaseBadge">
+        <span class="status-dot"></span>
+        <span id="devSupabaseStatusText">Supabase API 정보 입력 대기 중</span>
+      </span>
+    </div>
+    <div class="dev-bar-right">
+      <button type="button" class="btn-dev-action" id="btnOpenDevSettings">⚙️ Supabase API 설정</button>
+      <a href="index.html" class="btn-dev-back">라이브(운영) 화면 가기 ➔</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-badge">🇮🇳 India UPI ID Generator (Supabase Dev)</div>
+      <h1 class="main-title">인도 UPI ID 스마트 생성기 <span style="font-size: 0.6em; color: #818cf8; vertical-align: middle;">[DEV]</span></h1>
+      <p class="subtitle">
+        구글 시트(3~15초 지연) 대신 <strong>초경량 Supabase DB(0.03초)</strong>를 연동한 내부 개발 테스트 페이지입니다.<br>
+        실패한 ID는 <strong>자동으로 영구 제외</strong>되며, 성공한 ID는 별도 기록되어 누적 관리됩니다.
+      </p>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-pill stat-success">
+          <span class="stat-label">성공 누적</span>
+          <span class="stat-value" id="statSuccessCount">0</span>
+        </div>
+        <div class="stat-pill stat-failed">
+          <span class="stat-label">제외(실패) 등록</span>
+          <span class="stat-value" id="statFailedCount">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Collapsible Guide -->
+    <section class="guide-accordion-section">
+      <details class="guide-details" id="upiGuideDetails">
+        <summary class="guide-summary">
+          <div class="summary-left">
+            <span class="guide-icon">📖</span>
+            <span class="guide-summary-title">인도 UPI ID란 무엇이고 어떻게 만들어지나요? (클릭하여 펼치기)</span>
+          </div>
+          <svg class="accordion-arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
+        
+        <div class="guide-content-body">
+          <div class="guide-grid">
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">💡</span>
+                <h4>UPI란 무엇인가요?</h4>
+              </div>
+              <p>
+                <strong>UPI(Unified Payments Interface)</strong>는 인도 국립결제공사(NPCI)가 운영하는 인도의 표준 실시간 계좌이체 시스템입니다.
+                복잡한 은행 계좌번호 대신 이메일 형태의 <strong>가상 결제 주소(VPA, username@handle)</strong> 하나로 송금과 결제를 처리합니다.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">🎯</span>
+                <h4>왜 가상 생성 ID가 필요한가요?</h4>
+              </div>
+              <p>
+                인도 유튜브 프리미엄 및 애플 구독 갱신 시, 인도 금융 당국(RBI) 규정으로 <strong>현지 결제수단(UPI 등) 등록이 법적 의무화</strong>되었습니다.<br>
+                특히 <strong>애플 계정</strong>은 결제수단이 'None'이면 기프트카드 잔액이 넉넉해도 <strong>결제창만 무한 반복</strong>됩니다. 실제 결제는 계정 잔액에서 100% 차감되므로, 통과용 <strong>UPI ID를 등록하여 락(Lock)을 해제</strong>해야 정상 승인됩니다.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">⚙️</span>
+                <h4>어떤 구조로 만들어지나요?</h4>
+              </div>
+              <p class="guide-code-lead">
+                기본 골격: <code>username@handle</code>
+              </p>
+              <ul class="guide-list">
+                <li><strong>앞부분 (username)</strong>: 성인층 흔한 이름(Rahul, Priya, Sneha 등) + <code>12</code>, <code>123</code>, <code>1234</code> 등 단순 숫자 또는 성씨 조합.</li>
+                <li><strong>뒷부분 (@handle)</strong>: PhonePe(<code>@ybl</code>), Paytm(<code>@paytm</code>), Google Pay(<code>@oksbi</code>) 등 공인 결제망 은행 식별자.</li>
+                <li><strong>영문 소문자 필수</strong>: 대문자가 섞이면 시스템 인식 오류가 발생하므로 <strong>전원 소문자</strong>로만 생성됩니다.</li>
+              </ul>
+            </div>
+
+            <div class="guide-card tip-highlight">
+              <div class="guide-card-header">
+                <span class="guide-card-icon">🚀</span>
+                <h4>성공률을 극대화하는 핵심 팁</h4>
+              </div>
+              <p>
+                인터넷 블로그에 공개된 고정 ID는 수많은 이용자가 동시에 써서 '너무 많은 계정 연결 에러'로 차단됩니다.<br>
+                본 생성기에서 <strong>인도 흔한 이름 + 단순 숫자(123 등)</strong> 조합으로 새로운 ID를 뽑아 입력하시면 높은 확률로 바로 뚫립니다!
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Main Generator Hero Card -->
+    <main class="generator-card">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <div class="generator-options">
+          <div class="option-group">
+            <label for="patternSelect">생성 모드 선택</label>
+            <select id="patternSelect" class="styled-select">
+              <option value="smart" selected>🔥 추천: 123/단순숫자 조합 (성공률 최고)</option>
+              <option value="name_only">이름 + 단순 숫자 (예: sneha123@paytm)</option>
+              <option value="name_surname">이름.성씨 조합 (예: rahul.verma@ybl)</option>
+              <option value="name_surname_num">이름.성 + 숫자 조합 (예: priya.patel45@oksbi)</option>
+              <option value="all_random">전체 패턴 무작위 셔플</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label for="handleSelect">결제 앱 / 은행 지정</label>
+            <select id="handleSelect" class="styled-select">
+              <option value="all" selected>전체 은행 랜덤 (PhonePe, Paytm, GPay, SBI)</option>
+              <option value="paytm">Paytm (@paytm, @ptsbi, @ptaxis)</option>
+              <option value="phonepe">PhonePe (@ybl, @ibl, @axl)</option>
+              <option value="gpay">Google Pay (@oksbi, @okicici, @okhdfcbank)</option>
+              <option value="sbi">SBI/기타 국영은행 (@sbi, @upi)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Generated ID Display Box -->
+        <div class="id-display-container">
+          <div class="id-display-wrapper">
+            <span class="id-text placeholder" id="currentUpiDisplay">버튼을 눌러 ID를 생성하세요</span>
+            <button class="btn-copy" id="btnCopy" title="클립보드 복사" disabled>
+              <svg class="copy-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copyBtnText">복사</span>
+            </button>
+          </div>
+
+          <div class="id-meta-info" id="idMetaInfo" style="display: none;">
+            <span class="meta-tag" id="metaAppTag">PhonePe</span>
+            <span class="meta-tag" id="metaNameTag">Priya</span>
+            <span class="meta-pattern" id="metaPatternText">이름 + 숫자 조합</span>
+          </div>
+        </div>
+
+        <!-- Block Alert Banner -->
+        <div class="block-alert-banner" id="blockAlertBanner" style="display: none;">
+          <div class="block-timer-badge">
+            <span class="timer-icon">⏳</span>
+            <span>생성 한도(100회) 도달 &bull; <strong><span id="blockTimerText">30분 00초</span></strong> 후 자동 해제</span>
+          </div>
+
+          <div class="block-content">
+            <div class="block-warning-box">
+              <div class="block-warning-header">
+                <span class="block-warning-icon">🛑</span>
+                <h4>누적 100회 시도 완료 (30분 일시 대기)</h4>
+              </div>
+              <p>
+                반복적인 결제 시도는 구글 시스템에 의해 계정 일시 정지로 이어질 수 있어 30분간 생성이 일시 중단됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback & Action Buttons -->
+        <div class="action-buttons-group">
+          <button class="btn-primary" id="btnGenerate">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            새로운 UPI ID 생성
+          </button>
+          <div class="generation-quota-info" id="generationQuotaInfo" style="display: none;">
+            <span class="quota-badge daily-badge" id="dailyQuotaBadge">오늘 무료: <strong id="dailyCountDisplay">0</strong> / 10회</span>
+            <span class="quota-divider">•</span>
+            <span class="quota-badge abuse-badge" title="봇 및 어뷰징 방지 안전 제한">누적 시도: <span id="quotaCountDisplay">0</span> / 100회</span>
+          </div>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="feedback-prompt" id="feedbackPrompt" style="display: none;">
+          <div class="feedback-header-box">
+            <div class="feedback-badge">실제 시도 피드백</div>
+            <div class="feedback-title">방금 생성된 ID를 결제창에 실제로 입력해 보셨나요?</div>
+            <p class="feedback-desc">
+              다음 사용자분들께 실질적인 도움이 될 수 있도록 결과를 선택해 주세요.
+            </p>
+          </div>
+          <div class="feedback-buttons">
+            <button class="btn-feedback btn-success" id="btnMarkSuccess">
+              <span class="btn-icon">👍</span>
+              성공했어요! (검증 사례 등록)
+            </button>
+            <button class="btn-feedback btn-fail" id="btnMarkFail">
+              <span class="btn-icon">👎</span>
+              실패했어요
+            </button>
+          </div>
+          <p class="feedback-hint">※ 실패 버튼을 누르면 제외 목록에 등록되며 새 ID가 바로 추천됩니다.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Real-time Big Data Statistics Dashboard -->
+    <section class="live-stats-section">
+      <div class="stats-section-header">
+        <div class="stats-header-title-row">
+          <div class="live-indicator-badge">
+            <span class="pulse-dot"></span>
+            <span>LIVE 실시간 연동 분석 (Supabase)</span>
+          </div>
+          <h2 class="stats-main-title">📊 실시간 빅데이터 성공 패턴 분석</h2>
+        </div>
+        <p class="stats-header-desc">
+          Supabase DB에서 실시간 누적된 실제 결제 성공 데이터를 자동 분석한 통계입니다.
+        </p>
+      </div>
+
+      <div class="live-stats-grid">
+        <!-- Card 1: Bank Handles Success Ranking -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">🏆</span>
+            <div>
+              <h3>결제망 / 은행별 성공 랭킹</h3>
+              <p class="stat-card-sub">어떤 핸들이 가장 잘 뚫릴까요?</p>
+            </div>
+          </div>
+          <div class="bank-ranking-list" id="bankRankingList">
+            <div class="stats-empty">통계 데이터를 불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Pattern Distribution -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">💡</span>
+            <div>
+              <h3>검증된 성공 조합 패턴</h3>
+              <p class="stat-card-sub">성공자들의 선택 유형 (4대 패턴)</p>
+            </div>
+          </div>
+          <div class="pattern-stat-body" id="patternStatBody">
+            <div class="stats-empty">통계 데이터를 불러오는 중...</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Real User Testimonials Feed -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-icon">💬</span>
+            <div>
+              <h3>실시간 생생 후기 & 팁</h3>
+              <p class="stat-card-sub">실제 사용자 직접 작성 후기</p>
+            </div>
+          </div>
+          <div class="testimonials-scroll-box" id="testimonialsList">
+            <div class="stats-empty">등록된 후기를 불러오는 중...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Records Dashboard (Success vs Failed/Excluded) -->
+    <section class="records-grid">
+      <!-- Success Column -->
+      <div class="record-column success-column">
+        <div class="column-header">
+          <div class="title-with-icon">
+            <span class="icon-bubble success-bubble">✓</span>
+            <h2>성공 기록 (<span id="successCounter">0</span>)</h2>
+          </div>
+        </div>
+        <p class="column-desc">실제 결제/갱신에 성공한 유효 ID 목록입니다.</p>
+        <div class="list-wrapper" id="successListContainer">
+          <div class="empty-state" id="emptySuccess">아직 등록된 성공 건이 없습니다.<br>성공 버튼을 눌러 기록해 보세요!</div>
+          <ul class="id-list" id="successList"></ul>
+        </div>
+      </div>
+
+      <!-- Failed / Excluded Column -->
+      <div class="record-column failed-column">
+        <div class="column-header">
+          <div class="title-with-icon">
+            <span class="icon-bubble failed-bubble">✕</span>
+            <h2>제외(실패) 목록 (<span id="failedCounter">0</span>)</h2>
+          </div>
+        </div>
+        <p class="column-desc">에러로 차단된 ID입니다. (자동 생성에서 제외됨)</p>
+        <div class="list-wrapper" id="failedListContainer">
+          <div class="empty-state" id="emptyFailed">등록된 실패 건이 없습니다.</div>
+          <ul class="id-list" id="failedList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faqSection">
+      <div class="faq-header-row">
+        <div class="faq-badge">
+          <span class="faq-badge-icon">💬</span>
+          <span>자주 묻는 질문 & 오류 해결</span>
+        </div>
+        <h2 class="faq-main-title">실전 트러블슈팅 & 상세 가이드 (FAQ)</h2>
+      </div>
+
+      <div class="faq-accordion-list">
+        <details class="faq-item">
+          <summary class="faq-summary">
+            <div class="faq-q-title">
+              <span class="faq-q-badge">Q1</span>
+              <span>결제창에 생성된 ID를 넣었는데 '유효하지 않은 UPI ID'라고 뜹니다. 왜 그런가요?</span>
+            </div>
+            <svg class="faq-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="faq-answer-body">
+            <p>
+              구글과 애플 결제망은 등록 즉시 해당 가상 계좌의 형식과 은행 핸들의 실시간 유효성을 검증합니다.
+              실패 버튼을 누르고 추천 모드(123 조합)로 3~5회 새로 생성하면 정상 승인됩니다.
+            </p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Success Verification Modal -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">🎉</span>
+            <div>
+              <h3 class="modal-title">실제 성공 사례로 인증 등록</h3>
+              <p class="modal-subtitle">성공한 ID: <strong id="modalSuccessId" class="modal-highlight-id"></strong></p>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseSuccessModal" title="닫기">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-guide-box">
+            <p>
+              다른 사용자분들에게 신뢰할 수 있는 정보를 제공하기 위해 간단한 후기를 남겨주세요!
+            </p>
+          </div>
+
+          <div class="chip-section">
+            <span class="chip-label">빠른 선택 칩 (클릭 시 자동 입력):</span>
+            <div class="preset-chips" id="presetChips">
+              <button type="button" class="tag-chip" data-text="나마스테 🙏 덕분에 성공했습니다!">🙏 나마스테! 성공 완료</button>
+              <button type="button" class="tag-chip" data-text="바로 갱신 성공했습니다! 👍">⚡ 바로 갱신 성공!</button>
+              <button type="button" class="tag-chip" data-text="123 숫자 붙여서 바로 뚫렸어요! 🔥">💡 123 조합으로 성공</button>
+              <button type="button" class="tag-chip" data-text="유튜브 앱 동기화까지 완료했습니다 📱">📱 유튜브 앱 동기화 완료</button>
+              <button type="button" class="tag-chip" data-text="감사합니다! 덕분에 살았습니다 🙏">🙏 감사합니다! 살았습니다</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-with-counter">
+              <label for="successMemoInput">감사 인사 또는 성공 팁 입력</label>
+              <span class="char-counter" id="charCounter">0/35</span>
+            </div>
+            <input type="text" id="successMemoInput" class="styled-input" placeholder="예: 2번 시도만에 바로 뚫렸습니다!" maxlength="35">
+          </div>
+        </div>
+
+        <div class="modal-footer success-modal-actions-footer">
+          <button type="button" class="btn-subtle" id="btnCancelSuccessModal">취소</button>
+          <button type="button" class="btn-confirm-success-coupang" id="btnSubmitSuccessWithCoupang">
+            <span class="coffee-btn-icon">⚡</span>
+            <span class="btn-main-text">Supabase에 성공 등록</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coupang Partners Unlock Modal -->
+    <div class="modal-overlay" id="coupangUnlockModal" style="display: none;">
+      <div class="modal-card modal-coupang-card-container">
+        <div class="modal-header coupang-modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">🎁</span>
+            <div>
+              <div class="coupang-modal-pill">기본 무료 10회 완료</div>
+              <h3 class="modal-title">오늘 하루 무제한 생성 잠금 해제</h3>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseCoupangModal" title="닫기">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="coupang-action-box">
+            <button type="button" class="btn-coupang-unlock" id="btnCoupangUnlock">
+              <span class="btn-coupang-icon">🚀</span>
+              <span class="btn-coupang-label">쿠팡 1초 방문하고 오늘 무제한 해제하기</span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer coupang-modal-footer">
+          <button type="button" class="btn-subtle" id="btnSkipCoupangModal">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div class="modal-overlay" id="legalModal" style="display: none;">
+      <div class="modal-card legal-modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">서비스 운영 정책</h3>
+          <button class="btn-close-modal" id="btnCloseLegalModal" title="닫기">✕</button>
+        </div>
+        <div class="modal-footer legal-modal-footer">
+          <button type="button" class="btn-primary" id="btnCloseLegalModalBottom">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p class="footer-copy">© 2026 India UPI ID Generator. Dev Test Mode with Supabase.</p>
+    </footer>
+  </div>
+
+  <!-- Dev Supabase Configuration Modal -->
+  <div class="modal-overlay" id="devConfigModal" style="display: none;">
+    <div class="modal-card dev-modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" style="font-size: 16px; font-weight:700; color: #f8fafc;">⚙️ Supabase 개발 환경 설정</h3>
+        <button type="button" class="btn-close-modal" id="btnCloseDevModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="dev-modal-desc">
+          Supabase 대시보드(<strong>Project Settings ➔ API</strong>)에서 발급받은 정보를 입력하세요.<br>
+          입력한 정보는 이 브라우저(localStorage)에 안전하게 저장됩니다.
+        </p>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#cbd5e1;">Project URL</label>
+          <input type="text" id="devInputSupabaseUrl" placeholder="https://xxxxxx.supabase.co" class="styled-input" style="width:100%; box-sizing:border-box;">
+        </div>
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#cbd5e1;">anon public Key</label>
+          <input type="text" id="devInputSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="styled-input" style="width:100%; box-sizing:border-box;">
+        </div>
+        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px; border-radius: 8px; font-size: 12px; color: #38bdf8; line-height: 1.5;">
+          💡 <strong>팁:</strong> SQL Editor에서 <code>scratch/supabase_schema.sql</code>을 실행하셨다면 설정 즉시 0.03초 만에 데이터가 동기화됩니다.
+        </div>
+      </div>
+      <div class="modal-footer" style="padding-top: 10px;">
+        <button type="button" class="btn-primary" id="btnSaveDevConfig" style="width:100%; padding: 12px; font-weight:700; justify-content:center;">저장 및 연결 테스트 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase_config.js"></script>
+  <script src="script.dev.js"></script>
+</body>
+</html>
