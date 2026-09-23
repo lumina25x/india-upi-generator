@@ -581,9 +581,9 @@
           <div class="goingbus-title-row">
             <div class="goingbus-title-left">
               <span class="goingbus-badge-label">💡 인도 결제 락 & 우회 막힘 종결 대안</span>
-              <strong class="goingbus-main-title">계속 막히거나 지치셨다면? 합법 OTT 공유 (GoingBus)</strong>
+              <strong class="goingbus-main-title">YouTube Premium 인도 &amp; 글로벌 우회 지원</strong>
             </div>
-            <span class="affiliate-price-tag">월 3,000원대</span>
+
           </div>
           <p class="goingbus-desc">
             인도 우회 차단이나 해외 결제 락으로 지치셨다면, VPN 없이 안전한 <strong>합법 OTT 공유 플랫폼(GoingBus)</strong>으로 커피 한 잔 가격에 유튜브 프리미엄을 즉시 시청하세요!
@@ -914,6 +914,102 @@
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ✅ 카카오 오픈채팅 플로팅 버튼 -->
+  <a
+    href="https://open.kakao.com/o/pknuf4Oi"
+    target="_blank"
+    rel="noopener noreferrer"
+    id="kakaoFloatBtn"
+    class="kakao-float-btn"
+    title="카카오 오픈채팅 참여하기"
+    aria-label="카카오 오픈채팅방 참여하기"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+      <path d="M12 2C6.477 2 2 5.813 2 10.5c0 2.91 1.71 5.487 4.326 7.075L5.25 21.5l4.555-2.31C10.54 19.37 11.26 19.5 12 19.5c5.523 0 10-3.813 10-8.5S17.523 2 12 2z"/>
+    </svg>
+    <span class="kakao-float-label">오픈채팅</span>
+    <span class="kakao-float-tooltip">💬 카카오 오픈채팅 참여하기</span>
+  </a>
+
+  <style>
+    /* ── 카카오 플로팅 버튼 ── */
+    .kakao-float-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FEE500;
+      color: #3A1D1D;
+      text-decoration: none;
+      padding: 13px 20px 13px 16px;
+      border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 4px 20px rgba(254, 229, 0, 0.45), 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .kakao-float-btn:hover {
+      transform: translateY(-4px) scale(1.04);
+      background: #FFD700;
+      box-shadow: 0 8px 28px rgba(254, 229, 0, 0.6), 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .kakao-float-btn:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+    .kakao-float-btn svg {
+      flex-shrink: 0;
+    }
+    .kakao-float-label {
+      letter-spacing: -0.2px;
+    }
+    /* 툴팁 */
+    .kakao-float-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 10px);
+      right: 0;
+      background: rgba(20, 20, 30, 0.92);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .kakao-float-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      right: 24px;
+      border: 6px solid transparent;
+      border-top-color: rgba(20, 20, 30, 0.92);
+    }
+    .kakao-float-btn:hover .kakao-float-tooltip {
+      display: block;
+    }
+    /* 모바일: 라벨 숨기고 원형으로 */
+    @media (max-width: 480px) {
+      .kakao-float-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 15px;
+        border-radius: 50%;
+        gap: 0;
+      }
+      .kakao-float-label {
+        display: none;
+      }
+    }
+  </style>
 
   <!-- Supabase JS Client v2 CDN & Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
