@@ -130,6 +130,12 @@
         실패한 ID는 <strong>자동으로 영구 제외</strong>되며, 성공한 ID는 별도 기록되어 누적 관리됩니다.
       </p>
 
+      <!-- 9/23 Emergency Notice Button -->
+      <div class="emergency-top-pill" id="btnHeaderEmergencyNotice">
+        <span class="emergency-pill-dot"></span>
+        <span>🚨 9월 23일 인도 결제망 강화 긴급 공지 보기</span>
+      </div>
+
       <!-- Stats Bar -->
       <div class="stats-bar" id="statsBar">
         <div class="stat-pill stat-success">
@@ -568,6 +574,109 @@
       </div>
     </section>
 
+    <!-- GoingBus Alternative Solution Card (우회 막힘 종결 대안 - 페이지 최하단 배치) -->
+    <section class="goingbus-section">
+      <div class="tip-card tip-affiliate-card goingbus-standalone">
+        <div class="tip-body">
+          <div class="goingbus-title-row">
+            <div class="goingbus-title-left">
+              <span class="goingbus-badge-label">💡 인도 결제 락 & 우회 막힘 종결 대안</span>
+              <strong class="goingbus-main-title">계속 막히거나 지치셨다면? 합법 OTT 공유 (GoingBus)</strong>
+            </div>
+            <span class="affiliate-price-tag">월 3,000원대</span>
+          </div>
+          <p class="goingbus-desc">
+            인도 우회 차단이나 해외 결제 락으로 지치셨다면, VPN 없이 안전한 <strong>합법 OTT 공유 플랫폼(GoingBus)</strong>으로 커피 한 잔 가격에 유튜브 프리미엄을 즉시 시청하세요!
+          </p>
+          <div class="affiliate-features-row">
+            <span class="affiliate-feature-pill">⚡ VPN 우회 불필요 (즉시 시청)</span>
+            <span class="affiliate-feature-pill">🛡️ 본인 구글 계정 정지 위험 0%</span>
+            <span class="affiliate-feature-pill">💰 공식 구독료 대비 최대 80% 할인</span>
+            <span class="affiliate-feature-pill">🔄 100% 자동 갱신 및 환불 보장</span>
+          </div>
+          <div class="affiliate-action-row">
+            <a href="https://goingbus.com?s=1kO9X8Oz" id="goingbusAffiliateLink" target="_blank" rel="noopener noreferrer" class="btn-goingbus-direct" title="고잉버스 공식 사이트 새창 이동">
+              <span>고잉버스 최저가 바로가기 (추가 할인 자동 적용)</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Emergency Notice Modal (2026.09.23 인도 결제망 이슈 긴급 안내) -->
+    <div class="modal-overlay" id="emergencyNoticeModal" style="display: none;">
+      <div class="modal-card emergency-modal-card">
+        <div class="modal-header emergency-modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-icon">🚨</span>
+            <div>
+              <div class="emergency-badge">긴급 안내 · 9월 23일 공지</div>
+              <h3 class="modal-title">인도 UPI 결제 멈춤 현황 안내</h3>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseEmergencyModal" title="닫기">✕</button>
+        </div>
+
+        <div class="modal-body emergency-modal-body">
+          <p class="emergency-lead-text">
+            현재 <strong>9월 23일 일자</strong>로 구글·애플 인도 결제망의 검증 강화로 인해, UPI 입력 시 <strong>결제가 진행되지 않고 멈추는 사례</strong>가 집중 발생하고 있습니다.
+          </p>
+
+          <div class="emergency-symptom-box">
+            <h4 class="emergency-symptom-title">⚠️ 주요 발생 증상 (3대 오류)</h4>
+            <div class="emergency-symptom-list">
+              <div class="emergency-symptom-item">
+                <span class="symptom-num">①</span>
+                <div class="symptom-text">
+                  <strong>"UPI 앱 열어서 승인 요구"</strong>
+                  <span>가상 ID 특성상 실제 결제 앱 소유자가 아니므로 인앱 승인 불가</span>
+                </div>
+              </div>
+              <div class="emergency-symptom-item">
+                <span class="symptom-num">②</span>
+                <div class="symptom-text">
+                  <strong>"Verify (확인 필요)"</strong>
+                  <span>결제 프로필 등록 후 승인되지 않고 추가 검증 락 발생</span>
+                </div>
+              </div>
+              <div class="emergency-symptom-item">
+                <span class="symptom-num">③</span>
+                <div class="symptom-text">
+                  <strong>"Purchase in Progress (구매 보류)"</strong>
+                  <span>결제 진행 중 상태로 무한 대기하며 최종 완료 차단</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="emergency-notice-tip">
+            💡 단시간 내 무리한 반복 시도는 <strong>결제 프로필 일시 정지</strong> 위험이 있으니 주의해 주시기 바랍니다. 상황 변화를 실시간으로 모니터링하고 있습니다.
+          </div>
+
+          <div class="emergency-bookmark-alert">
+            ⭐ <strong>빠르게 추가 해결방법 찾아 공유하도록 하겠습니다. 즐겨찾기 해주세요!</strong>
+          </div>
+
+          <div class="emergency-goingbus-callout">
+            <span class="callout-icon">💡</span>
+            <div class="callout-text">
+              <span>우회 스트레스 없이 바로 시청을 원하시면?</span>
+              <a href="https://goingbus.com?s=1kO9X8Oz" target="_blank" rel="noopener noreferrer" class="emergency-goingbus-link">합법 OTT 공유(GoingBus) 월 3,000원대 대안 보기 ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer emergency-modal-footer">
+          <button type="button" class="btn-subtle" id="btnDismissTodayEmergencyModal">오늘 하루 보지 않기</button>
+          <button type="button" class="btn-emergency-confirm" id="btnConfirmEmergencyModal">확인했습니다</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Success Verification Modal (Anti-accidental click device) -->
     <div class="modal-overlay" id="successModal" style="display: none;">

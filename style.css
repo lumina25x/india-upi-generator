@@ -2495,6 +2495,86 @@ body {
   .coupang-modal-footer {
     padding: 10px 14px !important;
   }
+
+  /* Emergency Notice Modal Mobile Optimization */
+  .emergency-modal-card {
+    width: 95% !important;
+    max-height: calc(100vh - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+  }
+
+  .emergency-modal-body {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+
+  .emergency-badge {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .emergency-lead-text {
+    font-size: 0.8rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .emergency-symptom-box {
+    padding: 10px !important;
+  }
+
+  .emergency-symptom-title {
+    font-size: 0.78rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .emergency-symptom-list {
+    gap: 6px !important;
+  }
+
+  .emergency-symptom-item {
+    padding: 6px 8px !important;
+    gap: 8px !important;
+  }
+
+  .emergency-symptom-item .symptom-num {
+    font-size: 0.85rem !important;
+  }
+
+  .emergency-symptom-item .symptom-text strong {
+    font-size: 0.78rem !important;
+  }
+
+  .emergency-symptom-item .symptom-text span {
+    font-size: 0.68rem !important;
+  }
+
+  .emergency-notice-tip {
+    padding: 8px 10px !important;
+    font-size: 0.72rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .emergency-bookmark-alert {
+    padding: 8px 10px !important;
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .emergency-modal-footer {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+  }
+
+  .btn-emergency-confirm {
+    padding: 9px 16px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .emergency-top-pill {
+    font-size: 0.72rem !important;
+    padding: 5px 10px !important;
+    gap: 6px !important;
+  }
 }
 
 /* ==========================================================================
@@ -2849,3 +2929,435 @@ body {
     font-size: 0.82rem;
   }
 }
+
+/* ==========================================================================
+   Emergency Notice Modal (2026.09.23 인도 결제망 이슈)
+   ========================================================================== */
+.emergency-modal-card {
+  max-width: 500px !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(239, 68, 68, 0.18) !important;
+}
+
+.emergency-modal-header {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(185, 28, 28, 0.1) 100%) !important;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+.emergency-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.emergency-modal-body {
+  padding: 18px 20px !important;
+  gap: 14px !important;
+}
+
+.emergency-lead-text {
+  font-size: 0.88rem;
+  color: #f1f5f9;
+  line-height: 1.55;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.emergency-lead-text strong {
+  color: #f87171;
+}
+
+.emergency-symptom-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.emergency-symptom-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fca5a5;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.01em;
+}
+
+.emergency-symptom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emergency-symptom-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+.emergency-symptom-item .symptom-num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f87171;
+  line-height: 1.2;
+}
+
+.emergency-symptom-item .symptom-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.emergency-symptom-item .symptom-text strong {
+  font-size: 0.84rem;
+  color: #fef2f2;
+}
+
+.emergency-symptom-item .symptom-text span {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.emergency-notice-tip {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: #fde68a;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.emergency-notice-tip strong {
+  color: #fbbf24;
+}
+
+.emergency-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 20px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-emergency-confirm {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-emergency-confirm:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
+}
+
+.emergency-top-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.emergency-top-pill:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.emergency-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: pulseDot 1.5s infinite;
+}
+
+.emergency-bookmark-alert {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #bae6fd;
+  line-height: 1.45;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.emergency-bookmark-alert strong {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.emergency-goingbus-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px dashed rgba(129, 140, 248, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin-top: 4px;
+}
+
+.emergency-goingbus-callout .callout-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.emergency-goingbus-callout .callout-text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.emergency-goingbus-link {
+  color: #38bdf8;
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.emergency-goingbus-link:hover {
+  color: #818cf8;
+}
+
+/* ==========================================================================
+   Restored GoingBus OTT Sharing Referral Card (우회 막힘 종결 대안)
+   ========================================================================== */
+.goingbus-section {
+  width: 100%;
+  margin: 24px 0 20px 0;
+  animation: fadeIn 0.4s ease;
+}
+
+.tip-affiliate-card.goingbus-standalone {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid rgba(129, 140, 248, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.12);
+  transition: all 0.25s ease;
+}
+
+.tip-affiliate-card.goingbus-standalone::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f59e0b 0%, #ec4899 35%, #8b5cf6 70%, #3b82f6 100%);
+}
+
+.tip-affiliate-card.goingbus-standalone:hover {
+  border-color: rgba(165, 180, 252, 0.7);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.25);
+  transform: translateY(-2px);
+}
+
+.tip-affiliate-card .tip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goingbus-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.goingbus-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.goingbus-badge-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: -0.01em;
+}
+
+.goingbus-main-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.affiliate-price-tag {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+  white-space: nowrap;
+}
+
+.goingbus-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  margin: 0;
+  word-break: keep-all;
+}
+
+.goingbus-desc strong {
+  color: #38bdf8;
+}
+
+.affiliate-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.affiliate-feature-pill {
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.affiliate-action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-goingbus-direct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  color: #ffffff !important;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+  border: 1px solid rgba(165, 180, 252, 0.3);
+}
+
+.btn-goingbus-direct:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 6px 22px rgba(99, 102, 241, 0.55);
+  transform: translateY(-2px);
+  color: #ffffff !important;
+}
+
+.btn-goingbus-direct svg {
+  transition: transform 0.2s ease;
+}
+
+.btn-goingbus-direct:hover svg {
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 600px) {
+  .emergency-goingbus-callout .callout-text {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .tip-affiliate-card.goingbus-standalone {
+    padding: 18px 16px;
+  }
+  
+  .goingbus-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .goingbus-main-title {
+    font-size: 0.96rem;
+  }
+  
+  .affiliate-features-row {
+    gap: 6px;
+  }
+  
+  .affiliate-feature-pill {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+  
+  .affiliate-action-row {
+    width: 100%;
+  }
+  
+  .btn-goingbus-direct {
+    width: 100%;
+    font-size: 0.86rem;
+    padding: 11px 16px;
+  }
+}
+
+
+

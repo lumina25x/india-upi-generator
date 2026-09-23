@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadStoredData();
   bindEvents();
   initRateLimiting();
+  initEmergencyNotice();
   updateStats();
   renderLists();
   initSupabase();
@@ -816,6 +817,59 @@ function switchLegalTab(tab) {
   }
 }
 
+// ==========================================================================
+// Emergency Notice Modal Management (2026.09.23 인도 결제망 이슈)
+// ==========================================================================
+function initEmergencyNotice() {
+  const modal = document.getElementById("emergencyNoticeModal");
+  if (!modal) return;
+
+  const btnClose = document.getElementById("btnCloseEmergencyModal");
+  const btnConfirm = document.getElementById("btnConfirmEmergencyModal");
+  const btnDismissToday = document.getElementById("btnDismissTodayEmergencyModal");
+  const btnHeaderNotice = document.getElementById("btnHeaderEmergencyNotice");
+
+  const STORAGE_KEY = "upi_notice_20260923_v2";
+
+  function openEmergencyModal() {
+    modal.style.display = "flex";
+  }
+
+  function closeEmergencyModal() {
+    modal.style.display = "none";
+  }
+
+  if (btnClose) btnClose.addEventListener("click", closeEmergencyModal);
+  if (btnConfirm) btnConfirm.addEventListener("click", closeEmergencyModal);
+  if (btnDismissToday) {
+    btnDismissToday.addEventListener("click", () => {
+      try {
+        const todayStr = (new Date()).toISOString().substring(0, 10);
+        localStorage.setItem(STORAGE_KEY, todayStr);
+      } catch (e) {}
+      closeEmergencyModal();
+      showToast("오늘 하루 동안 긴급안내 팝업이 표시되지 않습니다.", "info");
+    });
+  }
+
+  if (btnHeaderNotice) {
+    btnHeaderNotice.addEventListener("click", () => {
+      openEmergencyModal();
+    });
+  }
+
+  // Dismissed status check
+  try {
+    const dismissedDate = localStorage.getItem(STORAGE_KEY);
+    const todayStr = (new Date()).toISOString().substring(0, 10);
+    if (dismissedDate !== todayStr) {
+      setTimeout(openEmergencyModal, 350);
+    }
+  } catch (e) {
+    setTimeout(openEmergencyModal, 350);
+  }
+}
+
 function submitSuccessWithCoupang() {
   if (!state.currentId) return;
   // 1. Submit success verification
@@ -1080,9 +1134,19 @@ function computeAndRenderSuccessStats() {
 
     // Purely user-typed custom reviews filter
     const memo = String(item.memo ?? "").trim();
+    const memoLower = memo.toLowerCase();
     const isPreset = PRESET_CHIP_TEXTS.has(memo);
     const isTestId = fullId.includes("test_") || memo.includes("테스트 성공");
-    if (memo && !isPreset && !isTestId) {
+    // 오늘 발생한 에러/보류/인증 증상 호소 후기는 생생 성공 후기 피드에서 비노출 (긴급 공지 팝업에서 별도 안내)
+    const isErrorComplaint = memoLower.includes("verify") || 
+                             memoLower.includes("베리파이") || 
+                             memoLower.includes("어플 열") || 
+                             memoLower.includes("app 열") || 
+                             memoLower.includes("progress") || 
+                             memoLower.includes("보류") || 
+                             memoLower.includes("인증하라고");
+
+    if (memo && !isPreset && !isTestId && !isErrorComplaint) {
       purelyTypedReviews.push({
         id: String(item.id),
         memo: memo,
