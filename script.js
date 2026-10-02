@@ -209,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadStoredData();
   bindEvents();
   initRateLimiting();
+  initWagalNoticeModal();
   initEmergencyNotice();
   updateStats();
   renderLists();
@@ -818,6 +819,74 @@ function switchLegalTab(tab) {
 }
 
 // ==========================================================================
+// Wagal Macro 0.4.0 Notice & Guide Modal Management (2026.10 최신 배포)
+// ==========================================================================
+function initWagalNoticeModal() {
+  const modal = document.getElementById("wagalMacroNoticeModal");
+  if (!modal) return;
+
+  const btnClose = document.getElementById("btnCloseWagalModal");
+  const btnConfirm = document.getElementById("btnConfirmWagalModal");
+  const btnDismissToday = document.getElementById("btnDismissTodayWagalModal");
+  const btnHeaderOpen = document.getElementById("btnHeaderWagalNotice");
+  const btnPageOpen = document.getElementById("btnPageOpenWagalGuide");
+
+  const STORAGE_KEY = "wagal_macro_v040_notice_dismissed";
+
+  function openWagalModal() {
+    modal.style.display = "flex";
+  }
+
+  function closeWagalModal() {
+    modal.style.display = "none";
+  }
+
+  if (btnClose) btnClose.addEventListener("click", closeWagalModal);
+  if (btnConfirm) btnConfirm.addEventListener("click", closeWagalModal);
+
+  if (btnDismissToday) {
+    btnDismissToday.addEventListener("click", () => {
+      try {
+        const todayStr = (new Date()).toISOString().substring(0, 10);
+        localStorage.setItem(STORAGE_KEY, todayStr);
+      } catch (e) {}
+      closeWagalModal();
+      showToast("오늘 하루 동안 와갈매크로 안내 팝업이 표시되지 않습니다.", "info");
+    });
+  }
+
+  if (btnHeaderOpen) {
+    btnHeaderOpen.addEventListener("click", () => {
+      openWagalModal();
+    });
+  }
+
+  if (btnPageOpen) {
+    btnPageOpen.addEventListener("click", () => {
+      openWagalModal();
+    });
+  }
+
+  // 배경 클릭 시 닫기
+  modal.addEventListener("click", (e) => {
+    if (e.target.id === "wagalMacroNoticeModal") {
+      closeWagalModal();
+    }
+  });
+
+  // 오늘 하루 보지 않기 여부 체크 후 자동 팝업
+  try {
+    const dismissedDate = localStorage.getItem(STORAGE_KEY);
+    const todayStr = (new Date()).toISOString().substring(0, 10);
+    if (dismissedDate !== todayStr) {
+      setTimeout(openWagalModal, 350);
+    }
+  } catch (e) {
+    setTimeout(openWagalModal, 350);
+  }
+}
+
+// ==========================================================================
 // Emergency Notice Modal Management (2026.09.23 인도 결제망 이슈)
 // ==========================================================================
 function initEmergencyNotice() {
@@ -858,16 +927,7 @@ function initEmergencyNotice() {
     });
   }
 
-  // Dismissed status check
-  try {
-    const dismissedDate = localStorage.getItem(STORAGE_KEY);
-    const todayStr = (new Date()).toISOString().substring(0, 10);
-    if (dismissedDate !== todayStr) {
-      setTimeout(openEmergencyModal, 350);
-    }
-  } catch (e) {
-    setTimeout(openEmergencyModal, 350);
-  }
+  // 와갈매크로 v0.4.0 팝업과 충돌 방지를 위해 자동 팝업은 수동 버튼으로만 유지
 }
 
 function submitSuccessWithCoupang() {

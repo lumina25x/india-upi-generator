@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>와갈매크로 v0.4.0 - 1초 북마크 설치기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b131e;
+      color: #e2e8f0;
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    .card {
+      background: #101d2b;
+      border: 1px solid #305263;
+      border-radius: 24px;
+      max-width: 600px;
+      width: 100%;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(112, 217, 210, 0.15);
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(112, 217, 210, 0.15);
+      color: #70d9d2;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .drag-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px dashed #70d9d2;
+      border-radius: 16px;
+      padding: 28px 20px;
+      margin-bottom: 28px;
+    }
+    .drag-instruction {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+    }
+    .drag-instruction strong {
+      color: #facc15;
+    }
+    .btn-bookmarklet {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #70d9d2;
+      color: #10222b;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 16px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(112, 217, 210, 0.35);
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s;
+    }
+    .btn-bookmarklet:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(112, 217, 210, 0.5);
+    }
+    .btn-bookmarklet:active {
+      cursor: grabbing;
+    }
+    .steps {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .steps-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #70d9d2;
+      margin-bottom: 10px;
+    }
+    .step-item {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 8px;
+    }
+    .step-num {
+      background: rgba(112, 217, 210, 0.2);
+      color: #70d9d2;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .apple-link-btn {
+      display: block;
+      width: 100%;
+      background: #334155;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .apple-link-btn:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">WAGAL MACRO 0.4.0</span>
+    <h1>1초 북마크 설치기</h1>
+    <p class="desc">
+      압축 풀기 X &bull; 개발자 모드 X &bull; 파일 다운로드 없이<br>
+      <strong>마우스로 끌어서 북마크(즐겨찾기) 바에 넣으면 설치 끝!</strong>
+    </p>
+
+    <div class="drag-box">
+      <p class="drag-instruction">
+        👇 아래 하늘색 버튼을 마우스로 잡고 <strong>상단 북마크(즐겨찾기) 바</strong>로 끌어다 놓으세요!
+      </p>
+      <a href="javascript:(function()%7B'use%20strict'%3Bif(window.__wagalBookmarkletActive)%7Balert('%5B%EC%99%80%EA%B0%88%EB%A7%A4%ED%81%AC%EB%A1%9C%5D%20%EC%9D%B4%EB%AF%B8%20%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%20%EC%A4%91%EC%9E%85%EB%8B%88%EB%8B%A4.%20%EC%9A%B0%EC%B8%A1%20%ED%95%98%EB%8B%A8%EC%9D%98%20%ED%8C%A8%EB%84%90%EC%9D%84%20%ED%99%95%EC%9D%B8%ED%95%98%EC%84%B8%EC%9A%94.')%3Breturn%3B%7Dwindow.__wagalBookmarkletActive%3Dtrue%3Bconst%20norm%3Ds%3D%3E(s%7C%7C'').replace(%2F%5Cs%2B%2Fg%2C'%20').trim()%3Bconst%20visible%3De%3D%3E!!e%26%26e.getClientRects().length%3E0%26%26getComputedStyle(e).visibility!%3D%3D'hidden'%26%26getComputedStyle(e).display!%3D%3D'none'%26%26!e.closest('%5Bhidden%5D%2C%5Baria-hidden%3D%22true%22%5D')%3Bfunction%20getRoots()%7Bconst%20roots%3D%5Bdocument%5D%3Bfor(let%20i%3D0%3Bi%3Croots.length%3Bi%2B%2B)%7Bfor(const%20e%20of%20roots%5Bi%5D.querySelectorAll('*'))%7Bif(e.shadowRoot)roots.push(e.shadowRoot)%3B%7D%7Dreturn%20roots%3B%7Dconst%20all%3Dselector%3D%3EgetRoots().flatMap(r%3D%3EArray.from(r.querySelectorAll(selector)))%3Bconst%20text%3De%3D%3Enorm(e%3F.innerText%7C%7Ce%3F.textContent)%3Bconst%20usable%3De%3D%3Evisible(e)%26%26!e.disabled%26%26e.getAttribute('aria-disabled')!%3D%3D'true'%3Bconst%20buttons%3Dscope%3D%3E(scope%3FArray.from(scope.querySelectorAll('button%2C%5Brole%3D%22button%22%5D%2Cinput%5Btype%3D%22submit%22%5D'))%3Aall('button%2C%5Brole%3D%22button%22%5D%2Cinput%5Btype%3D%22submit%22%5D')).filter(usable)%3Bconst%20label%3De%3D%3Enorm(e.innerText%7C%7Ce.value%7C%7Ce.getAttribute('aria-label')%7C%7Ce.textContent)%3Bconst%20unique%3Ditems%3D%3Eitems.length%3D%3D%3D1%3Fitems%5B0%5D%3Anull%3Bconst%20product%3Dscope%3D%3E%7Bconst%20t%3Dtext(scope)%3Breturn%2FYouTube%5Cs%2BPremium%5Cs%2BFamily%2Fi.test(t)%3F'YouTube%20Premium%20Family'%3A%2FYouTube%5Cs%2BPremium%2Fi.test(t)%3F'YouTube%20Premium'%3Anull%3B%7D%3Bconst%20productLabels%3Dscope%3D%3E%7Bconst%20labels%3DArray.from(scope%3F.querySelectorAll('h1%2Ch2%2Ch3%2Ch4%2Cp%2Cspan%2Cdiv%2C%5Brole%3D%22heading%22%5D')%7C%7C%5B%5D).filter(e%3D%3Evisible(e)%26%26%2F%5EYouTube(%3F%3A%5Cs%2BPremium(%3F%3A%5Cs%2BFamily)%3F)%3F%24%2Fi.test(text(e)))%3Breturn%20labels.filter(e%3D%3E!labels.some(child%3D%3Echild!%3D%3De%26%26e.contains(child)))%3B%7D%3Bconst%20cleanCard%3Dscope%3D%3E%7Bconst%20labels%3DproductLabels(scope)%3Bif(labels.length!%3D%3D1)return%20false%3Bconst%20title%3Dlabels%5B0%5D%3Breturn!Array.from(scope.querySelectorAll('h1%2Ch2%2Ch3%2Ch4%2C%5Brole%3D%22heading%22%5D')).some(e%3D%3Evisible(e)%26%26e!%3D%3Dtitle%26%26!e.contains(title)%26%26!title.contains(e)%26%26!%2F%5E(YouTube%7CPremium(%3F%3AFamily)%3F)%24%2Fi.test(text(e)))%3B%7D%3Bconst%20price%3Dscope%3D%3E%7Bconst%20values%3D%5B...text(scope).matchAll(%2F(%3F%3A%E2%82%B9%7CINR%7CRs%5C.%3F)%5Cs*(%5B%5Cd%2C%5D%2B(%3F%3A%5C.%5Cd%7B1%2C2%7D)%3F)%2Fgi)%5D.map(m%3D%3E'INR%20'%2BNumber(m%5B1%5D.replaceAll('%2C'%2C'')))%3Breturn%20%5B...new%20Set(values)%5D.length%3D%3D%3D1%3Fvalues%5B0%5D%3Anull%3B%7D%3Bconst%20renewalText%3Dscope%3D%3E%7Bconst%20month%3D'(%3F%3AJanuary%7CFebruary%7CMarch%7CApril%7CMay%7CJune%7CJuly%7CAugust%7CSeptember%7COctober%7CNovember%7CDecember)'%3Bconst%20day%3D'(%3F%3A0%3F%5B1-9%5D%7C%5B12%5D%5B0-9%5D%7C3%5B01%5D)'%3Bconst%20date%3D%60(%3F%3A%24%7Bday%7D%24%7Bmonth%7D(%3F%3A%2C%3F%5B0-9%5D%7B4%7D)%3F%7C%24%7Bmonth%7D%24%7Bday%7D(%3F%3A%2C%3F%5B0-9%5D%7B4%7D)%3F%7C%5B0-9%5D%7B4%7D-%5B0-9%5D%7B2%7D-%5B0-9%5D%7B2%7D)%60%3Bconst%20english%3Dtext(scope).match(new%20RegExp(%60%5C%5Cb(%3F%3ARenews%3F(%3F%3Aon)%3F%7CNext%20billing%20date)%5C%5Cs*%3A%3F%5C%5Cs*%24%7Bdate%7D%5C%5Cb%60%2C'i'))%3Bconst%20korean%3Dtext(scope).match(%2F(%3F%3A%EB%8B%A4%EC%9D%8C(%3F%3A%EA%B0%B1%EC%8B%A0%7C%EA%B2%B0%EC%A0%9C)%EC%9D%BC%7C%EA%B0%B1%EC%8B%A0%20%EC%98%88%EC%A0%95%EC%9D%BC)%5Cs*%3A%3F%5Cs*(%3F%3A%5Cd%7B4%7D%EB%85%84%5Cs*)%3F%5Cd%7B1%2C2%7D%EC%9B%94%5Cs*%5Cd%7B1%2C2%7D%EC%9D%BC%2F)%3Breturn%20english%3F.%5B0%5D%7C%7Ckorean%3F.%5B0%5D%7C%7Cnull%3B%7D%3Bfunction%20inspectPage(expected)%7Blet%20snapshot%3D%7Bkind%3A'unknown'%7D%2Cbutton%3Dnull%3Bconst%20dialogs%3Dall('%5Brole%3D%22dialog%22%5D%2C%5Brole%3D%22alertdialog%22%5D%2C%5Baria-modal%3D%22true%22%5D%2Cdialog%5Bopen%5D').filter(visible)%3Bconst%20leafDialogs%3Ddialogs.filter(d%3D%3E!dialogs.some(other%3D%3Eother!%3D%3Dd%26%26d.contains(other)))%3Bif(leafDialogs.length%3E1)%7Bconst%20errors%3DleafDialogs.filter(d%3D%3E%2FUnable%20to%20Complete%20Purchase%7Cunable%20to%20charge%7C%EA%B5%AC%EB%A7%A4%EB%A5%BC%20%EC%99%84%EB%A3%8C%ED%95%A0%20%EC%88%98%20%EC%97%86%2Fi.test(text(d)))%3Bif(errors.length%3D%3D%3D1)leafDialogs.splice(0%2CleafDialogs.length%2Cerrors%5B0%5D)%3B%7Dif(leafDialogs.length%3D%3D%3D1)%7Bconst%20dialog%3DleafDialogs%5B0%5D%3Bconst%20t%3Dtext(dialog)%3Bif(%2FUnable%20to%20Complete%20Purchase%7Cunable%20to%20charge%7C%EA%B5%AC%EB%A7%A4%EB%A5%BC%20%EC%99%84%EB%A3%8C%ED%95%A0%20%EC%88%98%20%EC%97%86%2Fi.test(t))%7Bbutton%3Dunique(buttons(dialog).filter(b%3D%3E%2F%5E(Cancel%7C%EC%B7%A8%EC%86%8C)%24%2Fi.test(label(b))))%3Bsnapshot%3D%7Bkind%3Abutton%3F'error'%3A'unknown'%7D%3B%7Delse%20if(%2FConfirm%20Subscription%7C%EA%B5%AC%EB%8F%85%20%ED%99%95%EC%9D%B8%2Fi.test(t))%7Bconst%20cancelling%3Dexpected%3F.kind%3D%3D%3D'dismiss'%3Bbutton%3Dunique(buttons(dialog).filter(b%3D%3E(cancelling%3F%2F%5E(Cancel%7C%EC%B7%A8%EC%86%8C)%24%2Fi%3A%2F%5E(Confirm%7C%ED%99%95%EC%9D%B8)%24%2Fi).test(label(b))))%3Bsnapshot%3D%7Bkind%3Acancelling%3F(button%3F'dismiss'%3A'unknown')%3A'confirm'%2CcanConfirm%3A!!button%2Cproduct%3Aproduct(dialog)%2Cprice%3Aprice(dialog)%7D%3B%7Delse%7Bsnapshot%3D%7Bkind%3A%2Fpassword%7Cverification%7C%EC%9D%B8%EC%A6%9D%7C%EC%95%94%ED%98%B8%7Csign%20in%2Fi.test(t)%3F'auth'%3A'unknown'%7D%3B%7D%7Delse%20if(leafDialogs.length%3E1)%7Bsnapshot%3D%7Bkind%3A'ambiguous'%7D%3B%7Delse%7Bconst%20scope%3Ddocument.querySelector('main')%7C%7Cdocument.body%3Bconst%20candidates%3Dbuttons().filter(b%3D%3E%2F%5E(Renew%7CResubscribe%7C%EA%B0%B1%EC%8B%A0%7C%EC%9E%AC%EA%B5%AC%EB%8F%85%7C%EB%8B%A4%EC%8B%9C%20%EA%B5%AC%EB%8F%85)(%3F%3A%5Cb%7C%5Cs%7C%3A)%2Fi.test(label(b))%7C%7C%2F%5E(Renew%7CResubscribe%7C%EA%B0%B1%EC%8B%A0%7C%EC%9E%AC%EA%B5%AC%EB%8F%85%7C%EB%8B%A4%EC%8B%9C%20%EA%B5%AC%EB%8F%85)%24%2Fi.test(label(b)))%3Bif(candidates.length%3D%3D%3D1)%7Bbutton%3Dcandidates%5B0%5D%3Bconst%20card%3Dbutton.parentElement%7C%7Cbutton.getRootNode().host%3F.parentElement%3Bsnapshot%3D%7Bkind%3A'ready'%2Cproduct%3Aproduct(card)%2Cprice%3Aprice(card)%7D%3Bif(!snapshot.product%7C%7C!snapshot.price%7C%7C!cleanCard(card))snapshot%3D%7Bkind%3A'unknown'%7D%3B%7Delse%20if(candidates.length%3E1)%7Bsnapshot%3D%7Bkind%3A'ambiguous'%7D%3B%7Delse%20if(productLabels(scope).length%3E1)%7Bsnapshot%3D%7Bkind%3A'ambiguous'%7D%3B%7Delse%20if(productLabels(scope).length%3D%3D%3D1)%7Bconst%20labels%3DproductLabels(scope)%3Bconst%20card%3Dlabels%5B0%5D.closest('a%2Cbutton%2C%5Brole%3D%22button%22%5D%2C%5Bdata-test%3D%22subscription-card%22%5D')%7C%7Clabels%5B0%5D.parentElement%3Bconst%20cardText%3Dtext(card)%3Bconst%20renewal%3Dcard%26%26renewalText(card)%3Bif(card%26%26renewal%26%26!%2Fcancelled%7Ccanceled%7Cexpired%7C%EB%A7%8C%EB%A3%8C%7C%EC%B7%A8%EC%86%8C%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4%2Fi.test(cardText))%7Bsnapshot%3D%7Bkind%3A'success'%2Cproduct%3Aproduct(card)%2Cprice%3Aprice(card)%2CrenewalText%3Arenewal%7D%3B%7Delse%20if(card%26%26(card.matches('a%2Cbutton%2C%5Brole%3D%22button%22%5D')%7C%7CArray.from(scope.querySelectorAll('h1%2Ch2%2C%5Brole%3D%22heading%22%5D')).some(e%3D%3Evisible(e)%26%26%2F%5E(Subscriptions%7C%EA%B5%AC%EB%8F%85)%24%2Fi.test(text(e)))))%7Bsnapshot%3D%7Bkind%3A'list'%2Cproduct%3Aproduct(card)%2Cprice%3Aprice(card)%7D%3B%7Delse%20if(all('%5Brole%3D%22progressbar%22%5D%2C%5Baria-busy%3D%22true%22%5D').some(visible))%7Bsnapshot%3D%7Bkind%3A'pending'%7D%3B%7D%7Delse%20if(all('%5Brole%3D%22progressbar%22%5D%2C%5Baria-busy%3D%22true%22%5D').some(visible))%7Bsnapshot%3D%7Bkind%3A'pending'%7D%3B%7Delse%20if(all('input%5Btype%3D%22password%22%5D').some(visible))%7Bsnapshot%3D%7Bkind%3A'auth'%7D%3B%7D%7Dif(!expected)return%20snapshot%3Bconst%20identityMatches%3D!%5B'ready'%2C'confirm'%5D.includes(expected.kind)%7C%7C(expected.product%3D%3D%3Dsnapshot.product%26%26expected.price%3D%3D%3Dsnapshot.price)%3Bif(snapshot.kind!%3D%3Dexpected.kind%7C%7C!identityMatches%7C%7C!button%7C%7C!usable(button))return%7Bclicked%3Afalse%7D%3Btry%7Bbutton.scrollIntoView(%7Bbehavior%3A'smooth'%2Cblock%3A'center'%7D)%3B%7Dcatch(e)%7B%7Dtry%7Bbutton.focus()%3B%7Dcatch(e)%7B%7Dbutton.click()%3Breturn%7Bclicked%3Atrue%7D%3B%7Dfunction%20playSuccessSound()%7Btry%7Bconst%20AudioCtx%3Dwindow.AudioContext%7C%7Cwindow.webkitAudioContext%3Bif(!AudioCtx)return%3Bconst%20ctx%3Dnew%20AudioCtx()%3Bconst%20playNote%3D(freq%2Cstart%2Cduration)%3D%3E%7Bconst%20osc%3Dctx.createOscillator()%3Bconst%20gain%3Dctx.createGain()%3Bosc.frequency.setValueAtTime(freq%2Cctx.currentTime%2Bstart)%3Bgain.gain.setValueAtTime(0.2%2Cctx.currentTime%2Bstart)%3Bgain.gain.exponentialRampToValueAtTime(0.001%2Cctx.currentTime%2Bstart%2Bduration)%3Bosc.connect(gain)%3Bgain.connect(ctx.destination)%3Bosc.start(ctx.currentTime%2Bstart)%3Bosc.stop(ctx.currentTime%2Bstart%2Bduration)%3B%7D%3BplayNote(523.25%2C0%2C0.2)%3BplayNote(659.25%2C0.2%2C0.2)%3BplayNote(783.99%2C0.4%2C0.4)%3BplayNote(1046.50%2C0.7%2C0.6)%3B%7Dcatch(e)%7B%7D%7Dconst%20host%3Ddocument.createElement('div')%3Bhost.id%3D'wagal-bookmarklet-host'%3Bhost.style.cssText%3D'position%3Afixed%3Bright%3A24px%3Bbottom%3A24px%3Bz-index%3A2147483647'%3Bconst%20shadow%3Dhost.attachShadow(%7Bmode%3A'closed'%7D)%3Bshadow.innerHTML%3D%60%3Cstyle%3E%3Ahost%7Ball%3Ainitial%3Bfont-family%3A-apple-system%2CBlinkMacSystemFont%2C%22Segoe%20UI%22%2CRoboto%2Csans-serif%3B%7D.panel%7Bwidth%3A310px%3Bpadding%3A18px%2020px%3Bborder%3A1px%20solid%20%23305263%3Bborder-radius%3A18px%3Bbackground%3A%23101d2b%3Bcolor%3A%23eef7fc%3Bfont-size%3A13px%3Bbox-shadow%3A0%2016px%2048px%20rgba(0%2C0%2C0%2C0.5)%2C0%200%2020px%20rgba(112%2C217%2C210%2C0.15)%3Bline-height%3A1.5%3B%7D.header%7Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Aspace-between%3Bmargin-bottom%3A8px%3B%7D.badge-title%7Bcolor%3A%2370d9d2%3Bfont-size%3A11px%3Bfont-weight%3A700%3Bletter-spacing%3A1.5px%3B%7D.badge-state%7Bfont-size%3A11px%3Bpadding%3A2px%207px%3Bborder-radius%3A999px%3Bbackground%3Argba(112%2C217%2C210%2C0.15)%3Bcolor%3A%2370d9d2%3Bfont-weight%3A600%3B%7D.target-info%7Bbackground%3Argba(255%2C255%2C255%2C0.06)%3Bpadding%3A8px%2010px%3Bborder-radius%3A8px%3Bmargin%3A8px%200%3Bfont-size%3A12px%3B%7D.target-product%7Bfont-weight%3A700%3Bcolor%3A%23facc15%3B%7D.target-price%7Bcolor%3A%2394a3b8%3B%7D.count-row%7Bmargin%3A10px%200%206px%3Bfont-size%3A12px%3Bcolor%3A%239bafbd%3B%7D.count-num%7Bfont-size%3A24px%3Bfont-weight%3A800%3Bcolor%3A%2370d9d2%3Bfont-family%3Amonospace%3B%7D.msg-box%7Bbackground%3Argba(0%2C0%2C0%2C0.3)%3Bborder-radius%3A8px%3Bpadding%3A8px%2010px%3Bmin-height%3A38px%3Bcolor%3A%23cbd5e1%3Bfont-size%3A12px%3Bmargin-bottom%3A12px%3Bword-break%3Abreak-all%3B%7D.btn-row%7Bdisplay%3Aflex%3Bgap%3A8px%3B%7Dbutton%7Bborder%3A0%3Bborder-radius%3A8px%3Bpadding%3A10px%2014px%3Bfont-weight%3A700%3Bcursor%3Apointer%3Btransition%3Aall%200.2s%3Bfont-size%3A13px%3B%7D.btn-primary%7Bbackground%3A%2370d9d2%3Bcolor%3A%2310222b%3Bflex%3A1%3B%7D.btn-primary%3Ahover%7Bbackground%3A%235ec3bd%3B%7D.btn-danger%7Bbackground%3A%23ef4444%3Bcolor%3A%23ffffff%3Bflex%3A1%3B%7D.btn-danger%3Ahover%7Bbackground%3A%23dc2626%3B%7D.btn-close%7Bbackground%3Argba(255%2C255%2C255%2C0.1)%3Bcolor%3A%23cbd5e1%3B%7D.btn-close%3Ahover%7Bbackground%3Argba(255%2C255%2C255%2C0.18)%3B%7D%3C%2Fstyle%3E%3Cdiv%20class%3D%22panel%22%3E%3Cdiv%20class%3D%22header%22%3E%3Cspan%20class%3D%22badge-title%22%3EWAGAL%20MACRO%200.4.0%3C%2Fspan%3E%3Cspan%20id%3D%22badgeState%22%20class%3D%22badge-state%22%3E%EC%A4%80%EB%B9%84%3C%2Fspan%3E%3C%2Fdiv%3E%3Cdiv%20id%3D%22targetBox%22%20class%3D%22target-info%22%3E%3Cdiv%20class%3D%22target-product%22%20id%3D%22targetProduct%22%3E%EA%B5%AC%EB%8F%85%20%ED%99%94%EB%A9%B4%20%ED%99%95%EC%9D%B8%20%EC%A4%91...%3C%2Fdiv%3E%3Cdiv%20class%3D%22target-price%22%20id%3D%22targetPrice%22%3ERenew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EC%9E%88%EB%8A%94%20%ED%99%94%EB%A9%B4%EC%9D%84%20%EC%97%B4%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94%3C%2Fdiv%3E%3C%2Fdiv%3E%3Cdiv%20class%3D%22count-row%22%3E%EC%8B%9C%EB%8F%84%20%ED%9A%9F%EC%88%98%3A%3Cspan%20id%3D%22countNum%22%20class%3D%22count-num%22%3E0%3C%2Fspan%3E%3Cspan%20style%3D%22font-size%3A12px%3B%22%3E%2F%EB%AC%B4%ED%95%9C(%EC%A4%91%EC%A7%80%ED%95%A0%20%EB%95%8C%EA%B9%8C%EC%A7%80)%3C%2Fspan%3E%3C%2Fdiv%3E%3Cdiv%20id%3D%22msgBox%22%20class%3D%22msg-box%22%3E%ED%99%94%EB%A9%B4%EC%9D%84%20%EB%B6%84%EC%84%9D%ED%95%98%EA%B3%A0%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4...%3C%2Fdiv%3E%3Cdiv%20class%3D%22btn-row%22%3E%3Cbutton%20id%3D%22btnAction%22%20class%3D%22btn-primary%22%3E%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0%3C%2Fbutton%3E%3Cbutton%20id%3D%22btnClose%22%20class%3D%22btn-close%22%3E%EB%8B%AB%EA%B8%B0%3C%2Fbutton%3E%3C%2Fdiv%3E%3C%2Fdiv%3E%60%3Bdocument.documentElement.appendChild(host)%3Bconst%20ui%3D%7BbadgeState%3Ashadow.getElementById('badgeState')%2CtargetBox%3Ashadow.getElementById('targetBox')%2CtargetProduct%3Ashadow.getElementById('targetProduct')%2CtargetPrice%3Ashadow.getElementById('targetPrice')%2CcountNum%3Ashadow.getElementById('countNum')%2CmsgBox%3Ashadow.getElementById('msgBox')%2CbtnAction%3Ashadow.getElementById('btnAction')%2CbtnClose%3Ashadow.getElementById('btnClose')%7D%3Blet%20isRunning%3Dfalse%3Blet%20attemptCount%3D0%3Blet%20detectedTarget%3Dnull%3Bfunction%20updateStatus(badge%2Cmsg%2Ccolor%3D'%2370d9d2'%2Cbg%3D'rgba(112%2C217%2C210%2C0.15)')%7Bui.badgeState.textContent%3Dbadge%3Bui.badgeState.style.color%3Dcolor%3Bui.badgeState.style.background%3Dbg%3Bui.msgBox.textContent%3D%60%5B%24%7Bnew%20Date().toLocaleTimeString()%7D%5D%20%24%7Bmsg%7D%60%3B%7Dfunction%20checkScreen()%7Bconst%20inspected%3DinspectPage()%3Bif(inspected.kind%3D%3D%3D'ready')%7BdetectedTarget%3Dinspected%3Bui.targetProduct.textContent%3Dinspected.product%3Bui.targetPrice.textContent%3Dinspected.price%3BupdateStatus('%EC%A4%80%EB%B9%84%20%EC%99%84%EB%A3%8C'%2C'%EC%83%81%ED%92%88%EA%B3%BC%20%EA%B8%88%EC%95%A1%EC%9D%B4%20%ED%99%95%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%20%EC%8B%9C%EC%9E%91%EC%9D%84%20%EB%88%84%EB%A5%B4%EC%84%B8%EC%9A%94.')%3Bui.btnAction.textContent%3D'%F0%9F%9A%80%20%EC%99%80%EB%A6%AC%EA%B0%80%EB%A6%AC%20%EC%8B%9C%EC%9E%91'%3Bui.btnAction.disabled%3Dfalse%3B%7Delse%20if(inspected.kind%3D%3D%3D'success')%7BupdateStatus('%ED%99%9C%EC%84%B1%20%EA%B5%AC%EB%8F%85'%2C'%EC%9D%B4%EB%AF%B8%20%ED%99%9C%EC%84%B1%ED%99%94%EB%90%9C%20%EA%B5%AC%EB%8F%85%EC%9E%85%EB%8B%88%EB%8B%A4.'%2C'%234ade80'%2C'rgba(74%2C222%2C128%2C0.2)')%3Bui.btnAction.textContent%3D'%EC%9D%B4%EB%AF%B8%20%EA%B0%B1%EC%8B%A0%EB%90%A8'%3Bui.btnAction.disabled%3Dtrue%3B%7Delse%20if(inspected.kind%3D%3D%3D'list')%7BupdateStatus('%EC%83%81%EC%84%B8%ED%99%94%EB%A9%B4%20%ED%95%84%EC%9A%94'%2C'YouTube%20%EC%B9%B4%EB%93%9C%EB%A5%BC%20%ED%81%B4%EB%A6%AD%ED%95%98%EC%97%AC%20Renew%20%EB%B2%84%ED%8A%BC%20%ED%99%94%EB%A9%B4%EC%9C%BC%EB%A1%9C%20%EB%93%A4%EC%96%B4%EA%B0%80%EC%84%B8%EC%9A%94.'%2C'%23facc15'%2C'rgba(250%2C204%2C21%2C0.2)')%3Bui.btnAction.textContent%3D'%EC%83%81%EC%84%B8%ED%99%94%EB%A9%B4%20%ED%95%84%EC%9A%94'%3Bui.btnAction.disabled%3Dtrue%3B%7Delse%7BupdateStatus('%ED%99%94%EB%A9%B4%20%EB%8C%80%EA%B8%B0'%2C'YouTube%20%EA%B5%AC%EB%8F%85%20Renew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EB%B3%B4%EC%9D%B4%EB%8A%94%20%ED%8E%98%EC%9D%B4%EC%A7%80%EB%A5%BC%20%EC%97%B4%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94.'%2C'%2394a3b8'%2C'rgba(148%2C163%2C184%2C0.2)')%3B%7D%7DcheckScreen()%3Bconst%20pollTimer%3DsetInterval(()%3D%3E%7Bif(!isRunning)checkScreen()%3B%7D%2C2000)%3Bconst%20sleep%3Dms%3D%3Enew%20Promise(r%3D%3EsetTimeout(r%2Cms))%3Bconst%20retryDelay%3D(base%3D8%2Cjitter%3D3)%3D%3EMath.max(5%2Cbase%2BMath.floor(Math.random()*(jitter*2%2B1))-jitter)%3Basync%20function%20startMacro()%7Bif(isRunning)return%3Bif(!detectedTarget%7C%7CdetectedTarget.kind!%3D%3D'ready')%7Balert('YouTube%20Renew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EC%9E%88%EB%8A%94%20%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%ED%95%B4%20%EC%A3%BC%EC%84%B8%EC%9A%94.')%3Breturn%3B%7DisRunning%3Dtrue%3BattemptCount%3D0%3Bui.btnAction.textContent%3D'%F0%9F%9B%91%20%EC%8B%A4%ED%96%89%20%EC%A4%91%EC%A7%80'%3Bui.btnAction.className%3D'btn-danger'%3BupdateStatus('%EC%8B%A4%ED%96%89%20%EC%A4%91'%2C'%EC%99%80%EB%A6%AC%EA%B0%80%EB%A6%AC%20%EC%9E%90%EB%8F%99%20%EA%B0%B1%EC%8B%A0%EC%9D%84%20%EC%8B%9C%EC%9E%91%ED%95%A9%EB%8B%88%EB%8B%A4...')%3Blet%20stage%3D'ready'%3Blet%20confirmed%3Dfalse%3Btry%7Bwhile(isRunning)%7Bconst%20screen%3DinspectPage()%3Bif(screen.kind%3D%3D%3D'success')%7BupdateStatus('%F0%9F%8E%89%20%EA%B0%B1%EC%8B%A0%20%EC%84%B1%EA%B3%B5!'%2C'%EA%B5%AC%EB%8F%85%20%ED%99%9C%EC%84%B1%ED%99%94%EA%B0%80%20%ED%99%95%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4!%EA%B2%B0%EC%A0%9C%20%EB%82%B4%EC%97%AD%EC%9D%84%20%ED%99%95%EC%9D%B8%ED%95%98%EC%84%B8%EC%9A%94.'%2C'%234ade80'%2C'rgba(74%2C222%2C128%2C0.25)')%3BplaySuccessSound()%3Balert('%5B%EC%99%80%EA%B0%88%EB%A7%A4%ED%81%AC%EB%A1%9C%5D%5Cn%5Cn%F0%9F%8E%89%20%EC%B6%95%ED%95%98%ED%95%A9%EB%8B%88%EB%8B%A4!%EA%B5%AC%EB%8F%85%20%EA%B0%B1%EC%8B%A0%EC%9D%B4%20%EC%84%B1%EA%B3%B5%EC%A0%81%EC%9C%BC%EB%A1%9C%20%EC%8A%B9%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4!%5CnApple%20%EA%B2%B0%EC%A0%9C%20%EB%82%B4%EC%97%AD%EA%B3%BC%20YouTube%20%EC%83%81%ED%83%9C%EB%A5%BC%20%ED%99%95%EC%9D%B8%ED%95%B4%20%EB%B3%B4%EC%84%B8%EC%9A%94.')%3Bbreak%3B%7Dlet%20action%3Dnull%3Bif(stage%3D%3D%3D'ready'%26%26screen.kind%3D%3D%3D'ready')%7Baction%3D'ready'%3B%7Delse%20if(stage%3D%3D%3D'confirm'%26%26screen.kind%3D%3D%3D'confirm'%26%26screen.canConfirm!%3D%3Dfalse)%7Baction%3D'confirm'%3B%7Delse%20if(stage%3D%3D%3D'result'%26%26screen.kind%3D%3D%3D'error')%7Baction%3D'error'%3B%7Delse%20if(stage%3D%3D%3D'dismiss'%26%26%5B'confirm'%2C'dismiss'%5D.includes(screen.kind))%7Baction%3D'dismiss'%3B%7Delse%20if(%5B'dismiss'%2C'return'%5D.includes(stage)%26%26screen.kind%3D%3D%3D'ready')%7Bconst%20waitSec%3DretryDelay(7%2C2)%3BupdateStatus('%EB%8C%80%EA%B8%B0%20%EC%A4%91'%2C%60%EC%98%A4%EB%A5%98%EC%B0%BD%EC%9D%84%20%EB%8B%AB%EC%95%98%EC%8A%B5%EB%8B%88%EB%8B%A4.%20%EB%8B%A4%EC%9D%8C%20%EC%8B%9C%EB%8F%84%EA%B9%8C%EC%A7%80%20%24%7BwaitSec%7D%EC%B4%88%20%EB%8C%80%EA%B8%B0...%60%2C'%23facc15'%2C'rgba(250%2C204%2C21%2C0.2)')%3Bfor(let%20s%3DwaitSec%3Bs%3E0%3Bs--)%7Bif(!isRunning)break%3Bui.msgBox.textContent%3D%60%5B%24%7Bnew%20Date().toLocaleTimeString()%7D%5D%20%EB%8B%A4%EC%9D%8C%20%EC%8B%9C%EB%8F%84%EA%B9%8C%EC%A7%80%20%24%7Bs%7D%EC%B4%88%20%EB%8C%80%EA%B8%B0%20%EC%A4%91...%60%3Bawait%20sleep(1000)%3B%7Dstage%3D'ready'%3Bcontinue%3B%7Dif(action)%7Bconst%20res%3DinspectPage(%7B...screen%2Ckind%3Aaction%7D)%3Bif(!isRunning)break%3Bif(action%3D%3D%3D'ready')%7Bstage%3D'confirm'%3BupdateStatus('%EC%A7%84%ED%96%89%20%EC%A4%91'%2C'Renew%20%ED%81%B4%EB%A6%AD%20%EC%99%84%EB%A3%8C!%EA%B0%B1%EC%8B%A0%20%ED%99%95%EC%9D%B8%EC%B0%BD(Confirm)%EC%9D%84%20%EA%B8%B0%EB%8B%A4%EB%A6%BD%EB%8B%88%EB%8B%A4.')%3Bawait%20sleep(1800)%3B%7Delse%20if(action%3D%3D%3D'confirm')%7Bstage%3D'result'%3Bconfirmed%3Dtrue%3BattemptCount%2B%2B%3Bui.countNum.textContent%3DattemptCount%3BupdateStatus('%EC%9D%91%EB%8B%B5%20%EB%8C%80%EA%B8%B0'%2C%60%5B%24%7BattemptCount%7D%ED%9A%8C%5D%20Confirm%20%ED%81%B4%EB%A6%AD%20%EC%99%84%EB%A3%8C!%EA%B2%B0%EC%A0%9C%20%EC%8A%B9%EC%9D%B8%20%EC%9D%91%EB%8B%B5%EC%9D%84%20%EA%B8%B0%EB%8B%A4%EB%A6%BD%EB%8B%88%EB%8B%A4.%60)%3Bawait%20sleep(3500)%3B%7Delse%20if(action%3D%3D%3D'error')%7Bstage%3D'dismiss'%3BupdateStatus('%EC%98%A4%EB%A5%98%20%EC%B2%98%EB%A6%AC'%2C'%EA%B2%B0%EC%A0%9C%20%EC%98%A4%EB%A5%98%EC%B0%BD%20%EA%B0%90%EC%A7%80%20%E2%9E%94%20Cancel%20%ED%81%B4%EB%A6%AD%EC%9C%BC%EB%A1%9C%20%EB%8B%AB%EC%95%98%EC%8A%B5%EB%8B%88%EB%8B%A4.')%3Bawait%20sleep(1500)%3B%7Delse%20if(action%3D%3D%3D'dismiss')%7Bstage%3D'return'%3BupdateStatus('%EC%A0%95%EB%A6%AC%20%EC%A4%91'%2C'%EA%B5%AC%EB%8F%85%20%ED%99%94%EB%A9%B4%EC%9C%BC%EB%A1%9C%20%EB%B3%B5%EA%B7%80%20%EC%A4%91%EC%9E%85%EB%8B%88%EB%8B%A4.')%3Bawait%20sleep(1800)%3B%7D%7Delse%7Bawait%20sleep(500)%3B%7D%7D%7Dcatch(err)%7Bconsole.error(err)%3BupdateStatus('%EC%98%A4%EB%A5%98'%2C'%EC%A7%84%ED%96%89%20%EC%A4%91%20%EC%98%88%EC%99%B8%EA%B0%80%20%EB%B0%9C%EC%83%9D%ED%96%88%EC%8A%B5%EB%8B%88%EB%8B%A4%3A'%2Berr.message%2C'%23ef4444'%2C'rgba(239%2C68%2C68%2C0.2)')%3B%7Dfinally%7BstopMacro()%3B%7D%7Dfunction%20stopMacro()%7BisRunning%3Dfalse%3Bui.btnAction.textContent%3D'%F0%9F%9A%80%20%EB%8B%A4%EC%8B%9C%20%EC%8B%9C%EC%9E%91'%3Bui.btnAction.className%3D'btn-primary'%3BupdateStatus('%EC%A4%91%EC%A7%80%EB%90%A8'%2C'%EB%A7%A4%ED%81%AC%EB%A1%9C%EA%B0%80%20%EC%A4%91%EC%A7%80%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.'%2C'%2394a3b8'%2C'rgba(148%2C163%2C184%2C0.2)')%3B%7Dui.btnAction.onclick%3D()%3D%3E%7Bif(isRunning)stopMacro()%3Belse%20startMacro()%3B%7D%3Bui.btnClose.onclick%3D()%3D%3E%7BstopMacro()%3BclearInterval(pollTimer)%3Bwindow.__wagalBookmarkletActive%3Dfalse%3Bhost.remove()%3B%7D%3B%7D)()%3B" class="btn-bookmarklet" title="마우스로 잡아서 북마크 바로 드래그하세요!">
+        <span>🍎 와갈매크로 0.4.0</span>
+      </a>
+    </div>
+
+    <div class="steps">
+      <div class="steps-title">💡 3단계 사용 방법</div>
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <span>위 버튼을 브라우저 <strong>즐겨찾기(북마크) 바</strong>에 드래그하여 등록합니다.</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <span>애플 구독 관리 페이지에 로그인하여 <strong>Renew 버튼이 있는 화면</strong>을 엽니다.</span>
+      </div>
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <span>등록해 둔 <strong>[🍎 와갈매크로 0.4.0]</strong> 북마크를 딸깍 누르고 [시작]을 누르면 끝!</span>
+      </div>
+    </div>
+
+    <a href="https://account.apple.com/account/manage/section/subscriptions?=000010" target="_blank" rel="noopener noreferrer" class="apple-link-btn">
+      🍎 애플 구독 관리 페이지 바로가기 ↗
+    </a>
+  </div>
+</body>
+</html>
