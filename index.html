@@ -132,10 +132,10 @@
 
       <!-- Wagal Macro Announcement Pill -->
       <div>
-        <div class="wagal-top-pill" id="btnHeaderWagalNotice">
+        <a href="wagal.html" class="wagal-top-pill" style="text-decoration: none; display: inline-flex;">
           <span class="wagal-pill-dot"></span>
-          <span>🚀 <strong>[PC 전용]</strong> 와갈매크로 v0.4.0 가이드 &amp; 다운로드 ➔</span>
-        </div>
+          <span>🚀 <strong>[애플 갱신 자동화]</strong> 와갈매크로 전용 페이지 오픈! ➔</span>
+        </a>
       </div>
 
       <!-- 9/23 Emergency Notice Button -->
@@ -157,88 +157,22 @@
       </div>
     </header>
 
-    <!-- Wagal Macro 0.4.0 Direct In-Page Download & Guide Hero Banner -->
-    <div class="wagal-hero-banner">
-      <div class="wagal-hero-info">
-        <div class="wagal-hero-badge-row">
-          <span class="wagal-badge-hot">HOT RELEASE</span>
-          <span class="wagal-badge-pc">💻 PC 크롬/엣지 전용</span>
+    <!-- Wagal Macro Dedicated Page Cross Banner -->
+    <div class="wagal-dedicated-banner">
+      <div class="wagal-dedicated-left">
+        <span class="wagal-dedicated-icon">🍎</span>
+        <div class="wagal-dedicated-text">
+          <div class="wagal-dedicated-title">
+            <strong>애플 유튜브 결제 오류가 계속 발생하나요?</strong>
+            <span class="wagal-tag-free">전용 도구</span>
+          </div>
+          <p class="wagal-dedicated-desc">
+            넷뱅킹 승인 타이밍을 100% 자동 재시도하는 <strong>와갈매크로 전용 페이지</strong>에서 1초 북마크 설치 &amp; 실시간 성공 피드를 확인하세요.
+          </p>
         </div>
-        <h3 class="wagal-hero-title">애플 유튜브 갱신 도구 와갈매크로 v0.4.0</h3>
-        <p class="wagal-hero-desc">
-          인도 결제 멈춤 오류를 우회하는 <strong>넷뱅킹 자동 갱신 확장프로그램</strong>입니다. (PC 브라우저 전용)
-        </p>
       </div>
-      <div class="wagal-hero-actions">
-        <a href="wagal-macro-0.4.0.zip" download="wagal-macro-0.4.0.zip" class="btn-wagal-hero-dl">
-          <span>📥 v0.4.0 다운로드 (ZIP)</span>
-        </a>
-        <button type="button" class="btn-wagal-hero-guide" id="btnPageOpenWagalGuide">
-          <span>📖 사용법 가이드</span>
-        </button>
-      </div>
+      <a href="wagal.html" class="btn-wagal-dedicated">와갈매크로 전용 페이지 바로가기 ➔</a>
     </div>
-
-    <!-- Wagal Macro Live Telemetry & Success Statistics Section -->
-    <section class="backend-monitor-section" style="background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9)); border: 1.5px solid #334155; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 22px;">📊</span>
-          <div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <h3 style="font-size: 16px; font-weight: 800; color: #f8fafc; margin: 0;">와갈매크로 실시간 성공 통계 &amp; 갱신 현황</h3>
-              <span style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700; padding: 2px 7px; border-radius: 999px;">● LIVE 집계</span>
-            </div>
-            <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">
-              실제 사용자들이 넷뱅킹 와리가리 매크로를 통해 갱신 성공한 통계 및 실시간 현황입니다.
-            </p>
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button type="button" class="btn-dev-action" id="btnRefreshMacroStats" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">🔄 새로고침</button>
-        </div>
-      </div>
-
-      <!-- 3 Key Metric Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px;">
-        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">평균 성공 시도 횟수</div>
-          <div style="font-size: 24px; font-weight: 800; color: #70d9d2; margin-top: 4px; font-family: monospace;">
-            <span id="backendAvgAttempts">11.2</span><span style="font-size: 14px; font-weight: 600; color: #94a3b8; margin-left: 2px;">회</span>
-          </div>
-          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">대부분 5~15회 이내 승인 (약 4~5분)</div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">누적 갱신 성공</div>
-          <div style="font-size: 24px; font-weight: 800; color: #38bdf8; margin-top: 4px; font-family: monospace;">
-            <span id="backendTotalSuccess">1,428</span><span style="font-size: 14px; font-weight: 600; color: #94a3b8; margin-left: 2px;">건+</span>
-          </div>
-          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">실제 결제 승인 통과</div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">최신 버전 가동 상태</div>
-          <div style="font-size: 16px; font-weight: 700; color: #facc15; margin-top: 6px;">
-            <span id="backendMacroVersion">v0.4.0 (정상 가동 중)</span>
-          </div>
-          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
-            상태: <span id="backendCoupangStatus" style="color:#10b981;">정상 활성</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Live Success Ticker Feed -->
-      <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <span style="font-size: 12.5px; font-weight: 700; color: #e2e8f0;">📡 최근 매크로 갱신 성공 실시간 피드</span>
-          <span style="font-size: 11px; color: #70d9d2; font-weight: 600;">● 실시간 동기화</span>
-        </div>
-        <div id="backendSuccessFeed" style="display: flex; flex-direction: column; gap: 8px;">
-          <div class="stats-empty" style="padding: 10px 0;">통계 데이터를 불러오는 중...</div>
-        </div>
-      </div>
-    </section>
 
     <!-- Collapsible Guide: What is UPI and How it is structured -->
     <section class="guide-accordion-section">
@@ -780,8 +714,8 @@
               💡 <strong>크롬 개발자 모드나 압축 풀기가 번거로우신가요?</strong><br>
               브라우저 북마크(즐겨찾기) 바로 드래그하여 원클릭으로 실행하는 간편 방식도 지원합니다.
             </div>
-            <a href="wagal-installer.html" target="_blank" style="background: rgba(112, 217, 210, 0.15); border: 1px solid #70d9d2; color: #70d9d2; text-decoration: none; font-size: 11.5px; font-weight: 700; padding: 7px 12px; border-radius: 6px; white-space: nowrap;">
-              ⭐ 북마크릿 1초 설치기 ↗
+            <a href="wagal.html" style="background: rgba(112, 217, 210, 0.15); border: 1px solid #70d9d2; color: #70d9d2; text-decoration: none; font-size: 11.5px; font-weight: 700; padding: 7px 12px; border-radius: 6px; white-space: nowrap;">
+              ⭐ 전용 페이지에서 1초 설치 ➔
             </a>
           </div>
 
@@ -797,11 +731,12 @@
           </div>
         </div>
 
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid #1e293b;">
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid #1e293b; flex-wrap: wrap; gap: 10px;">
           <button type="button" class="btn-subtle" id="btnDismissTodayWagalModal">오늘 하루 보지 않기</button>
-          <div style="display: flex; gap: 8px;">
-            <a href="wagal-macro-0.4.0.zip" download="wagal-macro-0.4.0.zip" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #10b981, #06b6d4);">📥 바로 다운로드</a>
-            <button type="button" class="btn-subtle" id="btnConfirmWagalModal" style="border: 1px solid #334155; padding: 8px 16px; font-size: 13px;">닫기</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="wagal.html" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #10b981, #06b6d4);">🍎 전용 페이지 이동 ➔</a>
+            <a href="wagal-macro-0.4.0.zip" download="wagal-macro-0.4.0.zip" class="btn-subtle" style="border: 1px solid #334155; text-decoration: none; padding: 8px 14px; font-size: 13px; color: #cbd5e1;">📥 ZIP 다운로드</a>
+            <button type="button" class="btn-subtle" id="btnConfirmWagalModal" style="border: 1px solid #334155; padding: 8px 14px; font-size: 13px;">닫기</button>
           </div>
         </div>
       </div>

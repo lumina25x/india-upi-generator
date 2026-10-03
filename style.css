@@ -3686,5 +3686,94 @@ body {
   }
 }
 
+/* Wagal Dedicated Page Cross Banner */
+.wagal-dedicated-banner {
+  background: linear-gradient(135deg, rgba(16, 29, 43, 0.95) 0%, rgba(11, 23, 35, 0.95) 100%);
+  border: 1.5px solid rgba(112, 217, 210, 0.4);
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(112, 217, 210, 0.1);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.wagal-dedicated-banner:hover {
+  border-color: rgba(112, 217, 210, 0.7);
+  transform: translateY(-1px);
+}
+.wagal-dedicated-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.wagal-dedicated-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(112, 217, 210, 0.4));
+  flex-shrink: 0;
+}
+.wagal-dedicated-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+.wagal-dedicated-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #ffffff;
+}
+.wagal-tag-free {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.wagal-dedicated-desc {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.45;
+}
+.wagal-dedicated-desc strong {
+  color: #70d9d2;
+}
+.btn-wagal-dedicated {
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #070d17;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-wagal-dedicated:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+}
+@media (max-width: 680px) {
+  .wagal-dedicated-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 14px;
+  }
+  .btn-wagal-dedicated {
+    text-align: center;
+    width: 100%;
+  }
+}
+
 
 

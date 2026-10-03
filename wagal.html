@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>와갈매크로 v0.4.0 - 애플 유튜브 넷뱅킹 자동 갱신 솔루션</title>
+  <meta name="description" content="애플 인도 계정 유튜브 프리미엄 & 뮤직 구독 결제 오류를 해결하는 넷뱅킹 와리가리 100% 자동 재시도 매크로입니다. 무설치 1초 북마크릿 및 크롬 확장프로그램 지원.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d17;
+      --card-bg: #0d1726;
+      --card-border: #1e2f42;
+      --accent: #70d9d2;
+      --accent-glow: rgba(112, 217, 210, 0.25);
+      --accent-light: #a7f3d0;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --primary-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      --glow-gradient: radial-gradient(circle at top, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+      --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      background-image: var(--glow-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 13, 23, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 24px;
+    }
+    .header-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+    .brand-icon {
+      font-size: 24px;
+      filter: drop-shadow(0 0 12px rgba(112, 217, 210, 0.4));
+    }
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-version {
+      font-size: 11px;
+      background: rgba(112, 217, 210, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      border: 1px solid rgba(112, 217, 210, 0.3);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-upi-cross {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .btn-upi-cross:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1080px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 40px 24px 80px;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 30px 10px 48px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .hero-badge.hot {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .hero-badge.auto {
+      background: rgba(112, 217, 210, 0.15);
+      border: 1px solid rgba(112, 217, 210, 0.4);
+      color: var(--accent);
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+      color: #ffffff;
+    }
+    .hero h1 span.gradient-text {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p.lead {
+      font-size: clamp(15px, 2.5vw, 17px);
+      color: var(--text-sub);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .hero p.lead strong {
+      color: #f1f5f9;
+    }
+
+    /* CTA Choice Grid */
+    .cta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+    .cta-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .cta-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(112, 217, 210, 0.5);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(112, 217, 210, 0.15);
+    }
+    .cta-card.featured {
+      border-color: #70d9d2;
+      background: linear-gradient(180deg, rgba(16, 29, 43, 0.95) 0%, rgba(13, 23, 38, 0.95) 100%);
+    }
+    .card-top-tag {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #0b131e;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    .cta-header {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .cta-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .cta-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .cta-desc {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.55;
+    }
+    .btn-drag-bookmarklet {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #0a1926;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 16px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(112, 217, 210, 0.35);
+      cursor: grab;
+      user-select: none;
+      transition: all 0.2s;
+      margin-top: 18px;
+    }
+    .btn-drag-bookmarklet:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(112, 217, 210, 0.5);
+    }
+    .btn-drag-bookmarklet:active {
+      cursor: grabbing;
+    }
+    .drag-guide-text {
+      font-size: 12px;
+      color: #facc15;
+      text-align: center;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .btn-download-zip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 18px;
+    }
+    .btn-download-zip:hover {
+      background: #334155;
+      border-color: #64748b;
+      transform: translateY(-1px);
+    }
+
+    /* Live Telemetry Section */
+    .telemetry-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 48px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .metric-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      margin: 6px 0 2px;
+    }
+    .metric-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .ticker-container {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+    .ticker-header {
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .ticker-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ticker-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      border-left: 3px solid #10b981;
+    }
+    .ticker-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .ticker-badge {
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(112, 217, 210, 0.15);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+    }
+    .ticker-memo {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+    .ticker-time {
+      color: var(--text-muted);
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+
+    /* Steps Guide Section */
+    .steps-section {
+      margin-bottom: 48px;
+    }
+    .section-heading {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .section-heading h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .section-heading p {
+      font-size: 14px;
+      color: var(--text-sub);
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 24px;
+      position: relative;
+    }
+    .step-badge {
+      width: 32px;
+      height: 32px;
+      background: rgba(112, 217, 210, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(112, 217, 210, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .step-desc {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    /* Supported Plans Table */
+    .plans-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 48px;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .plan-pill {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .plan-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .plan-price {
+      font-size: 13px;
+      font-weight: 800;
+      color: #facc15;
+      font-family: var(--font-mono);
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      margin-bottom: 48px;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 22px;
+    }
+    .faq-q {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-a {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    /* Cross-link Banner (To UPI Generator) */
+    .crosslink-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+      border: 1.5px solid rgba(112, 217, 210, 0.35);
+      border-radius: 20px;
+      padding: 32px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+    .crosslink-info h3 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .crosslink-info p {
+      font-size: 13.5px;
+      color: var(--text-sub);
+    }
+    .btn-goto-upi {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #070d17;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+    }
+    .btn-goto-upi:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+    }
+
+    /* Footer */
+    footer {
+      background: #060a12;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    footer a {
+      color: var(--text-sub);
+      text-decoration: none;
+    }
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      .header-container { flex-direction: column; align-items: stretch; }
+      .header-actions { justify-content: center; }
+      .cta-grid { grid-template-columns: 1fr; }
+      .crosslink-banner { flex-direction: column; text-align: center; }
+      .btn-goto-upi { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-container">
+      <a href="wagal.html" class="brand">
+        <span class="brand-icon">🍎</span>
+        <div class="brand-title">
+          <span>와갈매크로</span>
+          <span class="brand-version">v0.4.0</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <a href="index.html" class="btn-upi-cross">
+          <span>🇮🇳 인도 UPI ID 생성기 바로가기 ➔</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge-row">
+        <span class="hero-badge hot">🔥 결제 실패 오류 해결</span>
+        <span class="hero-badge auto">⚡ 100% 자동 재시도 (와리가리)</span>
+      </div>
+      <h1>애플 유튜브 구독 갱신,<br><span class="gradient-text">클릭 한 번으로 100% 자동화</span></h1>
+      <p class="lead">
+        지겨운 수백 번 클릭은 이제 그만! <strong>오류창 닫기 ➔ 플랜 선택 ➔ 구독 확인 ➔ 결제 요청</strong>까지<br>
+        실제 결제 승인이 떨어질 때까지 전자동으로 와리가리 반복해 드립니다.
+      </p>
+
+      <!-- Two Setup Options (Bookmarklet vs Chrome Extension) -->
+      <div class="cta-grid">
+        <!-- Option 1: Bookmarklet (Recommended) -->
+        <div class="cta-card featured">
+          <span class="card-top-tag">⭐ 추천 · 무설치 1초 완성</span>
+          <div class="cta-header">
+            <span class="cta-icon">⚡</span>
+            <h2 class="cta-title">1초 북마크릿 (무설치형)</h2>
+            <p class="cta-desc">
+              압축 풀기 X, 확장 프로그램 설치 X!<br>
+              아래 버튼을 <strong>상단 북마크(즐겨찾기) 바로 마우스 드래그</strong>하면 설치가 끝납니다.
+            </p>
+          </div>
+          <div>
+            <a href="javascript:%2F**%0A%20*%20%EC%99%80%EA%B0%88%EB%A7%A4%ED%81%AC%EB%A1%9C%200.4.0%20%EB%B6%81%EB%A7%88%ED%81%AC%EB%A6%BF%20(Wagal%20Macro%20Bookmarklet%20v0.4.0)%0A%20*%20%EB%B3%84%EB%8F%84%20%ED%99%95%EC%9E%A5%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8%20%EC%84%A4%EC%B9%98%20%EC%97%86%EC%9D%B4%20%EB%B8%8C%EB%9D%BC%EC%9A%B0%EC%A0%80%20%EC%A6%90%EA%B2%A8%EC%B0%BE%EA%B8%B0%20%ED%81%B4%EB%A6%AD%20%ED%95%9C%20%EB%B2%88%EC%9C%BC%EB%A1%9C%20%EC%8B%A4%ED%96%89%EB%90%98%EB%8A%94%20%EC%99%84%EC%A0%84%20%EC%9E%90%EB%A6%BD%ED%98%95%20%EC%9E%90%EB%8F%99%20%EA%B0%B1%EC%8B%A0%20%EC%97%94%EC%A7%84%0A%20*%2F%0A(function()%20%7B%0A%20%20'use%20strict'%3B%0A%0A%20%20if%20(window.__wagalBookmarkletActive)%20%7B%0A%20%20%20%20alert('%5B%EC%99%80%EA%B0%88%EB%A7%A4%ED%81%AC%EB%A1%9C%5D%20%EC%9D%B4%EB%AF%B8%20%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%20%EC%A4%91%EC%9E%85%EB%8B%88%EB%8B%A4.%20%EC%9A%B0%EC%B8%A1%20%ED%95%98%EB%8B%A8%EC%9D%98%20%ED%8C%A8%EB%84%90%EC%9D%84%20%ED%99%95%EC%9D%B8%ED%95%98%EC%84%B8%EC%9A%94.')%3B%0A%20%20%20%20return%3B%0A%20%20%7D%0A%20%20window.__wagalBookmarkletActive%20%3D%20true%3B%0A%0A%20%20%2F%2F%20---%201.%20DOM%20%EB%B6%84%EC%84%9D%20%EB%B0%8F%20%EC%95%A1%EC%85%98%20%EC%97%94%EC%A7%84%20(from%20page.js)%20---%0A%20%20const%20norm%20%3D%20s%20%3D%3E%20(s%20%7C%7C%20'').replace(%2F%5Cs%2B%2Fg%2C%20'%20').trim()%3B%0A%20%20const%20visible%20%3D%20e%20%3D%3E%20!!e%20%26%26%20e.getClientRects().length%20%3E%200%20%26%26%20getComputedStyle(e).visibility%20!%3D%3D%20'hidden'%20%26%26%20getComputedStyle(e).display%20!%3D%3D%20'none'%20%26%26%20!e.closest('%5Bhidden%5D%2C%5Baria-hidden%3D%22true%22%5D')%3B%0A%20%20%0A%20%20function%20getRoots()%20%7B%0A%20%20%20%20const%20roots%20%3D%20%5Bdocument%5D%3B%0A%20%20%20%20for%20(let%20i%20%3D%200%3B%20i%20%3C%20roots.length%3B%20i%2B%2B)%20%7B%0A%20%20%20%20%20%20for%20(const%20e%20of%20roots%5Bi%5D.querySelectorAll('*'))%20%7B%0A%20%20%20%20%20%20%20%20if%20(e.shadowRoot)%20roots.push(e.shadowRoot)%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20return%20roots%3B%0A%20%20%7D%0A%20%20%0A%20%20const%20all%20%3D%20selector%20%3D%3E%20getRoots().flatMap(r%20%3D%3E%20Array.from(r.querySelectorAll(selector)))%3B%0A%20%20const%20text%20%3D%20e%20%3D%3E%20norm(e%3F.innerText%20%7C%7C%20e%3F.textContent)%3B%0A%20%20const%20usable%20%3D%20e%20%3D%3E%20visible(e)%20%26%26%20!e.disabled%20%26%26%20e.getAttribute('aria-disabled')%20!%3D%3D%20'true'%3B%0A%20%20const%20buttons%20%3D%20scope%20%3D%3E%20(scope%20%3F%20Array.from(scope.querySelectorAll('button%2C%5Brole%3D%22button%22%5D%2Cinput%5Btype%3D%22submit%22%5D'))%20%3A%20all('button%2C%5Brole%3D%22button%22%5D%2Cinput%5Btype%3D%22submit%22%5D')).filter(usable)%3B%0A%20%20const%20label%20%3D%20e%20%3D%3E%20norm(e.innerText%20%7C%7C%20e.value%20%7C%7C%20e.getAttribute('aria-label')%20%7C%7C%20e.textContent)%3B%0A%20%20const%20unique%20%3D%20items%20%3D%3E%20items.length%20%3D%3D%3D%201%20%3F%20items%5B0%5D%20%3A%20null%3B%0A%0A%20%20const%20product%20%3D%20scope%20%3D%3E%20%7B%0A%20%20%20%20const%20t%20%3D%20text(scope)%3B%0A%20%20%20%20%2F%2F%20YouTube%20Premium%20%EC%8B%9C%EB%A6%AC%EC%A6%88%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BPremium%5Cs%2BFamily%2Fi.test(t))%20return%20'YouTube%20Premium%20Family'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BPremium%5Cs%2B(%3F%3ATwo-person%7C2-person%7CDuo)%2Fi.test(t))%20return%20'YouTube%20Premium%20Two-person'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BPremium%5Cs%2BStudent%2Fi.test(t))%20return%20'YouTube%20Premium%20Student'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BPremium%5Cs%2BIndividual%2Fi.test(t))%20return%20'YouTube%20Premium%20Individual'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BPremium%2Fi.test(t))%20return%20'YouTube%20Premium'%3B%0A%0A%20%20%20%20%2F%2F%20YouTube%20Music%20%EC%8B%9C%EB%A6%AC%EC%A6%88%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BMusic%5Cs%2BFamily%2Fi.test(t))%20return%20'YouTube%20Music%20Family'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BMusic%5Cs%2B(%3F%3ATwo-person%7C2-person%7CDuo)%2Fi.test(t))%20return%20'YouTube%20Music%20Two-person'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BMusic%5Cs%2BStudent%2Fi.test(t))%20return%20'YouTube%20Music%20Student'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BMusic%5Cs%2BIndividual%2Fi.test(t))%20return%20'YouTube%20Music%20Individual'%3B%0A%20%20%20%20if%20(%2FYouTube%5Cs%2BMusic%2Fi.test(t))%20return%20'YouTube%20Music'%3B%0A%0A%20%20%20%20%2F%2F%20%ED%95%9C%EA%B8%80%20%EB%AA%85%EC%B9%AD%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%5Cs*%ED%8C%A8%EB%B0%80%EB%A6%AC%2Fi.test(t))%20return%20'YouTube%20Premium%20Family'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%5Cs*(%3F%3A2%EC%9D%B8%7C%EB%93%80%EC%98%A4)%2Fi.test(t))%20return%20'YouTube%20Premium%20Two-person'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%5Cs*%ED%95%99%EC%83%9D%2Fi.test(t))%20return%20'YouTube%20Premium%20Student'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%5Cs*%EA%B0%9C%EC%9D%B8%2Fi.test(t))%20return%20'YouTube%20Premium%20Individual'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%EB%AE%A4%EC%A7%81%5Cs*%ED%8C%A8%EB%B0%80%EB%A6%AC%2Fi.test(t))%20return%20'YouTube%20Music%20Family'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%EB%AE%A4%EC%A7%81%5Cs*(%3F%3A2%EC%9D%B8%7C%EB%93%80%EC%98%A4)%2Fi.test(t))%20return%20'YouTube%20Music%20Two-person'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%EB%AE%A4%EC%A7%81%5Cs*%ED%95%99%EC%83%9D%2Fi.test(t))%20return%20'YouTube%20Music%20Student'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%EB%AE%A4%EC%A7%81%5Cs*%EA%B0%9C%EC%9D%B8%2Fi.test(t))%20return%20'YouTube%20Music%20Individual'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%EB%AE%A4%EC%A7%81%2Fi.test(t))%20return%20'YouTube%20Music'%3B%0A%20%20%20%20if%20(%2F%EC%9C%A0%ED%8A%9C%EB%B8%8C%5Cs*%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%2Fi.test(t))%20return%20'YouTube%20Premium'%3B%0A%0A%20%20%20%20if%20(%2FYouTube%2Fi.test(t))%20return%20'YouTube'%3B%0A%20%20%20%20return%20null%3B%0A%20%20%7D%3B%0A%0A%20%20const%20productLabels%20%3D%20scope%20%3D%3E%20%7B%0A%20%20%20%20const%20labels%20%3D%20Array.from(scope%3F.querySelectorAll('h1%2Ch2%2Ch3%2Ch4%2Cp%2Cspan%2Cdiv%2C%5Brole%3D%22heading%22%5D')%20%7C%7C%20%5B%5D)%0A%20%20%20%20%20%20.filter(e%20%3D%3E%20visible(e)%20%26%26%20%2F%5E(%3F%3AYouTube%7C%EC%9C%A0%ED%8A%9C%EB%B8%8C)(%3F%3A%5Cs%2B(%3F%3APremium%7CMusic%7C%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%7C%EB%AE%A4%EC%A7%81)(%3F%3A%5Cs%2B(%3F%3AFamily%7CTwo-person%7C2-person%7CDuo%7CStudent%7CIndividual%7C%ED%8C%A8%EB%B0%80%EB%A6%AC%7C2%EC%9D%B8%7C%EB%93%80%EC%98%A4%7C%ED%95%99%EC%83%9D%7C%EA%B0%9C%EC%9D%B8))%3F)%3F%24%2Fi.test(text(e)))%3B%0A%20%20%20%20return%20labels.filter(e%20%3D%3E%20!labels.some(child%20%3D%3E%20child%20!%3D%3D%20e%20%26%26%20e.contains(child)))%3B%0A%20%20%7D%3B%0A%0A%20%20const%20cleanCard%20%3D%20scope%20%3D%3E%20%7B%0A%20%20%20%20if%20(!scope)%20return%20false%3B%0A%20%20%20%20const%20t%20%3D%20text(scope)%3B%0A%20%20%20%20if%20(!%2FYouTube%7C%EC%9C%A0%ED%8A%9C%EB%B8%8C%2Fi.test(t))%20return%20false%3B%0A%20%20%20%20const%20headings%20%3D%20Array.from(scope.querySelectorAll('h1%2Ch2%2Ch3%2Ch4%2C%5Brole%3D%22heading%22%5D')).filter(visible)%3B%0A%20%20%20%20return%20!headings.some(h%20%3D%3E%20!%2FYouTube%7CPremium%7CMusic%7CFamily%7CTwo-person%7C2-person%7CDuo%7CStudent%7CIndividual%7CSubscriptions%7C%EA%B5%AC%EB%8F%85%7C%EC%9C%A0%ED%8A%9C%EB%B8%8C%7C%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%7C%EB%AE%A4%EC%A7%81%2Fi.test(text(h)))%3B%0A%20%20%7D%3B%0A%0A%20%20const%20price%20%3D%20scope%20%3D%3E%20%7B%0A%20%20%20%20if%20(!scope)%20return%20null%3B%0A%20%20%20%20const%20values%20%3D%20%5B...text(scope).matchAll(%2F(%3F%3A%E2%82%B9%7CINR%7CRs%5C.%3F)%5Cs*(%5B%5Cd%2C%5D%2B(%3F%3A%5C.%5Cd%7B1%2C2%7D)%3F)%2Fgi)%5D.map(m%20%3D%3E%20'INR%20'%20%2B%20Number(m%5B1%5D.replaceAll('%2C'%2C%20'')))%3B%0A%20%20%20%20return%20values.length%20%3E%200%20%3F%20values%5B0%5D%20%3A%20null%3B%0A%20%20%7D%3B%0A%0A%20%20const%20renewalText%20%3D%20scope%20%3D%3E%20%7B%0A%20%20%20%20const%20month%20%3D%20'(%3F%3AJanuary%7CFebruary%7CMarch%7CApril%7CMay%7CJune%7CJuly%7CAugust%7CSeptember%7COctober%7CNovember%7CDecember)'%3B%0A%20%20%20%20const%20day%20%3D%20'(%3F%3A0%3F%5B1-9%5D%7C%5B12%5D%5B0-9%5D%7C3%5B01%5D)'%3B%0A%20%20%20%20const%20date%20%3D%20%60(%3F%3A%24%7Bday%7D%20%24%7Bmonth%7D(%3F%3A%2C%3F%20%5B0-9%5D%7B4%7D)%3F%7C%24%7Bmonth%7D%20%24%7Bday%7D(%3F%3A%2C%3F%20%5B0-9%5D%7B4%7D)%3F%7C%5B0-9%5D%7B4%7D-%5B0-9%5D%7B2%7D-%5B0-9%5D%7B2%7D)%60%3B%0A%20%20%20%20const%20english%20%3D%20text(scope).match(new%20RegExp(%60%5C%5Cb(%3F%3ARenews%3F(%3F%3A%20on)%3F%7CNext%20billing%20date)%5C%5Cs*%3A%3F%5C%5Cs*%24%7Bdate%7D%5C%5Cb%60%2C%20'i'))%3B%0A%20%20%20%20const%20korean%20%3D%20text(scope).match(%2F(%3F%3A%EB%8B%A4%EC%9D%8C%20(%3F%3A%EA%B0%B1%EC%8B%A0%7C%EA%B2%B0%EC%A0%9C)%EC%9D%BC%7C%EA%B0%B1%EC%8B%A0%20%EC%98%88%EC%A0%95%EC%9D%BC)%5Cs*%3A%3F%5Cs*(%3F%3A%5Cd%7B4%7D%EB%85%84%5Cs*)%3F%5Cd%7B1%2C2%7D%EC%9B%94%5Cs*%5Cd%7B1%2C2%7D%EC%9D%BC%2F)%3B%0A%20%20%20%20return%20english%3F.%5B0%5D%20%7C%7C%20korean%3F.%5B0%5D%20%7C%7C%20null%3B%0A%20%20%7D%3B%0A%0A%20%20const%20selectedPlanCard%20%3D%20()%20%3D%3E%20%7B%0A%20%20%20%20%2F%2F%201.%20Native%20or%20ARIA%20checked%2Fselected%0A%20%20%20%20const%20checkedInputs%20%3D%20all('input%5Btype%3D%22radio%22%5D%3Achecked%2C%20%5Brole%3D%22radio%22%5D%5Baria-checked%3D%22true%22%5D%2C%20%5Brole%3D%22checkbox%22%5D%5Baria-checked%3D%22true%22%5D%2C%20%5Baria-checked%3D%22true%22%5D%2C%20%5Baria-selected%3D%22true%22%5D').filter(visible)%3B%0A%20%20%20%20for%20(const%20el%20of%20checkedInputs)%20%7B%0A%20%20%20%20%20%20let%20card%20%3D%20el%3B%0A%20%20%20%20%20%20while%20(card%20%26%26%20card%20!%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20if%20(product(card)%20%26%26%20price(card))%20return%20card%3B%0A%20%20%20%20%20%20%20%20card%20%3D%20card.parentElement%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20%2F%2F%202.%20Element%20with%20checkmark%20class%2C%20SVG%20check%2C%20or%20selected%20class%0A%20%20%20%20const%20checkElements%20%3D%20all('svg%2C%20span%2C%20div%2C%20i%2C%20%5Bclass*%3D%22check%22%5D%2C%20%5Bclass*%3D%22selected%22%5D%2C%20%5Bclass*%3D%22active%22%5D').filter(e%20%3D%3E%20%7B%0A%20%20%20%20%20%20if%20(!visible(e))%20return%20false%3B%0A%20%20%20%20%20%20const%20cl%20%3D%20typeof%20e.className%20%3D%3D%3D%20'string'%20%3F%20e.className%20%3A%20''%3B%0A%20%20%20%20%20%20const%20al%20%3D%20e.getAttribute('aria-label')%20%7C%7C%20''%3B%0A%20%20%20%20%20%20return%20%2Fcheck%7Cselected%7Cactive%2Fi.test(cl)%20%7C%7C%20%2Fchecked%7Cselected%2Fi.test(al)%3B%0A%20%20%20%20%7D)%3B%0A%20%20%20%20for%20(const%20el%20of%20checkElements)%20%7B%0A%20%20%20%20%20%20let%20card%20%3D%20el.parentElement%3B%0A%20%20%20%20%20%20while%20(card%20%26%26%20card%20!%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20if%20(product(card)%20%26%26%20price(card))%20%7B%0A%20%20%20%20%20%20%20%20%20%20const%20subProducts%20%3D%20Array.from(card.querySelectorAll('*')).filter(c%20%3D%3E%20c%20!%3D%3D%20card%20%26%26%20product(c)%20%26%26%20price(c))%3B%0A%20%20%20%20%20%20%20%20%20%20if%20(subProducts.length%20%3D%3D%3D%200)%20return%20card%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20card%20%3D%20card.parentElement%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20%2F%2F%203.%20Visual%20styling%20(Blue%20border%20or%20blue%20accent%20on%20checked%20radio%20circle)%0A%20%20%20%20const%20candidateCards%20%3D%20all('div%2C%20li%2C%20label%2C%20section').filter(e%20%3D%3E%20%7B%0A%20%20%20%20%20%20if%20(!visible(e))%20return%20false%3B%0A%20%20%20%20%20%20const%20p%20%3D%20product(e)%3B%0A%20%20%20%20%20%20const%20pr%20%3D%20price(e)%3B%0A%20%20%20%20%20%20if%20(!p%20%7C%7C%20!pr)%20return%20false%3B%0A%20%20%20%20%20%20const%20subCards%20%3D%20Array.from(e.children).filter(c%20%3D%3E%20product(c)%20%26%26%20price(c))%3B%0A%20%20%20%20%20%20return%20subCards.length%20%3D%3D%3D%200%3B%0A%20%20%20%20%7D)%3B%0A%20%20%20%20for%20(const%20card%20of%20candidateCards)%20%7B%0A%20%20%20%20%20%20try%20%7B%0A%20%20%20%20%20%20%20%20const%20style%20%3D%20getComputedStyle(card)%3B%0A%20%20%20%20%20%20%20%20if%20(%2Frgb%5C(%5Cs*(%3F%3A0%7C10%7C30%7C50)%5Cs*%2C%5Cs*(%3F%3A11%5B0-9%5D%7C12%5B0-9%5D%7C150)%5Cs*%2C%5Cs*(%3F%3A22%5B0-9%5D%7C25%5B0-5%5D)%5Cs*%5C)%2Fi.test(style.borderColor))%20return%20card%3B%0A%20%20%20%20%20%20%20%20const%20blueChildren%20%3D%20Array.from(card.querySelectorAll('*')).filter(child%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20const%20cs%20%3D%20getComputedStyle(child)%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20%2Frgb%5C(%5Cs*(%3F%3A0%7C10%7C30%7C50)%5Cs*%2C%5Cs*(%3F%3A11%5B0-9%5D%7C12%5B0-9%5D%7C150)%5Cs*%2C%5Cs*(%3F%3A22%5B0-9%5D%7C25%5B0-5%5D)%5Cs*%5C)%2Fi.test(cs.backgroundColor)%20%7C%7C%20%2Frgb%5C(%5Cs*(%3F%3A0%7C10%7C30%7C50)%5Cs*%2C%5Cs*(%3F%3A11%5B0-9%5D%7C12%5B0-9%5D%7C150)%5Cs*%2C%5Cs*(%3F%3A22%5B0-9%5D%7C25%5B0-5%5D)%5Cs*%5C)%2Fi.test(cs.color)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(err)%20%7B%20return%20false%3B%20%7D%0A%20%20%20%20%20%20%20%20%7D)%3B%0A%20%20%20%20%20%20%20%20if%20(blueChildren.length%20%3E%200)%20return%20card%3B%0A%20%20%20%20%20%20%7D%20catch%20(err)%20%7B%7D%0A%20%20%20%20%7D%0A%20%20%20%20return%20null%3B%0A%20%20%7D%3B%0A%0A%20%20function%20inspectPage(expected)%20%7B%0A%20%20%20%20%2F%2F%20Confirm%20Subscription%20%EB%AA%A8%EB%8B%AC%20%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88%20%EC%A7%81%EC%A0%91%20%ED%83%90%EC%83%89%0A%20%20%20%20let%20confirmDialog%20%3D%20null%3B%0A%20%20%20%20const%20confirmHeaders%20%3D%20all('h1%2Ch2%2Ch3%2Ch4%2Cdiv%2Cspan').filter(e%20%3D%3E%20visible(e)%20%26%26%20%2F%5EConfirm%20Subscription%7C%EA%B5%AC%EB%8F%85%20%ED%99%95%EC%9D%B8%24%2Fi.test(text(e)))%3B%0A%20%20%20%20if%20(confirmHeaders.length%20%3E%200)%20%7B%0A%20%20%20%20%20%20let%20el%20%3D%20confirmHeaders%5B0%5D.parentElement%3B%0A%20%20%20%20%20%20while%20(el%20%26%26%20el%20!%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20if%20(buttons(el).some(b%20%3D%3E%20%2F%5E(Confirm%7C%ED%99%95%EC%9D%B8)%24%2Fi.test(label(b))))%20%7B%0A%20%20%20%20%20%20%20%20%20%20confirmDialog%20%3D%20el%3B%0A%20%20%20%20%20%20%20%20%20%20break%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20el%20%3D%20el.parentElement%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20const%20dialogs%20%3D%20all('%5Brole%3D%22dialog%22%5D%2C%5Brole%3D%22alertdialog%22%5D%2C%5Baria-modal%3D%22true%22%5D%2Cdialog%5Bopen%5D').filter(visible)%3B%0A%20%20%20%20if%20(confirmDialog%20%26%26%20!dialogs.includes(confirmDialog))%20dialogs.push(confirmDialog)%3B%0A%0A%20%20%20%20const%20leafDialogs%20%3D%20dialogs.filter(d%20%3D%3E%20!dialogs.some(other%20%3D%3E%20other%20!%3D%3D%20d%20%26%26%20d.contains(other)))%3B%0A%20%20%20%20%0A%20%20%20%20if%20(leafDialogs.length%20%3E%201)%20%7B%0A%20%20%20%20%20%20const%20errors%20%3D%20leafDialogs.filter(d%20%3D%3E%20%2FUnable%20to%20Complete%20Purchase%7Cunable%20to%20charge%7C%EA%B5%AC%EB%A7%A4%EB%A5%BC%20%EC%99%84%EB%A3%8C%ED%95%A0%20%EC%88%98%20%EC%97%86%2Fi.test(text(d)))%3B%0A%20%20%20%20%20%20if%20(errors.length%20%3D%3D%3D%201)%20leafDialogs.splice(0%2C%20leafDialogs.length%2C%20errors%5B0%5D)%3B%0A%20%20%20%20%20%20else%20if%20(confirmDialog%20%26%26%20leafDialogs.includes(confirmDialog))%20leafDialogs.splice(0%2C%20leafDialogs.length%2C%20confirmDialog)%3B%0A%20%20%20%20%20%20else%20%7B%0A%20%20%20%20%20%20%20%20const%20confirms%20%3D%20leafDialogs.filter(d%20%3D%3E%20%2FConfirm%20Subscription%7C%EA%B5%AC%EB%8F%85%20%ED%99%95%EC%9D%B8%2Fi.test(text(d)))%3B%0A%20%20%20%20%20%20%20%20if%20(confirms.length%20%3D%3D%3D%201)%20leafDialogs.splice(0%2C%20leafDialogs.length%2C%20confirms%5B0%5D)%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20if%20(leafDialogs.length%20%3D%3D%3D%201)%20%7B%0A%20%20%20%20%20%20const%20dialog%20%3D%20leafDialogs%5B0%5D%3B%0A%20%20%20%20%20%20const%20t%20%3D%20text(dialog)%3B%0A%20%20%20%20%20%20if%20(%2FUnable%20to%20Complete%20Purchase%7Cunable%20to%20charge%7C%EA%B5%AC%EB%A7%A4%EB%A5%BC%20%EC%99%84%EB%A3%8C%ED%95%A0%20%EC%88%98%20%EC%97%86%2Fi.test(t))%20%7B%0A%20%20%20%20%20%20%20%20button%20%3D%20unique(buttons(dialog).filter(b%20%3D%3E%20%2F%5E(Cancel%7C%EC%B7%A8%EC%86%8C)%24%2Fi.test(label(b))))%3B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20button%20%3F%20'error'%20%3A%20'unknown'%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20if%20(%2FConfirm%20Subscription%7C%EA%B5%AC%EB%8F%85%20%ED%99%95%EC%9D%B8%2Fi.test(t)%20%7C%7C%20dialog%20%3D%3D%3D%20confirmDialog)%20%7B%0A%20%20%20%20%20%20%20%20const%20cancelling%20%3D%20expected%3F.kind%20%3D%3D%3D%20'dismiss'%3B%0A%20%20%20%20%20%20%20%20button%20%3D%20unique(buttons(dialog).filter(b%20%3D%3E%20(cancelling%20%3F%20%2F%5E(Cancel%7C%EC%B7%A8%EC%86%8C)%24%2Fi%20%3A%20%2F%5E(Confirm%7C%ED%99%95%EC%9D%B8)%24%2Fi).test(label(b))))%3B%0A%20%20%20%20%20%20%20%20const%20detProduct%20%3D%20product(dialog)%20%7C%7C%20product(document.querySelector('main')%20%7C%7C%20document.body)%20%7C%7C%20'YouTube%20Premium'%3B%0A%20%20%20%20%20%20%20%20const%20detPrice%20%3D%20price(dialog)%20%7C%7C%20price(document.querySelector('main')%20%7C%7C%20document.body)%3B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20cancelling%20%3F%20(button%20%3F%20'dismiss'%20%3A%20'unknown')%20%3A%20'confirm'%2C%20canConfirm%3A%20!!button%2C%20product%3A%20detProduct%2C%20price%3A%20detPrice%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20%2Fpassword%7Cverification%7C%EC%9D%B8%EC%A6%9D%7C%EC%95%94%ED%98%B8%7Csign%20in%2Fi.test(t)%20%3F%20'auth'%20%3A%20'unknown'%20%7D%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%20else%20if%20(leafDialogs.length%20%3E%201)%20%7B%0A%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'ambiguous'%20%7D%3B%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20const%20scope%20%3D%20document.querySelector('main')%20%7C%7C%20document.body%3B%0A%20%20%20%20%20%20const%20candidates%20%3D%20buttons().filter(b%20%3D%3E%20%2F%5E(%3F%3ARenew%7CResubscribe%7CChange%20Plan%7CChoose%20Plan%7CSelect%20Plan%7C%EA%B0%B1%EC%8B%A0%7C%EC%9E%AC%EA%B5%AC%EB%8F%85%7C%EB%8B%A4%EC%8B%9C%20%EA%B5%AC%EB%8F%85%7C%ED%94%8C%EB%9E%9C%20%EB%B3%80%EA%B2%BD%7C%EC%9A%94%EA%B8%88%EC%A0%9C%20%EB%B3%80%EA%B2%BD)(%3F%3A%5Cb%7C%5Cs%7C%3A)%2Fi.test(label(b))%20%7C%7C%20%2F%5E(%3F%3ARenew%7CResubscribe%7CChange%20Plan%7CChoose%20Plan%7CSelect%20Plan%7C%EA%B0%B1%EC%8B%A0%7C%EC%9E%AC%EA%B5%AC%EB%8F%85%7C%EB%8B%A4%EC%8B%9C%20%EA%B5%AC%EB%8F%85%7C%ED%94%8C%EB%9E%9C%20%EB%B3%80%EA%B2%BD%7C%EC%9A%94%EA%B8%88%EC%A0%9C%20%EB%B3%80%EA%B2%BD)%24%2Fi.test(label(b)))%3B%0A%20%20%20%20%20%20if%20(candidates.length%20%3D%3D%3D%201)%20%7B%0A%20%20%20%20%20%20%20%20button%20%3D%20candidates%5B0%5D%3B%0A%20%20%20%20%20%20%20%20const%20selectedCard%20%3D%20selectedPlanCard()%3B%0A%20%20%20%20%20%20%20%20let%20detectedProduct%20%3D%20null%2C%20detectedPrice%20%3D%20null%3B%0A%20%20%20%20%20%20%20%20if%20(selectedCard)%20%7B%0A%20%20%20%20%20%20%20%20%20%20detectedProduct%20%3D%20product(selectedCard)%3B%0A%20%20%20%20%20%20%20%20%20%20detectedPrice%20%3D%20price(selectedCard)%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20if%20(!detectedProduct)%20%7B%0A%20%20%20%20%20%20%20%20%20%20let%20card%20%3D%20button.parentElement%3B%0A%20%20%20%20%20%20%20%20%20%20while%20(card%20%26%26%20card%20!%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20(product(card))%20break%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20card%20%3D%20card.parentElement%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20if%20(!card%20%7C%7C%20card%20%3D%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20card%20%3D%20document.querySelector('main')%20%7C%7C%20document.body%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20detectedProduct%20%3D%20product(card)%20%7C%7C%20product(document.querySelector('main')%20%7C%7C%20document.body)%20%7C%7C%20'YouTube%20Premium'%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20if%20(!detectedPrice)%20%7B%0A%20%20%20%20%20%20%20%20%20%20let%20card%20%3D%20button.parentElement%3B%0A%20%20%20%20%20%20%20%20%20%20while%20(card%20%26%26%20card%20!%3D%3D%20document.body)%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20(price(card))%20break%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20card%20%3D%20card.parentElement%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20detectedPrice%20%3D%20price(button)%20%7C%7C%20price(card)%20%7C%7C%20price(document.querySelector('main')%20%7C%7C%20document.body)%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'ready'%2C%20product%3A%20detectedProduct%2C%20price%3A%20detectedPrice%20%7D%3B%0A%20%20%20%20%20%20%20%20if%20(!snapshot.product%20%7C%7C%20!snapshot.price)%20snapshot%20%3D%20%7B%20kind%3A%20'unknown'%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20if%20(candidates.length%20%3E%201)%20%7B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'ambiguous'%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20if%20(productLabels(scope).length%20%3E%201)%20%7B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'ambiguous'%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20if%20(productLabels(scope).length%20%3D%3D%3D%201)%20%7B%0A%20%20%20%20%20%20%20%20const%20labels%20%3D%20productLabels(scope)%3B%0A%20%20%20%20%20%20%20%20const%20card%20%3D%20labels%5B0%5D.closest('a%2Cbutton%2C%5Brole%3D%22button%22%5D%2C%5Bdata-test%3D%22subscription-card%22%5D')%20%7C%7C%20labels%5B0%5D.parentElement%3B%0A%20%20%20%20%20%20%20%20const%20cardText%20%3D%20text(card)%3B%0A%20%20%20%20%20%20%20%20const%20renewal%20%3D%20card%20%26%26%20renewalText(card)%3B%0A%20%20%20%20%20%20%20%20if%20(card%20%26%26%20renewal%20%26%26%20!%2Fcancelled%7Ccanceled%7Cexpired%7C%EB%A7%8C%EB%A3%8C%7C%EC%B7%A8%EC%86%8C%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4%2Fi.test(cardText))%20%7B%0A%20%20%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'success'%2C%20product%3A%20product(card)%2C%20price%3A%20price(card)%2C%20renewalText%3A%20renewal%20%7D%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(card%20%26%26%20(card.matches('a%2Cbutton%2C%5Brole%3D%22button%22%5D')%20%7C%7C%20Array.from(scope.querySelectorAll('h1%2Ch2%2C%5Brole%3D%22heading%22%5D')).some(e%20%3D%3E%20visible(e)%20%26%26%20%2F%5E(Subscriptions%7C%EA%B5%AC%EB%8F%85)%24%2Fi.test(text(e)))))%20%7B%0A%20%20%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'list'%2C%20product%3A%20product(card)%2C%20price%3A%20price(card)%20%7D%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(all('%5Brole%3D%22progressbar%22%5D%2C%5Baria-busy%3D%22true%22%5D').some(visible))%20%7B%0A%20%20%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'pending'%20%7D%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%20else%20if%20(all('%5Brole%3D%22progressbar%22%5D%2C%5Baria-busy%3D%22true%22%5D').some(visible))%20%7B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'pending'%20%7D%3B%0A%20%20%20%20%20%20%7D%20else%20if%20(all('input%5Btype%3D%22password%22%5D').some(visible))%20%7B%0A%20%20%20%20%20%20%20%20snapshot%20%3D%20%7B%20kind%3A%20'auth'%20%7D%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20if%20(!expected)%20return%20snapshot%3B%0A%20%20%20%20const%20identityMatches%20%3D%20!%5B'ready'%2C%20'confirm'%5D.includes(expected.kind)%20%7C%7C%20(expected.product%20%3D%3D%3D%20snapshot.product%20%26%26%20expected.price%20%3D%3D%3D%20snapshot.price)%3B%0A%20%20%20%20if%20(snapshot.kind%20!%3D%3D%20expected.kind%20%7C%7C%20!identityMatches%20%7C%7C%20!button%20%7C%7C%20!usable(button))%20return%20%7B%20clicked%3A%20false%20%7D%3B%0A%0A%20%20%20%20%2F%2F%20%EC%95%88%EC%A0%84%ED%95%9C%20%EC%8B%A4%EC%A0%9C%20%ED%81%B4%EB%A6%AD%0A%20%20%20%20try%20%7B%20button.scrollIntoView(%7B%20behavior%3A%20'smooth'%2C%20block%3A%20'center'%20%7D)%3B%20%7D%20catch(e)%7B%7D%0A%20%20%20%20try%20%7B%20button.focus()%3B%20%7D%20catch(e)%7B%7D%0A%20%20%20%20button.click()%3B%0A%20%20%20%20return%20%7B%20clicked%3A%20true%20%7D%3B%0A%20%20%7D%0A%0A%20%20%2F%2F%20---%202.%20%EC%82%AC%EC%9A%B4%EB%93%9C%20%EC%95%8C%EB%A6%BC%20(Web%20Audio)%20---%0A%20%20function%20playSuccessSound()%20%7B%0A%20%20%20%20try%20%7B%0A%20%20%20%20%20%20const%20AudioCtx%20%3D%20window.AudioContext%20%7C%7C%20window.webkitAudioContext%3B%0A%20%20%20%20%20%20if%20(!AudioCtx)%20return%3B%0A%20%20%20%20%20%20const%20ctx%20%3D%20new%20AudioCtx()%3B%0A%20%20%20%20%20%20const%20playNote%20%3D%20(freq%2C%20start%2C%20duration)%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20const%20osc%20%3D%20ctx.createOscillator()%3B%0A%20%20%20%20%20%20%20%20const%20gain%20%3D%20ctx.createGain()%3B%0A%20%20%20%20%20%20%20%20osc.frequency.setValueAtTime(freq%2C%20ctx.currentTime%20%2B%20start)%3B%0A%20%20%20%20%20%20%20%20gain.gain.setValueAtTime(0.2%2C%20ctx.currentTime%20%2B%20start)%3B%0A%20%20%20%20%20%20%20%20gain.gain.exponentialRampToValueAtTime(0.001%2C%20ctx.currentTime%20%2B%20start%20%2B%20duration)%3B%0A%20%20%20%20%20%20%20%20osc.connect(gain)%3B%0A%20%20%20%20%20%20%20%20gain.connect(ctx.destination)%3B%0A%20%20%20%20%20%20%20%20osc.start(ctx.currentTime%20%2B%20start)%3B%0A%20%20%20%20%20%20%20%20osc.stop(ctx.currentTime%20%2B%20start%20%2B%20duration)%3B%0A%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20playNote(523.25%2C%200%2C%200.2)%3B%20%2F%2F%20C5%0A%20%20%20%20%20%20playNote(659.25%2C%200.2%2C%200.2)%3B%20%2F%2F%20E5%0A%20%20%20%20%20%20playNote(783.99%2C%200.4%2C%200.4)%3B%20%2F%2F%20G5%0A%20%20%20%20%20%20playNote(1046.50%2C%200.7%2C%200.6)%3B%20%2F%2F%20C6%0A%20%20%20%20%7D%20catch(e)%20%7B%7D%0A%20%20%7D%0A%0A%20%20%2F%2F%20---%203.%20UI%20%ED%8C%A8%EB%84%90%20%EC%83%9D%EC%84%B1%20(Shadow%20DOM%20%EA%B8%B0%EB%B0%98)%20---%0A%20%20const%20host%20%3D%20document.createElement('div')%3B%0A%20%20host.id%20%3D%20'wagal-bookmarklet-host'%3B%0A%20%20host.style.cssText%20%3D%20'position%3Afixed%3Bright%3A24px%3Bbottom%3A24px%3Bz-index%3A2147483647'%3B%0A%20%20const%20shadow%20%3D%20host.attachShadow(%7B%20mode%3A%20'closed'%20%7D)%3B%0A%0A%20%20shadow.innerHTML%20%3D%20%60%0A%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%3Ahost%20%7B%20all%3A%20initial%3B%20font-family%3A%20-apple-system%2C%20BlinkMacSystemFont%2C%20%22Segoe%20UI%22%2C%20Roboto%2C%20sans-serif%3B%20%7D%0A%20%20%20%20%20%20.panel%20%7B%0A%20%20%20%20%20%20%20%20width%3A%20310px%3B%0A%20%20%20%20%20%20%20%20padding%3A%2018px%2020px%3B%0A%20%20%20%20%20%20%20%20border%3A%201px%20solid%20%23305263%3B%0A%20%20%20%20%20%20%20%20border-radius%3A%2018px%3B%0A%20%20%20%20%20%20%20%20background%3A%20%23101d2b%3B%0A%20%20%20%20%20%20%20%20color%3A%20%23eef7fc%3B%0A%20%20%20%20%20%20%20%20font-size%3A%2013px%3B%0A%20%20%20%20%20%20%20%20box-shadow%3A%200%2016px%2048px%20rgba(0%2C%200%2C%200%2C%200.5)%2C%200%200%2020px%20rgba(112%2C%20217%2C%20210%2C%200.15)%3B%0A%20%20%20%20%20%20%20%20line-height%3A%201.5%3B%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20.header%20%7B%20display%3A%20flex%3B%20align-items%3A%20center%3B%20justify-content%3A%20space-between%3B%20margin-bottom%3A%208px%3B%20%7D%0A%20%20%20%20%20%20.badge-title%20%7B%20color%3A%20%2370d9d2%3B%20font-size%3A%2011px%3B%20font-weight%3A%20700%3B%20letter-spacing%3A%201.5px%3B%20%7D%0A%20%20%20%20%20%20.badge-state%20%7B%20font-size%3A%2011px%3B%20padding%3A%202px%207px%3B%20border-radius%3A%20999px%3B%20background%3A%20rgba(112%2C%20217%2C%20210%2C%200.15)%3B%20color%3A%20%2370d9d2%3B%20font-weight%3A%20600%3B%20%7D%0A%20%20%20%20%20%20.target-info%20%7B%20background%3A%20rgba(255%2C255%2C255%2C0.06)%3B%20padding%3A%208px%2010px%3B%20border-radius%3A%208px%3B%20margin%3A%208px%200%3B%20font-size%3A%2012px%3B%20%7D%0A%20%20%20%20%20%20.target-product%20%7B%20font-weight%3A%20700%3B%20color%3A%20%23facc15%3B%20%7D%0A%20%20%20%20%20%20.target-price%20%7B%20color%3A%20%2394a3b8%3B%20%7D%0A%20%20%20%20%20%20.count-row%20%7B%20margin%3A%2010px%200%206px%3B%20font-size%3A%2012px%3B%20color%3A%20%239bafbd%3B%20%7D%0A%20%20%20%20%20%20.count-num%20%7B%20font-size%3A%2024px%3B%20font-weight%3A%20800%3B%20color%3A%20%2370d9d2%3B%20font-family%3A%20monospace%3B%20%7D%0A%20%20%20%20%20%20.msg-box%20%7B%20background%3A%20rgba(0%2C0%2C0%2C0.3)%3B%20border-radius%3A%208px%3B%20padding%3A%208px%2010px%3B%20min-height%3A%2038px%3B%20color%3A%20%23cbd5e1%3B%20font-size%3A%2012px%3B%20margin-bottom%3A%2012px%3B%20word-break%3A%20break-all%3B%20%7D%0A%20%20%20%20%20%20.btn-row%20%7B%20display%3A%20flex%3B%20gap%3A%208px%3B%20%7D%0A%20%20%20%20%20%20button%20%7B%20border%3A%200%3B%20border-radius%3A%208px%3B%20padding%3A%2010px%2014px%3B%20font-weight%3A%20700%3B%20cursor%3A%20pointer%3B%20transition%3A%20all%200.2s%3B%20font-size%3A%2013px%3B%20%7D%0A%20%20%20%20%20%20.btn-primary%20%7B%20background%3A%20%2370d9d2%3B%20color%3A%20%2310222b%3B%20flex%3A%201%3B%20%7D%0A%20%20%20%20%20%20.btn-primary%3Ahover%20%7B%20background%3A%20%235ec3bd%3B%20%7D%0A%20%20%20%20%20%20.btn-danger%20%7B%20background%3A%20%23ef4444%3B%20color%3A%20%23ffffff%3B%20flex%3A%201%3B%20%7D%0A%20%20%20%20%20%20.btn-danger%3Ahover%20%7B%20background%3A%20%23dc2626%3B%20%7D%0A%20%20%20%20%20%20.btn-close%20%7B%20background%3A%20rgba(255%2C255%2C255%2C0.1)%3B%20color%3A%20%23cbd5e1%3B%20%7D%0A%20%20%20%20%20%20.btn-close%3Ahover%20%7B%20background%3A%20rgba(255%2C255%2C255%2C0.18)%3B%20%7D%0A%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%3Cdiv%20class%3D%22panel%22%3E%0A%20%20%20%20%20%20%3Cdiv%20class%3D%22header%22%3E%0A%20%20%20%20%20%20%20%20%3Cspan%20class%3D%22badge-title%22%3EWAGAL%20MACRO%200.4.0%3C%2Fspan%3E%0A%20%20%20%20%20%20%20%20%3Cspan%20id%3D%22badgeState%22%20class%3D%22badge-state%22%3E%EC%A4%80%EB%B9%84%3C%2Fspan%3E%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%3Cdiv%20id%3D%22targetBox%22%20class%3D%22target-info%22%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22target-product%22%20id%3D%22targetProduct%22%3E%EA%B5%AC%EB%8F%85%20%ED%99%94%EB%A9%B4%20%ED%99%95%EC%9D%B8%20%EC%A4%91...%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22target-price%22%20id%3D%22targetPrice%22%3ERenew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EC%9E%88%EB%8A%94%20%ED%99%94%EB%A9%B4%EC%9D%84%20%EC%97%B4%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94%3C%2Fdiv%3E%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%3Cdiv%20class%3D%22count-row%22%3E%0A%20%20%20%20%20%20%20%20%EC%8B%9C%EB%8F%84%20%ED%9A%9F%EC%88%98%3A%20%3Cspan%20id%3D%22countNum%22%20class%3D%22count-num%22%3E0%3C%2Fspan%3E%20%3Cspan%20style%3D%22font-size%3A%2012px%3B%22%3E%2F%20%EB%AC%B4%ED%95%9C%20(%EC%A4%91%EC%A7%80%ED%95%A0%20%EB%95%8C%EA%B9%8C%EC%A7%80)%3C%2Fspan%3E%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%3Cdiv%20id%3D%22msgBox%22%20class%3D%22msg-box%22%3E%ED%99%94%EB%A9%B4%EC%9D%84%20%EB%B6%84%EC%84%9D%ED%95%98%EA%B3%A0%20%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4...%3C%2Fdiv%3E%0A%20%20%20%20%20%20%3Cdiv%20class%3D%22btn-row%22%3E%0A%20%20%20%20%20%20%20%20%3Cbutton%20id%3D%22btnAction%22%20class%3D%22btn-primary%22%3E%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0%3C%2Fbutton%3E%0A%20%20%20%20%20%20%20%20%3Cbutton%20id%3D%22btnClose%22%20class%3D%22btn-close%22%3E%EB%8B%AB%EA%B8%B0%3C%2Fbutton%3E%0A%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%3C%2Fdiv%3E%0A%20%20%60%3B%0A%0A%20%20document.documentElement.appendChild(host)%3B%0A%0A%20%20const%20ui%20%3D%20%7B%0A%20%20%20%20badgeState%3A%20shadow.getElementById('badgeState')%2C%0A%20%20%20%20targetBox%3A%20shadow.getElementById('targetBox')%2C%0A%20%20%20%20targetProduct%3A%20shadow.getElementById('targetProduct')%2C%0A%20%20%20%20targetPrice%3A%20shadow.getElementById('targetPrice')%2C%0A%20%20%20%20countNum%3A%20shadow.getElementById('countNum')%2C%0A%20%20%20%20msgBox%3A%20shadow.getElementById('msgBox')%2C%0A%20%20%20%20btnAction%3A%20shadow.getElementById('btnAction')%2C%0A%20%20%20%20btnClose%3A%20shadow.getElementById('btnClose')%0A%20%20%7D%3B%0A%0A%20%20%2F%2F%20---%204.%20%EC%8B%A4%ED%96%89%20%EC%A0%9C%EC%96%B4%20%EC%97%94%EC%A7%84%20(from%20engine.js)%20---%0A%20%20let%20isRunning%20%3D%20false%3B%0A%20%20let%20attemptCount%20%3D%200%3B%0A%20%20let%20detectedTarget%20%3D%20null%3B%0A%0A%20%20function%20updateStatus(badge%2C%20msg%2C%20color%20%3D%20'%2370d9d2'%2C%20bg%20%3D%20'rgba(112%2C%20217%2C%20210%2C%200.15)')%20%7B%0A%20%20%20%20ui.badgeState.textContent%20%3D%20badge%3B%0A%20%20%20%20ui.badgeState.style.color%20%3D%20color%3B%0A%20%20%20%20ui.badgeState.style.background%20%3D%20bg%3B%0A%20%20%20%20ui.msgBox.textContent%20%3D%20%60%5B%24%7Bnew%20Date().toLocaleTimeString()%7D%5D%20%24%7Bmsg%7D%60%3B%0A%20%20%7D%0A%0A%20%20function%20checkScreen()%20%7B%0A%20%20%20%20const%20inspected%20%3D%20inspectPage()%3B%0A%20%20%20%20if%20(inspected.kind%20%3D%3D%3D%20'ready'%20%7C%7C%20inspected.kind%20%3D%3D%3D%20'confirm')%20%7B%0A%20%20%20%20%20%20detectedTarget%20%3D%20inspected%3B%0A%20%20%20%20%20%20ui.targetProduct.textContent%20%3D%20inspected.product%3B%0A%20%20%20%20%20%20ui.targetPrice.textContent%20%3D%20inspected.price%3B%0A%20%20%20%20%20%20updateStatus(inspected.kind%20%3D%3D%3D%20'confirm'%20%3F%20'%ED%99%95%EC%9D%B8%EC%B0%BD%20%EA%B0%90%EC%A7%80'%20%3A%20'%EC%A4%80%EB%B9%84%20%EC%99%84%EB%A3%8C'%2C%20'%EC%83%81%ED%92%88%EA%B3%BC%20%EA%B8%88%EC%95%A1%EC%9D%B4%20%ED%99%95%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.%20%EC%8B%9C%EC%9E%91%EC%9D%84%20%EB%88%84%EB%A5%B4%EC%84%B8%EC%9A%94.')%3B%0A%20%20%20%20%20%20ui.btnAction.textContent%20%3D%20'%F0%9F%9A%80%20%EC%99%80%EB%A6%AC%EA%B0%80%EB%A6%AC%20%EC%8B%9C%EC%9E%91'%3B%0A%20%20%20%20%20%20ui.btnAction.disabled%20%3D%20false%3B%0A%20%20%20%20%7D%20else%20if%20(inspected.kind%20%3D%3D%3D%20'success')%20%7B%0A%20%20%20%20%20%20updateStatus('%ED%99%9C%EC%84%B1%20%EA%B5%AC%EB%8F%85'%2C%20'%EC%9D%B4%EB%AF%B8%20%ED%99%9C%EC%84%B1%ED%99%94%EB%90%9C%20%EA%B5%AC%EB%8F%85%EC%9E%85%EB%8B%88%EB%8B%A4.'%2C%20'%234ade80'%2C%20'rgba(74%2C%20222%2C%20128%2C%200.2)')%3B%0A%20%20%20%20%20%20ui.btnAction.textContent%20%3D%20'%EC%9D%B4%EB%AF%B8%20%EA%B0%B1%EC%8B%A0%EB%90%A8'%3B%0A%20%20%20%20%20%20ui.btnAction.disabled%20%3D%20true%3B%0A%20%20%20%20%7D%20else%20if%20(inspected.kind%20%3D%3D%3D%20'list')%20%7B%0A%20%20%20%20%20%20updateStatus('%EC%83%81%EC%84%B8%ED%99%94%EB%A9%B4%20%ED%95%84%EC%9A%94'%2C%20'YouTube%20%EC%B9%B4%EB%93%9C%EB%A5%BC%20%ED%81%B4%EB%A6%AD%ED%95%98%EC%97%AC%20Renew%20%EB%B2%84%ED%8A%BC%20%ED%99%94%EB%A9%B4%EC%9C%BC%EB%A1%9C%20%EB%93%A4%EC%96%B4%EA%B0%80%EC%84%B8%EC%9A%94.'%2C%20'%23facc15'%2C%20'rgba(250%2C%20204%2C%2021%2C%200.2)')%3B%0A%20%20%20%20%20%20ui.btnAction.textContent%20%3D%20'%EC%83%81%EC%84%B8%ED%99%94%EB%A9%B4%20%ED%95%84%EC%9A%94'%3B%0A%20%20%20%20%20%20ui.btnAction.disabled%20%3D%20true%3B%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20updateStatus('%ED%99%94%EB%A9%B4%20%EB%8C%80%EA%B8%B0'%2C%20'YouTube%20%EA%B5%AC%EB%8F%85%20Renew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EB%B3%B4%EC%9D%B4%EB%8A%94%20%ED%8E%98%EC%9D%B4%EC%A7%80%EB%A5%BC%20%EC%97%B4%EC%96%B4%EC%A3%BC%EC%84%B8%EC%9A%94.'%2C%20'%2394a3b8'%2C%20'rgba(148%2C%20163%2C%20184%2C%200.2)')%3B%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20%2F%2F%20%EC%B4%88%EA%B8%B0%201%ED%9A%8C%20%EC%A0%90%EA%B2%80%0A%20%20checkScreen()%3B%0A%20%20const%20pollTimer%20%3D%20setInterval(()%20%3D%3E%20%7B%20if%20(!isRunning)%20checkScreen()%3B%20%7D%2C%202000)%3B%0A%0A%20%20const%20sleep%20%3D%20ms%20%3D%3E%20new%20Promise(r%20%3D%3E%20setTimeout(r%2C%20ms))%3B%0A%20%20const%20retryDelay%20%3D%20(base%20%3D%203%2C%20jitter%20%3D%201)%20%3D%3E%20Math.max(1%2C%20base%20%2B%20Math.floor(Math.random()%20*%20(jitter%20*%202%20%2B%201))%20-%20jitter)%3B%0A%0A%20%20async%20function%20startMacro()%20%7B%0A%20%20%20%20if%20(isRunning)%20return%3B%0A%20%20%20%20if%20(!detectedTarget%20%7C%7C%20detectedTarget.kind%20!%3D%3D%20'ready')%20%7B%0A%20%20%20%20%20%20alert('YouTube%20Renew%20%EB%B2%84%ED%8A%BC%EC%9D%B4%20%EC%9E%88%EB%8A%94%20%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C%20%EC%8B%A4%ED%96%89%ED%95%B4%20%EC%A3%BC%EC%84%B8%EC%9A%94.')%3B%0A%20%20%20%20%20%20return%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20isRunning%20%3D%20true%3B%0A%20%20%20%20attemptCount%20%3D%200%3B%0A%20%20%20%20ui.btnAction.textContent%20%3D%20'%F0%9F%9B%91%20%EC%8B%A4%ED%96%89%20%EC%A4%91%EC%A7%80'%3B%0A%20%20%20%20ui.btnAction.className%20%3D%20'btn-danger'%3B%0A%20%20%20%20updateStatus('%EC%8B%A4%ED%96%89%20%EC%A4%91'%2C%20'%EC%99%80%EB%A6%AC%EA%B0%80%EB%A6%AC%20%EC%9E%90%EB%8F%99%20%EA%B0%B1%EC%8B%A0%EC%9D%84%20%EC%8B%9C%EC%9E%91%ED%95%A9%EB%8B%88%EB%8B%A4...')%3B%0A%0A%20%20%20%20let%20stage%20%3D%20'ready'%3B%0A%20%20%20%20let%20confirmed%20%3D%20false%3B%0A%0A%20%20%20%20try%20%7B%0A%20%20%20%20%20%20while%20(isRunning)%20%7B%0A%20%20%20%20%20%20%20%20const%20screen%20%3D%20inspectPage()%3B%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%2F%2F%20%EA%B0%B1%EC%8B%A0%20%EC%84%B1%EA%B3%B5%20%EA%B0%90%EC%A7%80%0A%20%20%20%20%20%20%20%20if%20(screen.kind%20%3D%3D%3D%20'success')%20%7B%0A%20%20%20%20%20%20%20%20%20%20updateStatus('%F0%9F%8E%89%20%EA%B0%B1%EC%8B%A0%20%EC%84%B1%EA%B3%B5!'%2C%20'%EA%B5%AC%EB%8F%85%20%ED%99%9C%EC%84%B1%ED%99%94%EA%B0%80%20%ED%99%95%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4!%20%EA%B2%B0%EC%A0%9C%20%EB%82%B4%EC%97%AD%EC%9D%84%20%ED%99%95%EC%9D%B8%ED%95%98%EC%84%B8%EC%9A%94.'%2C%20'%234ade80'%2C%20'rgba(74%2C%20222%2C%20128%2C%200.25)')%3B%0A%20%20%20%20%20%20%20%20%20%20playSuccessSound()%3B%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20fetch('https%3A%2F%2Findia-upi.vercel.app%2Fapi%2Fmacro-report'%2C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20method%3A%20'POST'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20headers%3A%20%7B%20'Content-Type'%3A%20'application%2Fjson'%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20body%3A%20JSON.stringify(%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20attempts%3A%20attemptCount%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20version%3A%20'0.4.0'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20product%3A%20screen.product%20%7C%7C%20'YouTube%20Premium'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20client_type%3A%20'bookmarklet'%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D)%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D).catch(()%20%3D%3E%20%7B%7D)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%7D%0A%20%20%20%20%20%20%20%20%20%20alert('%5B%EC%99%80%EA%B0%88%EB%A7%A4%ED%81%AC%EB%A1%9C%5D%5Cn%5Cn%F0%9F%8E%89%20%EC%B6%95%ED%95%98%ED%95%A9%EB%8B%88%EB%8B%A4!%20%EA%B5%AC%EB%8F%85%20%EA%B0%B1%EC%8B%A0%EC%9D%B4%20%EC%84%B1%EA%B3%B5%EC%A0%81%EC%9C%BC%EB%A1%9C%20%EC%8A%B9%EC%9D%B8%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4!%5CnApple%20%EA%B2%B0%EC%A0%9C%20%EB%82%B4%EC%97%AD%EA%B3%BC%20YouTube%20%EC%83%81%ED%83%9C%EB%A5%BC%20%ED%99%95%EC%9D%B8%ED%95%B4%20%EB%B3%B4%EC%84%B8%EC%9A%94.')%3B%0A%20%20%20%20%20%20%20%20%20%20break%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20let%20action%20%3D%20null%3B%0A%20%20%20%20%20%20%20%20if%20(stage%20%3D%3D%3D%20'ready'%20%26%26%20screen.kind%20%3D%3D%3D%20'ready')%20%7B%0A%20%20%20%20%20%20%20%20%20%20action%20%3D%20'ready'%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(stage%20%3D%3D%3D%20'confirm'%20%26%26%20screen.kind%20%3D%3D%3D%20'confirm'%20%26%26%20screen.canConfirm%20!%3D%3D%20false)%20%7B%0A%20%20%20%20%20%20%20%20%20%20action%20%3D%20'confirm'%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(stage%20%3D%3D%3D%20'result'%20%26%26%20screen.kind%20%3D%3D%3D%20'error')%20%7B%0A%20%20%20%20%20%20%20%20%20%20action%20%3D%20'error'%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(stage%20%3D%3D%3D%20'dismiss'%20%26%26%20%5B'confirm'%2C%20'dismiss'%5D.includes(screen.kind))%20%7B%0A%20%20%20%20%20%20%20%20%20%20action%20%3D%20'dismiss'%3B%0A%20%20%20%20%20%20%20%20%7D%20else%20if%20(%5B'dismiss'%2C%20'return'%5D.includes(stage)%20%26%26%20screen.kind%20%3D%3D%3D%20'ready')%20%7B%0A%20%20%20%20%20%20%20%20%20%20const%20waitSec%20%3D%20retryDelay(7%2C%202)%3B%0A%20%20%20%20%20%20%20%20%20%20updateStatus('%EB%8C%80%EA%B8%B0%20%EC%A4%91'%2C%20%60%EC%98%A4%EB%A5%98%EC%B0%BD%EC%9D%84%20%EB%8B%AB%EC%95%98%EC%8A%B5%EB%8B%88%EB%8B%A4.%20%EB%8B%A4%EC%9D%8C%20%EC%8B%9C%EB%8F%84%EA%B9%8C%EC%A7%80%20%24%7BwaitSec%7D%EC%B4%88%20%EB%8C%80%EA%B8%B0...%60%2C%20'%23facc15'%2C%20'rgba(250%2C%20204%2C%2021%2C%200.2)')%3B%0A%20%20%20%20%20%20%20%20%20%20for%20(let%20s%20%3D%20waitSec%3B%20s%20%3E%200%3B%20s--)%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20(!isRunning)%20break%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20ui.msgBox.textContent%20%3D%20%60%5B%24%7Bnew%20Date().toLocaleTimeString()%7D%5D%20%EB%8B%A4%EC%9D%8C%20%EC%8B%9C%EB%8F%84%EA%B9%8C%EC%A7%80%20%24%7Bs%7D%EC%B4%88%20%EB%8C%80%EA%B8%B0%20%EC%A4%91...%60%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20await%20sleep(1000)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20stage%20%3D%20'ready'%3B%0A%20%20%20%20%20%20%20%20%20%20continue%3B%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20if%20(action)%20%7B%0A%20%20%20%20%20%20%20%20%20%20const%20res%20%3D%20inspectPage(%7B%20...screen%2C%20kind%3A%20action%20%7D)%3B%0A%20%20%20%20%20%20%20%20%20%20if%20(!isRunning)%20break%3B%0A%0A%20%20%20%20%20%20%20%20%20%20if%20(action%20%3D%3D%3D%20'ready')%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20stage%20%3D%20'confirm'%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20updateStatus('%EC%A7%84%ED%96%89%20%EC%A4%91'%2C%20'Renew%20%ED%81%B4%EB%A6%AD%20%EC%99%84%EB%A3%8C!%20%EA%B0%B1%EC%8B%A0%20%ED%99%95%EC%9D%B8%EC%B0%BD(Confirm)%EC%9D%84%20%EA%B8%B0%EB%8B%A4%EB%A6%BD%EB%8B%88%EB%8B%A4.')%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20await%20sleep(1800)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(action%20%3D%3D%3D%20'confirm')%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20stage%20%3D%20'result'%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20confirmed%20%3D%20true%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20attemptCount%2B%2B%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20ui.countNum.textContent%20%3D%20attemptCount%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20updateStatus('%EC%9D%91%EB%8B%B5%20%EB%8C%80%EA%B8%B0'%2C%20%60%5B%24%7BattemptCount%7D%ED%9A%8C%5D%20Confirm%20%ED%81%B4%EB%A6%AD%20%EC%99%84%EB%A3%8C!%20%EA%B2%B0%EC%A0%9C%20%EC%8A%B9%EC%9D%B8%20%EC%9D%91%EB%8B%B5%EC%9D%84%20%EA%B8%B0%EB%8B%A4%EB%A6%BD%EB%8B%88%EB%8B%A4.%60)%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20await%20sleep(3500)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(action%20%3D%3D%3D%20'error')%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20stage%20%3D%20'dismiss'%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20updateStatus('%EC%98%A4%EB%A5%98%20%EC%B2%98%EB%A6%AC'%2C%20'%EA%B2%B0%EC%A0%9C%20%EC%98%A4%EB%A5%98%EC%B0%BD%20%EA%B0%90%EC%A7%80%20%E2%9E%94%20Cancel%20%ED%81%B4%EB%A6%AD%EC%9C%BC%EB%A1%9C%20%EB%8B%AB%EC%95%98%EC%8A%B5%EB%8B%88%EB%8B%A4.')%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20await%20sleep(1500)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(action%20%3D%3D%3D%20'dismiss')%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20stage%20%3D%20'return'%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20updateStatus('%EC%A0%95%EB%A6%AC%20%EC%A4%91'%2C%20'%EA%B5%AC%EB%8F%85%20%ED%99%94%EB%A9%B4%EC%9C%BC%EB%A1%9C%20%EB%B3%B5%EA%B7%80%20%EC%A4%91%EC%9E%85%EB%8B%88%EB%8B%A4.')%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20await%20sleep(1800)%3B%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20await%20sleep(500)%3B%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%20catch(err)%20%7B%0A%20%20%20%20%20%20console.error(err)%3B%0A%20%20%20%20%20%20updateStatus('%EC%98%A4%EB%A5%98'%2C%20'%EC%A7%84%ED%96%89%20%EC%A4%91%20%EC%98%88%EC%99%B8%EA%B0%80%20%EB%B0%9C%EC%83%9D%ED%96%88%EC%8A%B5%EB%8B%88%EB%8B%A4%3A%20'%20%2B%20err.message%2C%20'%23ef4444'%2C%20'rgba(239%2C%2068%2C%2068%2C%200.2)')%3B%0A%20%20%20%20%7D%20finally%20%7B%0A%20%20%20%20%20%20stopMacro()%3B%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20function%20stopMacro()%20%7B%0A%20%20%20%20isRunning%20%3D%20false%3B%0A%20%20%20%20ui.btnAction.textContent%20%3D%20'%F0%9F%9A%80%20%EB%8B%A4%EC%8B%9C%20%EC%8B%9C%EC%9E%91'%3B%0A%20%20%20%20ui.btnAction.className%20%3D%20'btn-primary'%3B%0A%20%20%20%20updateStatus('%EC%A4%91%EC%A7%80%EB%90%A8'%2C%20'%EB%A7%A4%ED%81%AC%EB%A1%9C%EA%B0%80%20%EC%A4%91%EC%A7%80%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4.'%2C%20'%2394a3b8'%2C%20'rgba(148%2C%20163%2C%20184%2C%200.2)')%3B%0A%20%20%7D%0A%0A%20%20ui.btnAction.onclick%20%3D%20()%20%3D%3E%20%7B%0A%20%20%20%20if%20(isRunning)%20stopMacro()%3B%0A%20%20%20%20else%20startMacro()%3B%0A%20%20%7D%3B%0A%0A%20%20ui.btnClose.onclick%20%3D%20()%20%3D%3E%20%7B%0A%20%20%20%20stopMacro()%3B%0A%20%20%20%20clearInterval(pollTimer)%3B%0A%20%20%20%20window.__wagalBookmarkletActive%20%3D%20false%3B%0A%20%20%20%20host.remove()%3B%0A%20%20%7D%3B%0A%7D)()%3B%0A" class="btn-drag-bookmarklet" title="마우스로 잡아서 북마크 바로 드래그하세요!">
+              <span>🍎 와갈매크로 0.4.0 (북마크로 드래그)</span>
+            </a>
+            <p class="drag-guide-text">👆 위 버튼을 브라우저 북마크 바로 끌어다 놓으세요!</p>
+          </div>
+        </div>
+
+        <!-- Option 2: Chrome Extension (PC) -->
+        <div class="cta-card">
+          <div class="cta-header">
+            <span class="cta-icon">📦</span>
+            <h2 class="cta-title">크롬 확장 프로그램 (PC)</h2>
+            <p class="cta-desc">
+              개발자 모드를 통해 브라우저에 상시 확장 프로그램 형태로 설치하여 사용하고 싶으신 분들을 위한 패키지입니다.
+            </p>
+          </div>
+          <div>
+            <a href="wagal-macro-0.4.0.zip" download="wagal-macro-0.4.0.zip" class="btn-download-zip">
+              <span>📥 v0.4.0 ZIP 다운로드 (36KB)</span>
+            </a>
+            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 10px;">
+              다운로드 후 압축을 풀고 <code>chrome://extensions</code>에서 등록
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Telemetry & Live Stats -->
+    <section class="telemetry-section">
+      <div class="section-head">
+        <div class="section-title-wrap">
+          <span class="live-dot"></span>
+          <h2 class="section-title">실시간 매크로 갱신 성공 통계 &amp; 현황</h2>
+        </div>
+        <button type="button" id="btnRefreshStats" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer;">
+          🔄 실시간 새로고침
+        </button>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-label">평균 성공 시도 횟수</div>
+          <div class="metric-value"><span id="avgAttempts">11.2</span><span style="font-size: 14px; font-weight: 600; color: var(--text-sub); margin-left: 4px;">회</span></div>
+          <div class="metric-sub">대부분 5~15회 이내 승인 완료 (약 3~5분)</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">누적 갱신 성공</div>
+          <div class="metric-value"><span id="totalSuccess">1,428</span><span style="font-size: 14px; font-weight: 600; color: var(--text-sub); margin-left: 4px;">건+</span></div>
+          <div class="metric-sub">실제 결제 승인 통과 건수</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">매크로 가동 엔진 상태</div>
+          <div class="metric-value" style="font-size: 20px; color: #10b981;" id="engineStatus">v0.4.0 정상 가동 중</div>
+          <div class="metric-sub">Confirm / Change Plan 전체 대응 완료</div>
+        </div>
+      </div>
+
+      <div class="ticker-container">
+        <div class="ticker-header">
+          <span>📡 최근 사용자 갱신 성공 실시간 피드 (DB 연동)</span>
+          <span style="color: var(--accent);">● LIVE FEED</span>
+        </div>
+        <div class="ticker-list" id="successFeedList">
+          <div style="color: var(--text-muted); font-size: 12px; padding: 10px 0;">실시간 데이터를 불러오는 중...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 Step Easy Guide -->
+    <section class="steps-section">
+      <div class="section-heading">
+        <h2>초간단 3단계 사용 방법</h2>
+        <p>복잡한 설정 없이 10초 만에 바로 가동할 수 있습니다.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-badge">1</div>
+          <h3 class="step-title">북마크 등록 or 확장 설치</h3>
+          <p class="step-desc">
+            위 하늘색 <strong>[🍎 와갈매크로 0.4.0]</strong> 버튼을 브라우저 북마크 바(Ctrl+Shift+B)로 끌어다 놓으세요.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-badge">2</div>
+          <h3 class="step-title">애플 구독 상세 화면 열기</h3>
+          <p class="step-desc">
+            Apple ID 구독 관리 페이지로 접속하여 YouTube 갱신(Renew) 버튼 또는 플랜 선택(Change Plan) 화면을 띄웁니다.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-badge">3</div>
+          <h3 class="step-title">북마크 클릭 ➔ [시작] 누르면 끝!</h3>
+          <p class="step-desc">
+            등록한 북마크를 클릭하면 우측 하단에 매크로 패널이 뜹니다. <strong>[🚀 와리가리 시작]</strong> 버튼만 누르면 성공할 때까지 자동 반복됩니다!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported Plans -->
+    <section class="plans-card">
+      <div class="section-title-wrap" style="margin-bottom: 12px;">
+        <span style="font-size: 20px;">🛡️</span>
+        <h2 class="section-title">지원되는 유튜브 전체 플랜 라인업</h2>
+      </div>
+      <p style="font-size: 13.5px; color: var(--text-sub);">
+        와갈매크로는 화면의 플랜 선택 라디오 버튼과 최종 확인창(Confirm Subscription)을 자동 인식하여 모든 플랜에 완벽 대응합니다.
+      </p>
+      <div class="plans-grid">
+        <div class="plan-pill"><span class="plan-name">YouTube Premium Family</span><span class="plan-price">₹389 / 월</span></div>
+        <div class="plan-pill"><span class="plan-name">YouTube Premium Two-person</span><span class="plan-price">₹289 / 월</span></div>
+        <div class="plan-pill"><span class="plan-name">YouTube Premium</span><span class="plan-price">₹195 / 월</span></div>
+        <div class="plan-pill"><span class="plan-name">YouTube Music Family</span><span class="plan-price">₹235 / 월</span></div>
+        <div class="plan-pill"><span class="plan-name">YouTube Music Two-person</span><span class="plan-price">₹199 / 월</span></div>
+        <div class="plan-pill"><span class="plan-name">YouTube Music</span><span class="plan-price">₹155 / 월</span></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <div class="section-heading">
+        <h2>자주 묻는 질문 (FAQ)</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">❓ 넷뱅킹 와리가리가 왜 결제 승인에 효과가 있나요?</div>
+          <div class="faq-a">
+            인도 중앙은행(RBI) 규제로 정기결제가 막힌 후, 애플 넷뱅킹 결제망의 일시적 세션 타이밍에 맞춰 요청을 여러 차례 시도(와리가리)하면 정상 승인되는 애플 결제망의 특성을 이용한 방법입니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">❓ Confirm Subscription(확인창)이나 Change Plan(플랜 변경) 화면에서도 되나요?</div>
+          <div class="faq-a">
+            네! 0.4.0 최신 버전에서는 플랜 선택 화면의 체크된 항목 감지와 Confirm 모달창 직접 감지가 모두 내장되어 있어, 어느 화면에서든 바로 [시작]을 누르면 즉시 가동됩니다.
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">❓ 결제 수단에 넣을 인도 가상 UPI ID는 어디서 구하나요?</div>
+          <div class="faq-a">
+            저희 사이트의 <strong>[인도 UPI ID 생성기]</strong> 페이지에서 실패 목록이 자동 제외되는 검증된 가상 ID를 무제한으로 즉시 생성하여 복사할 수 있습니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cross-link Banner to UPI ID Generator -->
+    <section class="crosslink-banner">
+      <div class="crosslink-info">
+        <h3>🇮🇳 인도 결제 수단 등록용 가상 UPI ID가 필요하신가요?</h3>
+        <p>실패한 ID 자동 영구 제외 &amp; 1초 복사 기능을 지원하는 UPI ID 전용 생성기로 이동하세요.</p>
+      </div>
+      <a href="index.html" class="btn-goto-upi">인도 UPI ID 생성기 바로가기 ➔</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      &copy; 2026 와갈매크로 (Wagal Macro) &bull; 인도 계정 애플 유튜브 갱신 자동화 도구<br>
+      <a href="index.html">인도 UPI ID 생성기</a> &bull; <a href="wagal.html">와갈매크로 전용 페이지</a> &bull; <a href="https://goingbus.com?s=1kO9X8Oz" target="_blank" rel="noopener">고잉버스 할인</a>
+    </p>
+  </footer>
+
+  <script>
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/macro-stats');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.averageAttempts) document.getElementById('avgAttempts').textContent = data.averageAttempts;
+        if (data.totalSuccessCount) document.getElementById('totalSuccess').textContent = Number(data.totalSuccessCount).toLocaleString();
+        
+        const feedElem = document.getElementById('successFeedList');
+        if (feedElem && Array.isArray(data.recentSuccesses) && data.recentSuccesses.length > 0) {
+          feedElem.innerHTML = data.recentSuccesses.slice(0, 6).map(item => `
+            <div class="ticker-item">
+              <div class="ticker-left">
+                <span class="ticker-badge">${item.attempts}회 시도 성공</span>
+                <span class="ticker-memo">${escapeHtml(item.memo || item.product || 'YouTube Premium')}</span>
+              </div>
+              <span class="ticker-time">${escapeHtml(item.timeAgo || '방금 전')}</span>
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    document.getElementById('btnRefreshStats').onclick = loadStats;
+    loadStats();
+    setInterval(loadStats, 15000);
+  </script>
+</body>
+</html>
