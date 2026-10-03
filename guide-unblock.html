@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>애플 결제 오류 "Your Purchase Could Not Be Completed" 차단 100% 해결 가이드 | 와갈매크로</title>
+  <meta name="description" content="유튜브 프리미엄 갱신 중 'Your Purchase Could Not Be Completed(구매를 완료할 수 없음)' 오류로 결제가 차단되었을 때, 애플 고객센터 실시간 채팅으로 100% 안전하게 락을 푸는 단계별 완벽 해결 가이드.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d17;
+      --card-bg: #0d1726;
+      --card-border: #1e2f42;
+      --accent: #70d9d2;
+      --accent-glow: rgba(112, 217, 210, 0.25);
+      --accent-light: #a7f3d0;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --primary-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+      --glow-gradient: radial-gradient(circle at top, rgba(239, 68, 68, 0.12) 0%, transparent 65%);
+      --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      background-image: var(--glow-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 13, 23, 0.88);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 24px;
+    }
+    .header-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+    .brand-icon {
+      font-size: 24px;
+      filter: drop-shadow(0 0 12px rgba(112, 217, 210, 0.4));
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-badge {
+      font-size: 11px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-nav {
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-nav-outline {
+      color: var(--text-sub);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .btn-nav-outline:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .btn-nav-primary {
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      color: #070d17;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+    }
+    .btn-nav-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 920px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.15), transparent 70%), var(--card-bg);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 24px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 68, 68, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+    .hero-desc {
+      font-size: 15.5px;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    /* Error Popup Mockup */
+    .error-mockup {
+      margin-top: 24px;
+      background: #111e2e;
+      border: 1.5px solid #2a4359;
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .error-icon {
+      font-size: 36px;
+      flex-shrink: 0;
+    }
+    .error-text-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f87171;
+      margin-bottom: 4px;
+    }
+    .error-text-body {
+      font-size: 13px;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      line-height: 1.5;
+    }
+
+    /* Cause Card */
+    .cause-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .cause-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #facc15;
+    }
+    .cause-desc {
+      font-size: 14.5px;
+      color: #cbd5e1;
+      line-height: 1.75;
+    }
+    .cause-highlight {
+      background: rgba(250, 204, 21, 0.08);
+      border-left: 4px solid #facc15;
+      padding: 12px 16px;
+      border-radius: 0 10px 10px 0;
+      font-size: 13.5px;
+      color: #fef08a;
+      line-height: 1.6;
+    }
+
+    /* Step Section */
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .step-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px 30px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .step-box:hover {
+      border-color: rgba(112, 217, 210, 0.4);
+    }
+    .step-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #070d17;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-heading {
+      font-size: 18px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .step-content {
+      font-size: 14.5px;
+      color: #cbd5e1;
+      line-height: 1.75;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .step-path {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-family: var(--font-mono);
+      color: #70d9d2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Copy Box */
+    .copy-box {
+      background: #091320;
+      border: 1.5px solid #24415a;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .copy-box-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .copy-text {
+      font-size: 14px;
+      color: #f1f5f9;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+    .btn-copy-code {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #070d17;
+      font-size: 12.5px;
+      font-weight: 800;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-copy-code:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    /* Warning Box (Golden Rule) */
+    .golden-rule-card {
+      background: radial-gradient(circle at top, rgba(239, 68, 68, 0.2), transparent 70%), #140d18;
+      border: 2px solid #ef4444;
+      border-radius: 20px;
+      padding: 28px 30px;
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.2);
+    }
+    .golden-rule-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 800;
+      color: #f87171;
+      margin-bottom: 12px;
+    }
+    .golden-rule-desc {
+      font-size: 14.5px;
+      color: #fecaca;
+      line-height: 1.8;
+    }
+
+    /* CTA Row */
+    .cta-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1)), var(--card-bg);
+      border: 1px solid rgba(112, 217, 210, 0.4);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .cta-info h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .cta-info p {
+      font-size: 13.5px;
+      color: var(--text-sub);
+    }
+    .cta-btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Toast */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 28px 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: rgba(7, 13, 23, 0.95);
+    }
+    footer a {
+      color: var(--text-sub);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      .hero-title { font-size: 23px; }
+      .hero-card, .step-box, .golden-rule-card, .cause-card { padding: 22px 18px; }
+      .header-container { flex-direction: column; align-items: flex-start; }
+      .header-actions { width: 100%; justify-content: space-between; margin-top: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header>
+    <div class="header-container">
+      <a href="wagal.html" class="brand">
+        <span class="brand-icon">🍎</span>
+        <div class="brand-title">
+          <span>와갈매크로</span>
+          <span class="brand-badge">긴급 해결 가이드</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <a href="wagal.html" class="btn-nav btn-nav-outline">🍎 와갈매크로 홈</a>
+        <a href="index.html" class="btn-nav btn-nav-outline">🇮🇳 인도 UPI 생성기</a>
+        <a href="https://support.apple.com/ko-kr/billing" target="_blank" rel="noopener noreferrer" class="btn-nav btn-nav-primary">
+          애플 지원센터 바로가기 ➔
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Banner -->
+    <section class="hero-card">
+      <div class="hero-tag">🚨 TROUBLESHOOTING GUIDE</div>
+      <h1 class="hero-title">
+        "Your Purchase Could Not Be Completed"<br>
+        애플 결제 차단 오류 100% 공식 해결법
+      </h1>
+      <p class="hero-desc">
+        유튜브 프리미엄 와리가리 갱신이나 결제 재시도 중 <strong>"구매를 완료할 수 없음 (Your Purchase Could Not Be Completed)"</strong> 팝업이 뜨며 결제가 중단되셨나요?<br>
+        선결제한 기프트카드 잔액 날릴 걱정 없이, <strong>애플 공식 고객센터 실시간 채팅</strong>을 통해 100% 안전하게 결제 락을 푸는 검증된 해결 가이드입니다.
+      </p>
+
+      <div class="error-mockup">
+        <span class="error-icon">⚠️</span>
+        <div>
+          <div class="error-text-title">Your Purchase Could Not Be Completed</div>
+          <div class="error-text-body">
+            For assistance, contact iTunes Support at www.apple.com/support/itunes/ww/.<br>
+            (한글: 구매를 완료할 수 없음 / 구입을 완료할 수 없음)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cause Analysis -->
+    <section class="cause-card">
+      <div class="cause-header">
+        <span>🔍</span>
+        <h2>왜 이런 차단 오류가 발생하나요?</h2>
+      </div>
+      <p class="cause-desc">
+        짧은 시간 동안 결제 실패 및 재시도가 반복되면, 애플의 부정 결제 방지(FDS) 보안 AI가 계정 도용이나 비정상 결제 매크로로 간주하여 <strong>해당 Apple ID의 인앱 결제 기능을 임시 보호(Account Purchase Hold) 조치</strong>하기 때문입니다.
+      </p>
+      <div class="cause-highlight">
+        💡 <strong>안심하세요! 계정이 영구 정지(Ban)되거나 잔액이 소멸된 것이 아닙니다.</strong><br>
+        단순히 애플 보안 시스템에 걸린 '일시적 결제 차단 플래그'이며, 애플 공식 상담사에게 문의하면 시스템에서 즉시 락을 리셋해 줍니다.
+      </div>
+    </section>
+
+    <!-- 5 Step Action Plan -->
+    <section class="steps-container">
+      <div style="margin-bottom: 4px;">
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff;">실시간 채팅을 통한 5단계 해결 프로세스</h2>
+        <p style="font-size: 14px; color: var(--text-sub);">한국어 상담사 또는 미국 상담사 모두 가능하며, 약 5분 내로 상담이 완료됩니다.</p>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step-box">
+        <div class="step-badge-row">
+          <div class="step-num">1</div>
+          <h3 class="step-heading">애플 공식 지원센터 [구독 및 청구] 페이지 접속</h3>
+        </div>
+        <div class="step-content">
+          <p>
+            아래 공식 지원 링크를 클릭하여 애플 공식 고객지원 페이지로 이동합니다. (한국어 지원센터에서도 100% 동일하게 처리 가능합니다.)
+          </p>
+          <div class="step-path">
+            🔗 링크: <a href="https://support.apple.com/ko-kr/billing" target="_blank" rel="noopener noreferrer" style="color: #70d9d2; text-decoration: underline;">https://support.apple.com/ko-kr/billing</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-box">
+        <div class="step-badge-row">
+          <div class="step-num">2</div>
+          <h3 class="step-heading">지원받기 ➔ [구입할 수 없음] 메뉴 선택</h3>
+        </div>
+        <div class="step-content">
+          <p>페이지 하단의 지원 메뉴를 순서대로 클릭하여 채팅 상담 카테고리로 진입합니다.</p>
+          <div class="step-path">
+            1️⃣ [지원받기] ➔ [지금 시작하기] 클릭<br>
+            2️⃣ 주제 목록에서 [더 보기] 클릭<br>
+            3️⃣ 세부 항목에서 [구입할 수 없음] 선택 후 [계속하기] 클릭
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-box">
+        <div class="step-badge-row">
+          <div class="step-num">3</div>
+          <h3 class="step-heading">[실시간 채팅] 선택 및 상담 시작</h3>
+        </div>
+        <div class="step-content">
+          <p>
+            추가 지원 옵션 화면에서 <strong>[실시간 채팅(Chat)]</strong>을 선택합니다.<br>
+            문제가 발생한 Apple ID 이메일과 이름을 입력하면 1~2분 이내에 전문 상담사와 1:1 실시간 채팅이 연결됩니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-box">
+        <div class="step-badge-row">
+          <div class="step-num">4</div>
+          <h3 class="step-heading">상담사에게 전달할 말 (모범 답안 1초 복사)</h3>
+        </div>
+        <div class="step-content">
+          <p>
+            상담사가 연결되면 아래 모범 문구를 복사하여 채팅창에 그대로 전달하세요.
+          </p>
+
+          <div class="copy-box">
+            <div class="copy-box-head">
+              <span>🇰🇷 한국어 상담사 전달용 멘트</span>
+              <span>1초 복사 가능</span>
+            </div>
+            <div class="copy-text" id="koreanScriptText">
+              안녕하세요, 유튜브 구독 갱신 결제를 진행하려는데 화면에 "Your Purchase Could Not Be Completed (구매를 완료할 수 없음)" 오류 팝업이 뜨면서 결제가 되지 않습니다. 계정에 걸린 결제 보안 제한 락 해제 부탁드립니다.
+            </div>
+            <button type="button" class="btn-copy-code" onclick="copyScript('koreanScriptText')">
+              📋 멘트 복사하기
+            </button>
+          </div>
+
+          <div class="copy-box" style="margin-top: 10px;">
+            <div class="copy-box-head">
+              <span>🇺🇸 미국 지원센터 이용 시 (영어 멘트)</span>
+              <span>1초 복사 가능</span>
+            </div>
+            <div class="copy-text" id="englishScriptText">
+              Hello, I am getting an error message saying "Your Purchase Could Not Be Completed" while trying to renew my subscription in the app. Could you please check my Apple ID and lift the security hold on purchases?
+            </div>
+            <button type="button" class="btn-copy-code" onclick="copyScript('englishScriptText')">
+              📋 영문 멘트 복사하기
+            </button>
+          </div>
+
+          <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 12px 14px; border-radius: 0 8px 8px 0; font-size: 13px; color: #a7f3d0; margin-top: 6px;">
+            💡 <strong>핵심 꿀팁:</strong> 인도 계정, VPN, 우회, 매크로 같은 불필요한 단어는 <strong>절대로 말하지 마세요!</strong><br>
+            오직 팝업에 나타난 오류 문구("Your Purchase Could Not Be Completed")만 전달하면 상담사가 시스템을 조회하여 결제 보안 플래그를 바로 풀어줍니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 (Golden Rule) -->
+      <div class="golden-rule-card">
+        <div class="golden-rule-head">
+          <span>🛑</span>
+          <h3>가장 중요한 핵심 수칙: 24~48시간 동안 절대 건드리지 마세요!</h3>
+        </div>
+        <div class="golden-rule-desc">
+          상담사가 시스템 처리를 완료한 후 다음과 같이 안내합니다:<br>
+          <strong style="color: #fff;">"계정 조치를 완료해 드렸습니다. 시스템 완전 동기화를 위해 24시간~48시간 이후에 다시 결제를 시도해 주세요."</strong><br><br>
+          🚨 <strong style="color: #f87171;">주의사항 (필독):</strong><br>
+          이 <strong>48시간 대기 시간 동안에는 절대로 유튜브 갱신(Renew) 버튼을 누르거나 매크로를 돌리면 안 됩니다!</strong><br>
+          풀리기 전에 결제 요청을 보내면 보안 AI가 다시 위험 신호로 감지하여 <strong>대기 타이머가 다시 48시간으로 리셋 연장</strong>됩니다.<br><br>
+          ✨ <strong>권장 방법:</strong> 48시간에 4~6시간 정도 여유를 두고 <strong>이틀 반 뒤</strong>에 와갈매크로를 가동하시면 <strong>1~5회 이내에 바로 결제가 승인 통과</strong>됩니다!
+        </div>
+      </div>
+    </section>
+
+    <!-- Success Proof Summary -->
+    <section class="cause-card" style="border-color: rgba(16, 185, 129, 0.4);">
+      <div class="cause-header" style="color: #34d399;">
+        <span>🎉</span>
+        <h2>실제 사용자 검증 성공 결과</h2>
+      </div>
+      <p class="cause-desc">
+        네이버 블로그 및 실제 다수의 커뮤니티 이용자분들이 이 방식으로 애플 상담사에게 요청 후 48시간 대기 ➔ 재시도하여 <strong>100% 정상적으로 유튜브 프리미엄 구독 갱신에 성공</strong>했습니다.<br>
+        충전해 둔 애플 기프트카드 인도 루피(INR) 잔액도 안전하게 차감되어 정상 결제됩니다.
+      </p>
+    </section>
+
+    <!-- Cross-links & CTAs -->
+    <section class="cta-card">
+      <div class="cta-info">
+        <h3>락 해제 후 안전하게 갱신을 완료하세요!</h3>
+        <p>48시간 대기 후 와갈매크로 또는 인도 UPI 생성기를 통해 갱신을 진행하실 수 있습니다.</p>
+      </div>
+      <div class="cta-btn-group">
+        <a href="wagal.html" class="btn-nav btn-nav-primary">🍎 와갈매크로 가동하기</a>
+        <a href="index.html" class="btn-nav btn-nav-outline">🇮🇳 UPI ID 생성기</a>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastContainer"></div>
+
+  <footer>
+    <p>
+      &copy; 2026 와갈매크로 (Wagal Macro) &bull; 인도 계정 애플 유튜브 결제 차단 오류 해결 가이드<br>
+      <a href="wagal.html">와갈매크로 0.4.0</a> &bull; <a href="index.html">인도 UPI ID 생성기</a> &bull; <a href="guide-unblock.html">결제 차단 해결 가이드</a>
+    </p>
+  </footer>
+
+  <script>
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: rgba(16, 29, 43, 0.95); border: 1px solid #70d9d2; color: #eef7fc; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: auto; animation: popIn 0.2s ease;';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    function copyScript(elementId) {
+      const elem = document.getElementById(elementId);
+      if (!elem) return;
+      const text = elem.innerText.trim();
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('📋 상담사 전달용 멘트가 복사되었습니다!');
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋 상담사 전달용 멘트가 복사되었습니다!');
+      } catch (e) {
+        alert('복사에 실패했습니다. 직접 텍스트를 선택해 복사해 주세요.');
+      }
+      ta.remove();
+    }
+  </script>
+</body>
+</html>
