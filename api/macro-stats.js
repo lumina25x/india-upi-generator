@@ -28,36 +28,22 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 기본 기준 통계 (신규 배포 초기 기본치)
-  const defaultRecent = [
-    { attempts: 7, timeAgo: "방금 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 11, timeAgo: "4분 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 4, timeAgo: "9분 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 14, timeAgo: "18분 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 8, timeAgo: "26분 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 18, timeAgo: "39분 전", product: "YouTube Premium Family", version: "0.4.0" },
-    { attempts: 6, timeAgo: "52분 전", product: "YouTube Premium", version: "0.4.0" },
-    { attempts: 13, timeAgo: "1시간 전", product: "YouTube Premium", version: "0.4.0" }
-  ];
-
+  // 기본 통계 (실시간 DB 기록 기반 - 가짜 모의 데이터 제거)
   let stats = {
     status: "ok",
-    totalSuccessCount: 1428,
-    averageAttempts: 11.2,
-    medianAttempts: 9,
-    minAttempts: 2,
-    maxAttempts: 38,
-    successRateEstimatePct: 91.5,
-    recentSuccesses: defaultRecent,
-    source: "baseline"
+    totalSuccessCount: 0,
+    averageAttempts: "-",
+    recentSuccesses: [],
+    source: "database"
   };
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2500);
+    const timeout = setTimeout(() => controller.abort(), 3500);
 
+    // upi_logs 테이블에서 와갈매크로 갱신 성공 내역 실시간 조회
     const dbRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/macro_logs?select=attempts,duration_sec,product,version,created_at&order=created_at.desc&limit=100`,
+      `${SUPABASE_URL}/rest/v1/upi_logs?type=eq.SUCCESS&upi_id=ilike.${encodeURIComponent("와갈매크로*")}&order=created_at.desc&limit=100`,
       {
         headers: {
           apikey: ANON_KEY,
@@ -71,31 +57,49 @@ module.exports = async function handler(req, res) {
     if (dbRes.ok) {
       const rows = await dbRes.json();
       if (Array.isArray(rows) && rows.length > 0) {
-        const attemptList = rows.map(r => parseInt(r.attempts, 10)).filter(n => !isNaN(n) && n > 0);
-        if (attemptList.length > 0) {
-          const sum = attemptList.reduce((acc, cur) => acc + cur, 0);
-          const avg = (sum / attemptList.length).toFixed(1);
-          const sorted = [...attemptList].sort((a, b) => a - b);
-          const median = sorted[Math.floor(sorted.length / 2)];
+        const attemptList = rows.map(r => {
+          const idMatch = String(r.upi_id || "").match(/와갈매크로-(\d+)회/);
+          if (idMatch && idMatch[1]) return parseInt(idMatch[1], 10);
+          const memoMatch = String(r.memo || "").match(/(\d+)회/);
+          if (memoMatch && memoMatch[1]) return parseInt(memoMatch[1], 10);
+          return 1;
+        }).filter(n => !isNaN(n) && n > 0);
 
-          stats.totalSuccessCount = 1420 + rows.length; // 기본 누적치 + 신규 실시간 건수
-          stats.averageAttempts = parseFloat(avg);
-          stats.medianAttempts = median;
-          stats.minAttempts = Math.min(...attemptList);
-          stats.maxAttempts = Math.max(...attemptList);
+        const sum = attemptList.reduce((acc, cur) => acc + cur, 0);
+        const avg = attemptList.length > 0 ? (sum / attemptList.length).toFixed(1) : "-";
 
-          stats.recentSuccesses = rows.slice(0, 10).map(r => ({
-            attempts: r.attempts,
+        stats.totalSuccessCount = rows.length;
+        stats.averageAttempts = avg !== "-" ? parseFloat(avg) : "-";
+
+        stats.recentSuccesses = rows.map((r, idx) => {
+          const attempts = attemptList[idx] || 1;
+          let product = "YouTube Premium";
+          if (r.memo) {
+            if (/Family|패밀리/i.test(r.memo)) product = "YouTube Premium Family";
+            else if (/Two-person|2인|듀오/i.test(r.memo)) product = "YouTube Premium Two-person";
+            else if (/Music|뮤직/i.test(r.memo)) product = "YouTube Music";
+          }
+          return {
+            id: r.id,
+            upi_id: r.upi_id,
+            attempts: attempts,
             timeAgo: formatRelativeTime(r.created_at),
-            product: r.product || "YouTube Premium",
-            version: r.version || "0.4.0"
-          }));
-          stats.source = "database";
-        }
+            memo: r.memo || `${attempts}회 시도 갱신 성공`,
+            product: product,
+            timestamp: r.timestamp || ""
+          };
+        });
+        stats.source = "live_database";
+      } else {
+        stats.totalSuccessCount = 0;
+        stats.averageAttempts = "-";
+        stats.recentSuccesses = [];
+        stats.source = "clean_initial";
       }
     }
   } catch (err) {
-    stats.source = "baseline_fallback";
+    console.error("macro-stats error:", err);
+    stats.source = "error_fallback";
   }
 
   return res.status(200).json(stats);

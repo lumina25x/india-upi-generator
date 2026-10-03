@@ -394,6 +394,142 @@
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const retryDelay = (base = 3, jitter = 1) => Math.max(1, base + Math.floor(Math.random() * (jitter * 2 + 1)) - jitter);
 
+  let successModalShown = false;
+  function showSuccessModal(attemptCount, product) {
+    if (successModalShown) return;
+    successModalShown = true;
+    const modalHost = document.createElement('div');
+    modalHost.id = 'wagal-success-modal-host';
+    modalHost.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);';
+    const shadow = modalHost.attachShadow({ mode: 'closed' });
+    shadow.innerHTML = `
+      <style>
+        :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Pretendard, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .modal-card {
+          width: 90%; max-width: 480px; background: #101d2b; border: 1.5px solid #305263; border-radius: 20px;
+          padding: 24px; color: #f8fafc; box-shadow: 0 24px 60px rgba(0,0,0,0.8), 0 0 30px rgba(112,217,210,0.2);
+          animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .title-group { display: flex; align-items: center; gap: 10px; }
+        .badge-icon { font-size: 26px; }
+        .title { font-size: 17px; font-weight: 800; color: #70d9d2; }
+        .subtitle { font-size: 12.5px; color: #94a3b8; margin-top: 2px; }
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+        .close-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .guide-box { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 10px 14px; font-size: 12.5px; color: #38bdf8; line-height: 1.5; margin-bottom: 14px; }
+        .chip-label { font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; display: block; }
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+        .chip { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 5px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer; transition: all 0.15s; }
+        .chip:hover, .chip.active { background: rgba(112, 217, 210, 0.2); border-color: #70d9d2; color: #70d9d2; font-weight: 700; }
+        .input-row { margin-bottom: 14px; }
+        .input-header { display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; margin-bottom: 4px; }
+        input[type="text"] { width: 100%; background: #0b131e; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; color: #f8fafc; font-size: 13px; outline: none; transition: border-color 0.2s; }
+        input[type="text"]:focus { border-color: #70d9d2; }
+        .sponsor-box { background: rgba(254, 229, 0, 0.08); border: 1px solid rgba(254, 229, 0, 0.25); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; font-size: 11.5px; color: #fef08a; line-height: 1.45; }
+        .sponsor-box strong { color: #facc15; }
+        .btn-row { display: flex; gap: 8px; }
+        .btn-submit { flex: 1; background: linear-gradient(135deg, #10b981, #06b6d4); color: #0b131e; font-weight: 800; font-size: 13.5px; border: none; border-radius: 10px; padding: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(6,182,212,0.4); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-submit:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-close { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-close:hover { background: #334155; color: #fff; }
+      </style>
+      <div class="modal-card">
+        <div class="header">
+          <div class="title-group">
+            <span class="badge-icon">🎉</span>
+            <div>
+              <div class="title">구독 갱신 성공! 후기 남기기</div>
+              <div class="subtitle">총 <strong>${attemptCount || 1}회</strong> 시도만에 갱신에 성공했습니다!</div>
+            </div>
+          </div>
+          <button class="close-btn" id="btnModalClose">✕</button>
+        </div>
+
+        <div class="guide-box">
+          다른 이용자분들에게 도움이 되도록 <strong>성공 후기나 감사 인사</strong>를 남겨주세요! 실시간 피드에 즉시 기록됩니다.
+        </div>
+
+        <div>
+          <span class="chip-label">빠른 선택 칩:</span>
+          <div class="chips">
+            <button type="button" class="chip active" data-text="${attemptCount || 1}회 시도만에 바로 갱신 성공했습니다! 👍">⚡ ${attemptCount || 1}회만에 성공!</button>
+            <button type="button" class="chip" data-text="와갈매크로 덕분에 살았습니다 감사합니다! 🙏">🙏 덕분에 살았습니다</button>
+            <button type="button" class="chip" data-text="넷뱅킹 와리가리로 바로 뚫렸어요! 🔥">🔥 넷뱅킹 와리가리 성공</button>
+            <button type="button" class="chip" data-text="유튜브 앱 동기화까지 완료했습니다 📱">📱 앱 동기화 완료</button>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <div class="input-header">
+            <span>감사 인사 또는 팁 입력 (직접 수정 가능)</span>
+            <span id="charCount">0/100</span>
+          </div>
+          <input type="text" id="memoInput" maxlength="100" value="${attemptCount || 1}회 시도만에 바로 갱신 성공했습니다! 👍" placeholder="예: 넷뱅킹 선택하고 5번 만에 뚫렸어요!">
+        </div>
+
+        <div class="sponsor-box">
+          ☕ <strong>0원 커피 후원</strong>: 성공 후기를 남기시면 새 탭으로 쿠팡 홈이 열립니다. 구매 안 하셔도 접속만으로 운영자에게 큰 힘이 됩니다!
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-submit" id="btnSubmit">
+            <span>🚀 성공 후기 등록하고 0원 커피 후원</span>
+          </button>
+          <button type="button" class="btn-close" id="btnCancel">닫기</button>
+        </div>
+      </div>
+    `;
+
+    document.documentElement.appendChild(modalHost);
+
+    const input = shadow.getElementById('memoInput');
+    const charCount = shadow.getElementById('charCount');
+    const updateCount = () => { charCount.textContent = `${input.value.length}/100`; };
+    updateCount();
+    input.oninput = updateCount;
+
+    shadow.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        shadow.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        input.value = chip.getAttribute('data-text');
+        updateCount();
+        input.focus();
+      });
+    });
+
+    const closeModal = () => { modalHost.remove(); };
+    shadow.getElementById('btnModalClose').onclick = closeModal;
+    shadow.getElementById('btnCancel').onclick = closeModal;
+
+    shadow.getElementById('btnSubmit').onclick = async () => {
+      const memo = input.value.trim() || '갱신 성공 확인 완료 👍';
+      try {
+        fetch('https://india-upi.vercel.app/api/macro-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            attempts: attemptCount || 1,
+            memo: memo,
+            version: '0.4.0',
+            product: product || 'YouTube Premium',
+            client_type: 'bookmarklet'
+          })
+        }).catch(() => {});
+      } catch (e) {}
+
+      try {
+        window.open('https://link.coupang.com/a/g03lOjRufc', '_blank', 'noopener,noreferrer');
+      } catch (e) {}
+
+      shadow.getElementById('btnSubmit').textContent = '✅ 실시간 피드 등록 완료! 감사합니다';
+      setTimeout(closeModal, 1200);
+    };
+  }
+
   async function startMacro() {
     if (isRunning) return;
     if (!detectedTarget || detectedTarget.kind !== 'ready') {
@@ -418,19 +554,7 @@
         if (screen.kind === 'success') {
           updateStatus('🎉 갱신 성공!', '구독 활성화가 확인되었습니다! 결제 내역을 확인하세요.', '#4ade80', 'rgba(74, 222, 128, 0.25)');
           playSuccessSound();
-          try {
-            fetch('https://india-upi.vercel.app/api/macro-report', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                attempts: attemptCount,
-                version: '0.4.0',
-                product: screen.product || 'YouTube Premium',
-                client_type: 'bookmarklet'
-              })
-            }).catch(() => {});
-          } catch (e) {}
-          alert('[와갈매크로]\n\n🎉 축하합니다! 구독 갱신이 성공적으로 승인되었습니다!\nApple 결제 내역과 YouTube 상태를 확인해 보세요.');
+          showSuccessModal(attemptCount, screen.product);
           break;
         }
 

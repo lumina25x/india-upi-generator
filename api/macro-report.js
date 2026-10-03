@@ -69,15 +69,29 @@ module.exports = async function handler(req, res) {
       console.log("macro_logs insert error:", dbErr);
     }
 
-    // 2) 메인 사이트 실시간 성공 후기 피드(upi_logs)에도 즉시 기록
-    try {
-      const uniqueSuffix = Date.now().toString(36).slice(-4);
-      const displayId = `와갈매크로-${attempts}회#${uniqueSuffix}`;
-      const finalMemo = memo 
-        ? `${memo}` 
-        : `와갈매크로 갱신 성공 (${product}, ${attempts}회 시도)`;
+    function getKSTFormattedNow() {
+      const now = new Date(Date.now() + 9 * 3600 * 1000);
+      const pad = n => n.toString().padStart(2, '0');
+      const y = now.getUTCFullYear();
+      const m = pad(now.getUTCMonth() + 1);
+      const d = pad(now.getUTCDate());
+      const hh = pad(now.getUTCHours());
+      const mm = pad(now.getUTCMinutes());
+      const ss = pad(now.getUTCSeconds());
+      return `${y}.${m}.${d} ${hh}:${mm}:${ss}`;
+    }
 
-      await fetch(`${SUPABASE_URL}/rest/v1/upi_logs`, {
+    const kstTimestamp = getKSTFormattedNow();
+    const uniqueSuffix = Date.now().toString(36).slice(-4);
+    const displayId = `와갈매크로-${attempts}회#${uniqueSuffix}`;
+    const finalMemo = memo 
+      ? memo 
+      : `와갈매크로 갱신 성공 (${product}, ${attempts}회 시도)`;
+
+    // 메인 사이트 실시간 성공 후기 피드(upi_logs)에 기록
+    let feedInserted = false;
+    try {
+      const feedRes = await fetch(`${SUPABASE_URL}/rest/v1/upi_logs`, {
         method: "POST",
         headers: {
           "apikey": ANON_KEY,
@@ -88,22 +102,28 @@ module.exports = async function handler(req, res) {
         body: JSON.stringify({
           upi_id: displayId,
           type: "SUCCESS",
-          timestamp: new Date().toISOString().substring(0, 19).replace('T', ' '),
+          timestamp: kstTimestamp,
           memo: finalMemo
         })
       });
+      feedInserted = feedRes.ok;
     } catch (feedErr) {
       console.log("upi_logs insert error:", feedErr);
     }
 
     return res.status(200).json({
       status: "success",
-      message: "성공 리포트가 정상적으로 기록되었습니다.",
+      message: "성공 후기 리포트가 정상적으로 실시간 피드에 기록되었습니다.",
       record: {
+        id: displayId,
+        upi_id: displayId,
         attempts: attempts,
         duration_sec: durationSec,
+        product: product,
         version: version,
-        recorded_at: payload.created_at
+        timestamp: kstTimestamp,
+        memo: finalMemo,
+        feed_inserted: feedInserted
       }
     });
   } catch (err) {

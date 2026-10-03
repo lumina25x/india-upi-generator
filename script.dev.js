@@ -269,9 +269,10 @@ async function fetchGlobalSupabaseData() {
       ? failCountRes.count 
       : state.failedList.length;
 
-    // 작성일자(timestamp) 기준 최신순(내림차순) 정렬
-    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
-    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    // 작성일자(timestamp) 기준 최신순(내림차순) 정렬 (하이픈/점 통일)
+    const normTs = ts => String(ts || "").replace(/-/g, ".");
+    state.successList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
+    state.failedList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
 
     updateDevBannerStatus("connected", `🟢 Supabase 초고속 동기화 완료 (${elapsed}ms / 성공 ${state.successList.length}건, 제외 ${totalFailed}건)`);
     console.log(`⚡ Supabase 응답 속도: ${elapsed}ms (성공: ${state.successList.length}건, 제외: ${totalFailed}건)`);
@@ -460,8 +461,9 @@ function loadStoredData() {
     }
 
     // 로컬 스토리지 데이터도 작성일자(timestamp) 기준 최신순 정렬
-    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
-    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    const normTs = ts => String(ts || "").replace(/-/g, ".");
+    state.successList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
+    state.failedList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
   } catch (err) {
     console.error("Failed to load local storage:", err);
   }
@@ -1117,16 +1119,18 @@ function renderLists() {
   } else {
     emptySuccessElem.style.display = "none";
     state.successList.forEach((item, index) => {
+      const isMacro = String(item.id || "").startsWith("와갈매크로") || String(item.id || "").startsWith("macro-");
       const li = document.createElement("li");
-      li.className = "id-list-item success-item";
+      li.className = "id-list-item success-item" + (isMacro ? " macro-success-item" : "");
       li.innerHTML = `
         <div class="item-main">
+          ${isMacro ? `<span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(112, 217, 210, 0.15); border: 1px solid rgba(112, 217, 210, 0.35); color: #70d9d2; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px; margin-right: 6px;">🍎 와갈매크로 갱신</span>` : ""}
           <span class="item-id-text">${item.id}</span>
           <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
           ${item.memo ? `<span class="item-memo">💬 ${escapeHtml(item.memo)}</span>` : ""}
         </div>
         <div class="item-actions">
-          <button class="btn-item-action copy" data-id="${item.id}" title="복사">
+          <button class="btn-item-action copy" data-id="${item.id}" data-memo="${escapeHtml(item.memo || '')}" title="${isMacro ? '후기 내용 복사' : 'UPI ID 복사'}">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -1161,9 +1165,11 @@ function renderLists() {
 
   successListElem.querySelectorAll(".btn-item-action.copy").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      const text = e.currentTarget.getAttribute("data-id");
-      copyTextToClipboard(text);
-      showToast(`복사됨: ${text}`, "info");
+      const text = e.currentTarget.getAttribute("data-id") || "";
+      const memo = e.currentTarget.getAttribute("data-memo") || "";
+      const toCopy = text.startsWith("와갈매크로") && memo ? memo : text;
+      copyTextToClipboard(toCopy);
+      showToast(`복사됨: ${toCopy}`, "info");
     });
   });
 }

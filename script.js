@@ -216,6 +216,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initSupabase();
   fetchGlobalData();
   loadBackendConfigAndStats();
+  // 실시간 피드 주기적 자동 동기화 (25초마다 최신 성공 후기 반영)
+  setInterval(() => {
+    fetchGlobalData();
+    loadBackendConfigAndStats();
+  }, 25000);
 });
 
 async function fetchGlobalData() {
@@ -285,9 +290,10 @@ async function fetchGlobalData() {
       ? failCountRes.count 
       : state.failedList.length;
 
-    // 작성일자(timestamp) 기준 최신순(내림차순) 정렬
-    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
-    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    // 작성일자(timestamp) 기준 최신순(내림차순) 정렬 (하이픈/점 통일)
+    const normTs = ts => String(ts || "").replace(/-/g, ".");
+    state.successList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
+    state.failedList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
 
     saveStoredData();
     updateStats(totalFailed);
@@ -358,8 +364,9 @@ function loadStoredData() {
     }
 
     // 로컬 스토리지 데이터도 작성일자(timestamp) 기준 최신순 정렬
-    state.successList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
-    state.failedList.sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")));
+    const normTs = ts => String(ts || "").replace(/-/g, ".");
+    state.successList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
+    state.failedList.sort((a, b) => normTs(b.timestamp).localeCompare(normTs(a.timestamp)));
   } catch (err) {
     console.error("Failed to load local storage:", err);
   }
@@ -1044,16 +1051,18 @@ function renderLists() {
   } else {
     emptySuccessElem.style.display = "none";
     state.successList.forEach((item, index) => {
+      const isMacro = String(item.id || "").startsWith("와갈매크로") || String(item.id || "").startsWith("macro-");
       const li = document.createElement("li");
-      li.className = "id-list-item success-item";
+      li.className = "id-list-item success-item" + (isMacro ? " macro-success-item" : "");
       li.innerHTML = `
         <div class="item-main">
+          ${isMacro ? `<span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(112, 217, 210, 0.15); border: 1px solid rgba(112, 217, 210, 0.35); color: #70d9d2; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 11px; margin-right: 6px;">🍎 와갈매크로 갱신</span>` : ""}
           <span class="item-id-text">${item.id}</span>
           <span class="item-timestamp">🕒 ${item.timestamp || getFormattedNow()}</span>
           ${item.memo ? `<span class="item-memo">💬 ${escapeHtml(item.memo)}</span>` : ""}
         </div>
         <div class="item-actions">
-          <button class="btn-item-action copy" data-id="${item.id}" title="복사">
+          <button class="btn-item-action copy" data-id="${item.id}" data-memo="${escapeHtml(item.memo || '')}" title="${isMacro ? '후기 내용 복사' : 'UPI ID 복사'}">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -1090,9 +1099,11 @@ function renderLists() {
   // Bind copy button listener for success list
   successListElem.querySelectorAll(".btn-item-action.copy").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      const text = e.currentTarget.getAttribute("data-id");
-      copyTextToClipboard(text);
-      showToast(`복사됨: ${text}`, "info");
+      const text = e.currentTarget.getAttribute("data-id") || "";
+      const memo = e.currentTarget.getAttribute("data-memo") || "";
+      const toCopy = text.startsWith("와갈매크로") && memo ? memo : text;
+      copyTextToClipboard(toCopy);
+      showToast(`복사됨: ${toCopy}`, "info");
     });
   });
 }
@@ -1545,20 +1556,23 @@ async function loadBackendConfigAndStats() {
     const statsRes = await fetch("/api/macro-stats");
     if (statsRes.ok) {
       const stats = await statsRes.json();
-      if (avgElem && stats.averageAttempts) avgElem.textContent = stats.averageAttempts;
-      if (totalElem && stats.totalSuccessCount) totalElem.textContent = Number(stats.totalSuccessCount).toLocaleString();
+      if (avgElem && stats.averageAttempts !== undefined) avgElem.textContent = stats.averageAttempts;
+      if (totalElem && stats.totalSuccessCount !== undefined) totalElem.textContent = Number(stats.totalSuccessCount).toLocaleString();
 
       if (feedElem && Array.isArray(stats.recentSuccesses)) {
-        feedElem.innerHTML = stats.recentSuccesses.slice(0, 5).map(item => `
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-size: 12px; border-left: 3px solid #10b981;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: 700; color: #70d9d2; background: rgba(112, 217, 210, 0.15); padding: 2px 7px; border-radius: 4px; font-family: monospace;">${item.attempts}회 시도 성공</span>
-              <span style="color: #f1f5f9; font-weight: 600;">${escapeHtml(item.product || 'YouTube Premium')}</span>
-              <span style="color: #64748b; font-size: 11px;">v${escapeHtml(item.version || '0.4.0')}</span>
+        if (stats.recentSuccesses.length === 0) {
+          feedElem.innerHTML = `<div style="color: #64748b; font-size: 12px; padding: 12px; text-align: center;">등록된 갱신 성공 후기가 아직 없습니다.</div>`;
+        } else {
+          feedElem.innerHTML = stats.recentSuccesses.slice(0, 5).map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-size: 12px; border-left: 3px solid #10b981;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 700; color: #70d9d2; background: rgba(112, 217, 210, 0.15); padding: 2px 7px; border-radius: 4px; font-family: monospace;">${item.attempts}회 시도 성공</span>
+                <span style="color: #f1f5f9; font-weight: 600;">${escapeHtml(item.memo || item.product || 'YouTube Premium')}</span>
+              </div>
+              <span style="color: #94a3b8; font-size: 11px;">${escapeHtml(item.timeAgo || '방금 전')}</span>
             </div>
-            <span style="color: #94a3b8; font-size: 11px;">${escapeHtml(item.timeAgo || '방금 전')}</span>
-          </div>
-        `).join("");
+          `).join("");
+        }
       }
     }
   } catch (e) {
