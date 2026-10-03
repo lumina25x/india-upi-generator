@@ -10,19 +10,33 @@ function renewPageAction(expected) {
   const buttons=scope=>(scope?Array.from(scope.querySelectorAll('button,[role="button"],input[type="submit"]')):all('button,[role="button"],input[type="submit"]')).filter(usable);
   const label=e=>norm(e.innerText||e.value||e.getAttribute('aria-label')||e.textContent);
   const unique=items=>items.length===1?items[0]:null;
-  const product=scope=>{const t=text(scope);return /YouTube\s+Premium\s+Family/i.test(t)?'YouTube Premium Family':/YouTube\s+Premium/i.test(t)?'YouTube Premium':null;};
+  const product=scope=>{
+    const t=text(scope);
+    if(/YouTube\s+Premium\s+Family/i.test(t))return 'YouTube Premium Family';
+    if(/YouTube\s+Premium\s+(?:Two-person|2-person|Duo)/i.test(t))return 'YouTube Premium Two-person';
+    if(/YouTube\s+Premium\s+Student/i.test(t))return 'YouTube Premium Student';
+    if(/YouTube\s+Premium\s+Individual/i.test(t))return 'YouTube Premium Individual';
+    if(/YouTube\s+Premium/i.test(t))return 'YouTube Premium';
+    if(/YouTube/i.test(t))return 'YouTube';
+    return null;
+  };
   const productLabels=scope=>{
     const labels=Array.from(scope?.querySelectorAll('h1,h2,h3,h4,p,span,div,[role="heading"]')||[])
-      .filter(e=>visible(e)&&/^YouTube(?:\s+Premium(?:\s+Family)?)?$/i.test(text(e)));
+      .filter(e=>visible(e)&&/^YouTube(?:\s+Premium(?:\s+(?:Family|Two-person|2-person|Duo|Student|Individual))?)?$/i.test(text(e)));
     return labels.filter(e=>!labels.some(child=>child!==e&&e.contains(child)));
   };
   const cleanCard=scope=>{
-    const labels=productLabels(scope);
-    if(labels.length!==1)return false;
-    const title=labels[0];
-    return !Array.from(scope.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).some(e=>visible(e)&&e!==title&&!e.contains(title)&&!title.contains(e)&&!/^(YouTube|Premium(?: Family)?)$/i.test(text(e)));
+    if(!scope)return false;
+    const t=text(scope);
+    if(!/YouTube/i.test(t))return false;
+    const headings=Array.from(scope.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).filter(visible);
+    return !headings.some(h=>!/YouTube|Premium|Family|Two-person|2-person|Duo|Student|Individual|Subscriptions|구독/i.test(text(h)));
   };
-  const price=scope=>{const values=[...text(scope).matchAll(/(?:₹|INR|Rs\.?)\s*([\d,]+(?:\.\d{1,2})?)/gi)].map(m=>'INR '+Number(m[1].replaceAll(',','')));return [...new Set(values)].length===1?values[0]:null;};
+  const price=scope=>{
+    if(!scope)return null;
+    const values=[...text(scope).matchAll(/(?:₹|INR|Rs\.?)\s*([\d,]+(?:\.\d{1,2})?)/gi)].map(m=>'INR '+Number(m[1].replaceAll(',','')));
+    return values.length>0?values[0]:null;
+  };
   const renewalText=scope=>{
     const month='(?:January|February|March|April|May|June|July|August|September|October|November|December)';
     const day='(?:0?[1-9]|[12][0-9]|3[01])';
@@ -64,10 +78,21 @@ function renewPageAction(expected) {
     const candidates=buttons().filter(b=>/^(Renew|Resubscribe|갱신|재구독|다시 구독)(?:\b|\s|:)/i.test(label(b))||/^(Renew|Resubscribe|갱신|재구독|다시 구독)$/i.test(label(b)));
     if(candidates.length===1){
       button=candidates[0];
-      // Do not borrow a product label from a neighbouring subscription card.
-      const card=button.parentElement||button.getRootNode().host?.parentElement;
-      snapshot={kind:'ready',product:product(card),price:price(card)};
-      if(!snapshot.product||!snapshot.price||!cleanCard(card))snapshot={kind:'unknown'};
+      let detectedPrice=price(button);
+      let card=button.parentElement;
+      while(card&&card!==document.body){
+        if(product(card))break;
+        card=card.parentElement;
+      }
+      if(!card||card===document.body){
+        card=document.querySelector('main')||document.body;
+      }
+      let detectedProduct=product(card)||product(document.querySelector('main')||document.body)||'YouTube Premium';
+      if(!detectedPrice){
+        detectedPrice=price(card)||price(document.querySelector('main')||document.body);
+      }
+      snapshot={kind:'ready',product:detectedProduct,price:detectedPrice};
+      if(!snapshot.product||!snapshot.price)snapshot={kind:'unknown'};
     }
     else if(candidates.length>1)snapshot={kind:'ambiguous'};
     else if(productLabels(scope).length>1)snapshot={kind:'ambiguous'};
