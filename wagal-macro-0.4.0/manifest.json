@@ -4,9 +4,9 @@
   "version": "0.4.0",
   "description": "구독 화면을 점검하고, 지정한 범위에서 갱신을 시도하며 진행과 중단 이유를 보여주는 로컬 도우미입니다.",
   "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["https://account.apple.com/*", "https://*.itunes.apple.com/*", "https://apps.apple.com/*", "http://127.0.0.1/*"],
+  "host_permissions": ["https://account.apple.com/*", "https://*.itunes.apple.com/*", "https://apps.apple.com/*", "http://127.0.0.1/*", "http://localhost/*", "file:///*"],
   "background": {"service_worker": "background.js"},
   "icons": {"128": "icon128.png"},
   "action": {"default_popup": "popup.html", "default_title": "와갈매크로 · Wagal Macro", "default_icon": "icon128.png"},
-  "content_scripts": [{"matches": ["https://account.apple.com/*", "http://127.0.0.1/wagal-test/*"], "js": ["target.js", "i18n.js", "engine.js", "content.js"], "run_at": "document_idle", "all_frames": false}]
+  "content_scripts": [{"matches": ["https://account.apple.com/*", "http://127.0.0.1/*", "http://localhost/*", "file:///*test-page.html*"], "js": ["target.js", "i18n.js", "engine.js", "content.js"], "run_at": "document_idle", "all_frames": false}]
 }
