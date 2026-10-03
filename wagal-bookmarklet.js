@@ -265,7 +265,7 @@
   const pollTimer = setInterval(() => { if (!isRunning) checkScreen(); }, 2000);
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const retryDelay = (base = 8, jitter = 3) => Math.max(5, base + Math.floor(Math.random() * (jitter * 2 + 1)) - jitter);
+  const retryDelay = (base = 3, jitter = 1) => Math.max(1, base + Math.floor(Math.random() * (jitter * 2 + 1)) - jitter);
 
   async function startMacro() {
     if (isRunning) return;

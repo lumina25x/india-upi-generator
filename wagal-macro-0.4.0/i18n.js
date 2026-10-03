@@ -1,12 +1,12 @@
 (function(root){
   const pairs={
-    attemptHint:['0 = 횟수 무제한 · 시간 제한 적용','0 = unlimited attempts · time limit applies'],jitter:['랜덤 간격 (±초)','Random interval (±sec)'],jitterHint:['기본 30±5초 · 최소 5초 · 0이면 고정','Default 30±5s · minimum 5s · 0 for fixed'],reload:['페이지 새로고침','Reload page'],
+    attemptHint:['0 = 횟수 무제한 (성공할 때까지 반복)','0 = unlimited attempts (repeats until success)'],jitter:['랜덤 간격 활성화 (±1~2초)','Enable random interval (±1~2s)'],jitterHint:['설정 간격에 자연스러운 오차(±1~2초)를 주어 봇 감지를 우회합니다. 끄면 설정한 초 그대로 고정됩니다.','Adds natural variation (±1~2s) to bypass bot filters.'],reload:['페이지 새로고침','Reload page'],
     testMode:['테스트','TEST'],openTest:['테스트 페이지 열기','Open test page'],testHelp:['start-test.cmd를 먼저 실행하세요. 실제 결제는 없습니다.','Run start-test.cmd first. No real payments are made.'],
     name:['와갈매크로','Wagal Macro'],run:['실행','Run'],logs:['로그','Logs'],settings:['설정','Settings'],
     checking:['확인 중','Checking'],connected:['연결됨','Connected'],disconnected:['연결 필요','Not connected'],
     open:['Apple 열기 ↗','Open Apple ↗'],check:['화면 점검','Check page'],recheck:['다시 점검','Check again'],
     emptyProduct:['구독 화면을 점검하세요','Check your subscription page'],emptyPrice:['YouTube 구독 상세 화면에서 점검','Check the YouTube subscription details'],
-    attempts:['최대 횟수','Max attempts'],delay:['간격 (초)','Interval (sec)'],minutes:['시간 제한 (분)','Time limit (min)'],
+    attempts:['최대 횟수','Max attempts'],delay:['간격 (초)','Interval (sec)'],
     consent:['표시된 금액으로 유료 갱신 시도에 동의','I agree to attempt a paid renewal at the shown price'],
     start:['시작','Start'],checkFirst:['점검 후 시작','Check page first'],stop:['중지','Stop'],
     history:['진행 이력','Activity history'],export:['내려받기 ↓','Export ↓'],emptyLogs:['기록 없음','No activity yet'],

@@ -31,12 +31,13 @@ function render(s){
   $('environment').hidden=!s.simulation;
   showTarget(checked||s.target);
   $('setup').hidden=active||checked?.kind!=='ready';$('progress').hidden=!hasRun||!!checked;$('stop').hidden=!active;$('recheck').hidden=active;
-  $('check').disabled=active||busy;$('open').disabled=active;$('minutes').disabled=active;$('jitter').disabled=active;$('reload').hidden=active||!['review','stopped'].includes(s.phase);
+  $('check').disabled=active||busy;$('open').disabled=active;if($('use-jitter'))$('use-jitter').disabled=active;$('reload').hidden=active||!['review','stopped'].includes(s.phase);
+  if($('btn-open-review')){ $('btn-open-review').hidden=(s.phase!=='success'); $('btn-open-review').onclick=async()=>{ try{ await send('SHOW_SUCCESS_MODAL',{attempts:s.attempt}); window.close(); }catch(e){} }; }
   const view=checked?inspectionView(checked):null;
   $('connection').textContent=active?t('connected'):view?.badge||t('connected');
   $('inspection').hidden=active||!checked||checked.kind==='ready';
   if(view){$('inspection-title').textContent=view.title;$('inspection-detail').textContent=view.detail;}
-  $('phase').textContent=t(s.phase||'idle');$('count').textContent=s.attempt||0;$('cap').textContent=t('count',{max:s.settings?.attempts===0?'∞':(s.settings?.attempts??5)});$('message').textContent=message(s.message);
+  $('phase').textContent=t(s.phase||'idle');$('count').textContent=s.attempt||0;$('cap').textContent=t('count',{max:s.settings?.attempts===0?'∞':(s.settings?.attempts??50)});$('message').textContent=message(s.message);
   const seconds=hasRun?Math.max(0,Math.floor(((active?Date.now():Date.parse(s.endedAt||s.startedAt))-Date.parse(s.startedAt))/1000)):0;
   $('elapsed').textContent=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
   $('countdown').hidden=!(active&&s.nextAt);$('countdown').textContent=active&&s.nextAt?t('next',{seconds:Math.max(0,Math.ceil((Date.parse(s.nextAt)-Date.now())/1000))}):'';
@@ -53,11 +54,10 @@ async function check(){
 }
 $('check').onclick=check;$('recheck').onclick=check;$('consent').onchange=updateStart;
 $('open').onclick=()=>{if(preview){notice('preview');return;}chrome.tabs.create({url:'https://account.apple.com/account/manage/section/subscriptions'});window.close();};
-$('start').onclick=async()=>{busy=true;updateStart();try{await send('START',{options:{attempts:Number($('attempts').value),delay:Number($('delay').value),jitter:Number($('jitter').value),minutes:Number($('minutes').value)},consent:$('consent').checked});$('consent').checked=false;checked=null;notice(null);await poll();}catch(e){notice(e.message,true,true);}finally{busy=false;updateStart();}};
+$('start').onclick=async()=>{busy=true;updateStart();try{const attempts=Number($('attempts').value);const delay=Number($('delay').value);const useJitter=$('use-jitter')?$('use-jitter').checked:true;await send('START',{options:{attempts,delay,useJitter},consent:$('consent').checked});$('consent').checked=false;checked=null;notice(null);await poll();}catch(e){notice(e.message,true,true);}finally{busy=false;updateStart();}};
 $('reload').onclick=async()=>{try{const current=await send('STATUS');if(current.active)return;await chrome.tabs.reload(tabId);window.close();}catch(e){notice(e.message,true,true);}};
 $('stop').onclick=async()=>{try{await send('STOP');await poll();}catch(e){notice(e.message,true,true);}};
 $('export').onclick=()=>{const data={version,language,simulation:!!state?.simulation,phase:state?.phase||'idle',attempt:state?.attempt||0,inspection:checked?.kind||null,logs:(state?.logs||[]).map(log=>({...log,message:message(log.message)}))};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='wagal-macro-session.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-$('open-test').onclick=()=>{if(preview){notice('testHelp');return;}chrome.tabs.create({url:WagalTarget.simulationUrl});window.close();};
 $('language').onchange=async()=>{language=I.normalize($('language').value);translate();try{if(!preview)await chrome.storage.local.set({language});$('saved').textContent=t('saved');}catch{$('saved').textContent=t('saveFailed');}};
 async function poll(){if(busy&&state?.active)return;try{render(await send('STATUS'));}catch{connectionKey='disconnected';$('connection').textContent=t(connectionKey);checked=null;updateStart();notice('reconnect',true);}}
 (async()=>{

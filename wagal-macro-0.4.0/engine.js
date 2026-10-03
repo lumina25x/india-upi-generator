@@ -1,29 +1,42 @@
 (function(root){
   'use strict';
   function validate(o){
-    if(!o || !Number.isInteger(o.attempts)||o.attempts<0||o.attempts>500 || !Number.isFinite(o.delay)||o.delay<5||o.delay>300 || !Number.isFinite(o.minutes)||o.minutes<1||o.minutes>120 || !Number.isInteger(o.jitter??5)||(o.jitter??5)<0||(o.jitter??5)>60) throw Error('횟수 0–500, 대기 5–300초, 랜덤 0–60초, 시간 1–120분을 입력하세요.');
-    return {attempts:o.attempts,delay:o.delay,jitter:o.jitter??5,minutes:o.minutes};
+    if(!o) throw Error('설정 정보를 확인해 주세요.');
+    const attempts = Number.isInteger(Number(o.attempts)) && Number(o.attempts) >= 0 ? Number(o.attempts) : 50;
+    const delay = Number.isFinite(Number(o.delay)) && Number(o.delay) >= 0 ? Number(o.delay) : 3;
+    const useJitter = Boolean(o.useJitter !== false);
+    return { attempts, delay, useJitter };
   }
-  function retryDelay(settings,random=Math.random){const low=Math.max(5,settings.delay-settings.jitter),high=Math.min(300,settings.delay+settings.jitter);return Math.min(high,low+Math.floor(random()*(high-low+1)));}
+  function retryDelay(settings,random=Math.random){
+    const base = Math.max(1, Math.round(settings.delay));
+    if(!settings.useJitter) return base;
+    // 설정한 대기초 +- 1~2초 랜덤 오차 (최소 1초)
+    const offset = Math.floor(random() * 3) - 1; // -1, 0, +1
+    return Math.max(1, base + offset);
+  }
   class Runner {
     constructor(io){this.io=io;this.active=false;this.state={phase:'idle',attempt:0,message:'구독 화면을 점검해 주세요.',logs:[]};}
     emit(phase,message){this.state={...this.state,phase,message};this.state.logs=[...this.state.logs,{time:new Date().toISOString(),phase,attempt:this.state.attempt,message}].slice(-200);this.io.update?.(this.state);}
     stop(){this.cancelled=true;if(this.active)this.emit('stopped','사용자가 중지했습니다. 전송된 결제 요청은 취소되지 않으므로 구독 상태를 확인하세요.');}
-    async wait(ms){for(let left=ms;left>0;left-=100){if(this.cancelled)return false;if((this.io.now||Date.now)()>=this.deadline){this.emit('limit','설정한 실행 시간이 끝났습니다. 구독 상태를 확인하세요.');return false;}await this.io.sleep(Math.min(100,left));}return !this.cancelled;}
+    async wait(ms){
+      for(let left=ms;left>0;left-=100){
+        if(this.cancelled)return false;
+        await this.io.sleep(Math.min(100,left));
+      }
+      return !this.cancelled;
+    }
     async start(options,target){
       if(this.active)throw Error('이미 실행 중입니다.');
       const settings=validate(options);
       if(!target||target.kind!=='ready'||!target.product||!target.price)throw Error('상품과 금액을 확인할 수 있는 구독 화면부터 시작하세요.');
       this.active=true;this.cancelled=false;this.state={phase:'starting',attempt:0,message:'',logs:[],target,settings,startedAt:new Date().toISOString()};
-      const now=this.io.now||Date.now;const deadline=now()+settings.minutes*60000;this.deadline=deadline;
+      const now=this.io.now||Date.now;
       let stage='ready',polls=0,confirmed=false,stageDeadline=now()+30000;
       this.emit('running','구독 화면을 확인하고 있습니다.');
       try{
         while(!this.cancelled){
-          if(now()>=deadline){this.emit('limit','설정한 실행 시간이 끝났습니다. 구독 상태를 확인하세요.');break;}
           const screen=await this.io.inspect();
           if(this.cancelled)break;
-          if(now()>=deadline){this.emit('limit','실행 시간 제한에 도달했습니다.');break;}
           if(now()>=stageDeadline){this.emit('review','화면 응답 대기 시간이 지났습니다. 구독 상태를 직접 확인하세요.');break;}
           if(Number.isInteger(target.frameId)&&Number.isInteger(screen.frameId)&&target.frameId!==screen.frameId){this.emit('review','구독 화면의 실행 위치가 변경되어 중지했습니다. 다시 점검해 주세요.');break;}
           if(screen.kind==='success'){
