@@ -215,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLists();
   initSupabase();
   fetchGlobalData();
+  loadBackendConfigAndStats();
 });
 
 async function fetchGlobalData() {
@@ -1480,4 +1481,88 @@ function bindEvents() {
     updateQuotaDisplay();
     console.log("[DEBUG] Coupang limit and unlock status reset.");
   };
+
+  // Backend Telemetry & Stats Refresh Button
+  const btnRefreshStats = document.getElementById("btnRefreshMacroStats");
+  if (btnRefreshStats) {
+    btnRefreshStats.addEventListener("click", () => {
+      btnRefreshStats.textContent = "⏳ 동기화 중...";
+      btnRefreshStats.disabled = true;
+      loadBackendConfigAndStats().finally(() => {
+        setTimeout(() => {
+          btnRefreshStats.textContent = "🔄 새로고침";
+          btnRefreshStats.disabled = false;
+        }, 500);
+      });
+    });
+  }
 }
+
+// ==========================================================================
+// 10. Backend Telemetry & Dynamic Config (/api/config, /api/macro-stats)
+// ==========================================================================
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function loadBackendConfigAndStats() {
+  const avgElem = document.getElementById("backendAvgAttempts");
+  const totalElem = document.getElementById("backendTotalSuccess");
+  const verElem = document.getElementById("backendMacroVersion");
+  const coupangStatusElem = document.getElementById("backendCoupangStatus");
+  const feedElem = document.getElementById("backendSuccessFeed");
+
+  // 1. Remote Config Fetch (/api/config)
+  try {
+    const configRes = await fetch("/api/config");
+    if (configRes.ok) {
+      const cfg = await configRes.json();
+      if (typeof COUPANG_CONFIG !== "undefined" && cfg.affiliates?.coupang?.url) {
+        COUPANG_CONFIG.affiliateUrl = cfg.affiliates.coupang.url;
+        if (coupangStatusElem) coupangStatusElem.textContent = "정상 활성 (" + (cfg.source || "동기화") + ")";
+      }
+      if (typeof GOINGBUS_CONFIG !== "undefined" && cfg.affiliates?.goingbus?.url) {
+        GOINGBUS_CONFIG.affiliateUrl = cfg.affiliates.goingbus.url;
+        const directLinkElem = document.getElementById("goingbusAffiliateLink");
+        if (directLinkElem) directLinkElem.href = GOINGBUS_CONFIG.affiliateUrl;
+      }
+      if (verElem && cfg.macro?.latestVersion) {
+        verElem.textContent = `v${cfg.macro.latestVersion} (정상 가동 중)`;
+      }
+    }
+  } catch (e) {
+    console.log("Config API note (using fallback):", e.message);
+  }
+
+  // 2. Macro Stats Fetch (/api/macro-stats)
+  try {
+    const statsRes = await fetch("/api/macro-stats");
+    if (statsRes.ok) {
+      const stats = await statsRes.json();
+      if (avgElem && stats.averageAttempts) avgElem.textContent = stats.averageAttempts;
+      if (totalElem && stats.totalSuccessCount) totalElem.textContent = Number(stats.totalSuccessCount).toLocaleString();
+
+      if (feedElem && Array.isArray(stats.recentSuccesses)) {
+        feedElem.innerHTML = stats.recentSuccesses.slice(0, 5).map(item => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-size: 12px; border-left: 3px solid #10b981;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 700; color: #70d9d2; background: rgba(112, 217, 210, 0.15); padding: 2px 7px; border-radius: 4px; font-family: monospace;">${item.attempts}회 시도 성공</span>
+              <span style="color: #f1f5f9; font-weight: 600;">${escapeHtml(item.product || 'YouTube Premium')}</span>
+              <span style="color: #64748b; font-size: 11px;">v${escapeHtml(item.version || '0.4.0')}</span>
+            </div>
+            <span style="color: #94a3b8; font-size: 11px;">${escapeHtml(item.timeAgo || '방금 전')}</span>
+          </div>
+        `).join("");
+      }
+    }
+  } catch (e) {
+    console.log("Stats API note (using fallback):", e.message);
+  }
+}
+

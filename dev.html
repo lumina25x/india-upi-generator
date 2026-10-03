@@ -572,6 +572,68 @@
       </div>
     </section>
 
+    <!-- Backend Server Telemetry & Dynamic Config Dashboard [DEV] -->
+    <section class="backend-monitor-section" style="background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9)); border: 1.5px solid #334155; border-radius: 16px; padding: 22px; margin: 24px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">⚡</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-size: 16px; font-weight: 800; color: #f8fafc; margin: 0;">와갈매크로 백엔드 실시간 통계 &amp; 원격 패치 모니터</h3>
+              <span style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700; padding: 2px 7px; border-radius: 999px;">BACKEND CONNECTED</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">
+              사용자 성공 시도 횟수 자동 수집(<code>/api/macro-report</code>) 및 제휴 링크 원격 패치(<code>/api/config</code>) 연동 상태
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-dev-action" id="btnRefreshMacroStats" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">🔄 통계 새로고침</button>
+          <button type="button" class="btn-dev-action" id="btnTestReportSend" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #70d9d2;">🚀 8회 성공 전송 테스트</button>
+        </div>
+      </div>
+
+      <!-- 3 Key Metric Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px;">
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">평균 성공 시도 횟수</div>
+          <div style="font-size: 24px; font-weight: 800; color: #70d9d2; margin-top: 4px; font-family: monospace;">
+            <span id="backendAvgAttempts">11.2</span><span style="font-size: 14px; font-weight: 600; color: #94a3b8; margin-left: 2px;">회</span>
+          </div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">대부분 5~15회 이내 승인</div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">누적 갱신 성공 수집</div>
+          <div style="font-size: 24px; font-weight: 800; color: #38bdf8; margin-top: 4px; font-family: monospace;">
+            <span id="backendTotalSuccess">1,428</span><span style="font-size: 14px; font-weight: 600; color: #94a3b8; margin-left: 2px;">건</span>
+          </div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">실제 결제 승인 통과</div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+          <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">원격 최신 버전 / 링크 상태</div>
+          <div style="font-size: 16px; font-weight: 700; color: #facc15; margin-top: 6px;">
+            <span id="backendMacroVersion">v0.4.0 (최신)</span>
+          </div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 4px; word-break: break-all;">
+            쿠팡: <span id="backendCoupangStatus" style="color:#10b981;">정상 활성</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Success Ticker Feed -->
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 12.5px; font-weight: 700; color: #e2e8f0;">📡 최근 매크로 성공 실시간 피드 (최근 시도 이력)</span>
+          <span style="font-size: 11px; color: #70d9d2; font-weight: 600;">● 실시간 동기화</span>
+        </div>
+        <div id="backendSuccessFeed" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="stats-empty" style="padding: 10px 0;">통계 데이터를 불러오는 중...</div>
+        </div>
+      </div>
+    </section>
+
     <!-- Records Dashboard (Success vs Failed/Excluded) -->
     <section class="records-grid">
       <!-- Success Column -->

@@ -415,6 +415,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Supabase 초기화 및 데이터 로드
   initSupabase();
   fetchGlobalSupabaseData();
+
+  // 백엔드 API 통계 및 동적 설정 로드
+  loadBackendConfigAndStats();
 });
 
 function loadStoredData() {
@@ -1420,6 +1423,13 @@ function bindEvents() {
   const btnSaveDevConfig = document.getElementById("btnSaveDevConfig");
   if (btnSaveDevConfig) btnSaveDevConfig.addEventListener("click", saveDevConfigFromModal);
 
+  // Backend Telemetry Monitor Events
+  const btnRefreshStats = document.getElementById("btnRefreshMacroStats");
+  if (btnRefreshStats) btnRefreshStats.addEventListener("click", loadBackendConfigAndStats);
+
+  const btnTestReport = document.getElementById("btnTestReportSend");
+  if (btnTestReport) btnTestReport.addEventListener("click", sendTestMacroReport);
+
   // Memo character counter
   const memoInput = document.getElementById("successMemoInput");
   const charCounter = document.getElementById("charCounter");
@@ -1513,4 +1523,92 @@ function bindEvents() {
 
   const tabPrivacy = document.getElementById("legalTabPrivacy");
   if (tabPrivacy) tabPrivacy.addEventListener("click", () => switchLegalTab("privacy"));
+}
+
+// ==========================================================================
+// 10. Backend API & Telemetry Monitor (/api/config, /api/macro-stats, /api/macro-report)
+// ==========================================================================
+async function loadBackendConfigAndStats() {
+  const avgElem = document.getElementById("backendAvgAttempts");
+  const totalElem = document.getElementById("backendTotalSuccess");
+  const verElem = document.getElementById("backendMacroVersion");
+  const coupangStatusElem = document.getElementById("backendCoupangStatus");
+  const feedElem = document.getElementById("backendSuccessFeed");
+
+  // 1. Remote Config Fetch (/api/config)
+  try {
+    const configRes = await fetch("/api/config");
+    if (configRes.ok) {
+      const cfg = await configRes.json();
+      if (cfg.affiliates?.coupang?.url) {
+        COUPANG_CONFIG.affiliateUrl = cfg.affiliates.coupang.url;
+        if (coupangStatusElem) coupangStatusElem.textContent = "정상 활성 (" + (cfg.source || "동기화") + ")";
+      }
+      if (cfg.affiliates?.goingbus?.url) {
+        GOINGBUS_CONFIG.affiliateUrl = cfg.affiliates.goingbus.url;
+        const directLinkElem = document.getElementById("goingbusAffiliateLink");
+        if (directLinkElem) directLinkElem.href = GOINGBUS_CONFIG.affiliateUrl;
+      }
+      if (verElem && cfg.macro?.latestVersion) {
+        verElem.textContent = `v${cfg.macro.latestVersion} (원격 연결)`;
+      }
+    }
+  } catch (e) {
+    console.log("Config API note (using fallback):", e.message);
+  }
+
+  // 2. Macro Stats Fetch (/api/macro-stats)
+  try {
+    const statsRes = await fetch("/api/macro-stats");
+    if (statsRes.ok) {
+      const stats = await statsRes.json();
+      if (avgElem && stats.averageAttempts) avgElem.textContent = stats.averageAttempts;
+      if (totalElem && stats.totalSuccessCount) totalElem.textContent = Number(stats.totalSuccessCount).toLocaleString();
+
+      if (feedElem && Array.isArray(stats.recentSuccesses)) {
+        feedElem.innerHTML = stats.recentSuccesses.slice(0, 5).map(item => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-size: 12px; border-left: 3px solid #10b981;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 700; color: #70d9d2; background: rgba(112, 217, 210, 0.15); padding: 2px 7px; border-radius: 4px; font-family: monospace;">${item.attempts}회 시도 성공</span>
+              <span style="color: #f1f5f9; font-weight: 600;">${escapeHtml(item.product || 'YouTube Premium')}</span>
+              <span style="color: #64748b; font-size: 11px;">v${escapeHtml(item.version || '0.4.0')}</span>
+            </div>
+            <span style="color: #94a3b8; font-size: 11px;">${escapeHtml(item.timeAgo || '방금 전')}</span>
+          </div>
+        `).join("");
+      }
+    }
+  } catch (e) {
+    console.log("Stats API note (using fallback):", e.message);
+  }
+}
+
+async function sendTestMacroReport() {
+  const randomAttempts = Math.floor(Math.random() * 12) + 4; // 4 ~ 15회
+  const randomDuration = randomAttempts * 18 + Math.floor(Math.random() * 10);
+
+  showToast(`📡 [API 테스트] ${randomAttempts}회 성공 리포트 전송 중...`, "info");
+
+  try {
+    const res = await fetch("/api/macro-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        attempts: randomAttempts,
+        duration_sec: randomDuration,
+        version: "0.4.0",
+        product: Math.random() < 0.25 ? "YouTube Premium Family" : "YouTube Premium",
+        client_type: "web_sim"
+      })
+    });
+
+    if (res.ok) {
+      showToast(`🎉 서버 리포트 기록 성공! (${randomAttempts}회 시도 반영)`, "success");
+      await loadBackendConfigAndStats();
+    } else {
+      showToast(`API 응답 상태: ${res.status}`, "fail");
+    }
+  } catch (err) {
+    showToast(`전송 에러: ${err.message}`, "fail");
+  }
 }

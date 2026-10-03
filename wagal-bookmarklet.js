@@ -291,6 +291,18 @@
         if (screen.kind === 'success') {
           updateStatus('🎉 갱신 성공!', '구독 활성화가 확인되었습니다! 결제 내역을 확인하세요.', '#4ade80', 'rgba(74, 222, 128, 0.25)');
           playSuccessSound();
+          try {
+            fetch('https://india-upi.vercel.app/api/macro-report', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                attempts: attemptCount,
+                version: '0.4.0',
+                product: screen.product || 'YouTube Premium',
+                client_type: 'bookmarklet'
+              })
+            }).catch(() => {});
+          } catch (e) {}
           alert('[와갈매크로]\n\n🎉 축하합니다! 구독 갱신이 성공적으로 승인되었습니다!\nApple 결제 내역과 YouTube 상태를 확인해 보세요.');
           break;
         }
