@@ -579,6 +579,143 @@
       box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
     }
 
+    /* GoingBus Alternative Solution Card */
+    .goingbus-section {
+      width: 100%;
+      margin: 36px 0 0 0;
+    }
+    .tip-affiliate-card.goingbus-standalone {
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid rgba(129, 140, 248, 0.4);
+      border-radius: 20px;
+      padding: 26px 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.12);
+      transition: all 0.25s ease;
+    }
+    .tip-affiliate-card.goingbus-standalone::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #f59e0b 0%, #ec4899 35%, #8b5cf6 70%, #3b82f6 100%);
+    }
+    .tip-affiliate-card.goingbus-standalone:hover {
+      border-color: rgba(165, 180, 252, 0.7);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.25);
+      transform: translateY(-2px);
+    }
+    .tip-affiliate-card .tip-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .goingbus-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .goingbus-title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .goingbus-badge-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: -0.01em;
+    }
+    .goingbus-main-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+    .affiliate-price-tag {
+      font-size: 13px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.2);
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+      white-space: nowrap;
+    }
+    .goingbus-desc {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin: 0;
+      word-break: keep-all;
+    }
+    .goingbus-desc strong {
+      color: #38bdf8;
+    }
+    .affiliate-features-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .affiliate-feature-pill {
+      font-size: 12.5px;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 5px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .affiliate-action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .btn-goingbus-direct {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      color: #ffffff !important;
+      font-size: 14.5px;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4);
+      border: 1px solid rgba(165, 180, 252, 0.3);
+    }
+    .btn-goingbus-direct:hover {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      box-shadow: 0 6px 22px rgba(99, 102, 241, 0.55);
+      transform: translateY(-2px);
+      color: #ffffff !important;
+    }
+    .btn-goingbus-direct svg {
+      transition: transform 0.2s ease;
+    }
+    .btn-goingbus-direct:hover svg {
+      transform: translate(2px, -2px);
+    }
+
     /* Footer */
     footer {
       background: #060a12;
@@ -840,6 +977,40 @@
         <p>실패한 ID 자동 영구 제외 &amp; 1초 복사 기능을 지원하는 UPI ID 전용 생성기로 이동하세요.</p>
       </div>
       <a href="index.html" class="btn-goto-upi">인도 UPI ID 생성기 바로가기 ➔</a>
+    </section>
+
+    <!-- GoingBus Alternative Solution Card (우회 막힘 종결 대안 - 페이지 최하단 배치) -->
+    <section class="goingbus-section">
+      <div class="tip-card tip-affiliate-card goingbus-standalone">
+        <div class="tip-body">
+          <div class="goingbus-title-row">
+            <div class="goingbus-title-left">
+              <span class="goingbus-badge-label">💡 인도 결제 락 &amp; 우회 막힘 종결 대안</span>
+              <strong class="goingbus-main-title">YouTube Premium 인도 &amp; 글로벌 우회 지원</strong>
+            </div>
+            <span class="affiliate-price-tag">월 3,000원대 종결</span>
+          </div>
+          <p class="goingbus-desc">
+            인도 우회 차단이나 해외 결제 락으로 지치셨다면, VPN 없이 안전한 <strong>합법 OTT 공유 플랫폼(GoingBus)</strong>으로 커피 한 잔 가격에 유튜브 프리미엄을 즉시 시청하세요!
+          </p>
+          <div class="affiliate-features-row">
+            <span class="affiliate-feature-pill">⚡ VPN 우회 불필요 (즉시 시청)</span>
+            <span class="affiliate-feature-pill">🛡️ 본인 구글 계정 정지 위험 0%</span>
+            <span class="affiliate-feature-pill">💰 공식 구독료 대비 최대 80% 할인</span>
+            <span class="affiliate-feature-pill">🔄 100% 자동 갱신 및 환불 보장</span>
+          </div>
+          <div class="affiliate-action-row">
+            <a href="https://goingbus.com?s=1kO9X8Oz" id="goingbusAffiliateLink" target="_blank" rel="noopener noreferrer" class="btn-goingbus-direct" title="고잉버스 공식 사이트 새창 이동">
+              <span>고잉버스 최저가 바로가기 (추가 할인 자동 적용)</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
