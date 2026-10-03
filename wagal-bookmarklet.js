@@ -337,10 +337,24 @@
         <button id="btnAction" class="btn-primary">시작하기</button>
         <button id="btnClose" class="btn-close">닫기</button>
       </div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:center;align-items:center;gap:8px;font-size:11px;">
+        <a href="https://india-upi.vercel.app/wagal.html" target="_blank" rel="noopener" style="color:#70d9d2;text-decoration:none;font-weight:600;">📖 가이드</a>
+        <span style="color:rgba(255,255,255,0.2);">•</span>
+        <a href="https://india-upi.vercel.app/guide-unblock.html" target="_blank" rel="noopener" style="color:#f87171;text-decoration:none;font-weight:600;">🚨 결제 차단 해결</a>
+        <span style="color:rgba(255,255,255,0.2);">•</span>
+        <a href="https://india-upi.vercel.app/" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">🇮🇳 UPI 생성기</a>
+      </div>
     </div>
   `;
 
   document.documentElement.appendChild(host);
+
+  shadow.querySelectorAll('a').forEach(a => {
+    a.onclick = e => {
+      e.stopPropagation();
+      window.open(a.href, '_blank');
+    };
+  });
 
   const ui = {
     badgeState: shadow.getElementById('badgeState'),

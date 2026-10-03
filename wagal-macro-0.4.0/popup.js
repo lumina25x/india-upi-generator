@@ -64,6 +64,7 @@ async function poll(){if(busy&&state?.active)return;try{render(await send('STATU
 (async()=>{
   if(!preview){try{const saved=await chrome.storage.local.get('language');if(saved.language)language=I.normalize(saved.language);}catch{}}
   translate();
+  document.querySelectorAll('a[href^="http"]').forEach(a=>{a.onclick=e=>{e.preventDefault();if(!preview&&typeof chrome!=='undefined'&&chrome.tabs){chrome.tabs.create({url:a.href});}else{window.open(a.href,'_blank');}};});
   if(preview){connectionKey='disconnected';$('connection').textContent=t(connectionKey);notice('preview');return;}
   const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
   if(tab?.url&&WagalTarget.kind(tab.url)){tabId=tab.id;await poll();setInterval(()=>{if(!busy)poll();},700);}
