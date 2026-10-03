@@ -57,20 +57,44 @@ function renewPageAction(expected) {
     return null;
   };
   let snapshot={kind:'unknown'},button=null;
+
+  // Confirm Subscription 모달 컨테이너 직접 탐색
+  let confirmDialog=null;
+  const confirmHeaders=all('h1,h2,h3,h4,div,span').filter(e=>visible(e)&&/^Confirm Subscription|구독 확인$/i.test(text(e)));
+  if(confirmHeaders.length>0){
+    let el=confirmHeaders[0].parentElement;
+    while(el&&el!==document.body){
+      if(buttons(el).some(b=>/^(Confirm|확인)$/i.test(label(b)))){
+        confirmDialog=el;
+        break;
+      }
+      el=el.parentElement;
+    }
+  }
+
   const dialogs=all('[role="dialog"],[role="alertdialog"],[aria-modal="true"],dialog[open]').filter(visible);
+  if(confirmDialog&&!dialogs.includes(confirmDialog))dialogs.push(confirmDialog);
+
   const leafDialogs=dialogs.filter(d=>!dialogs.some(other=>other!==d&&d.contains(other)));
   if(leafDialogs.length>1){
     const errors=leafDialogs.filter(d=>/Unable to Complete Purchase|unable to charge|구매를 완료할 수 없/i.test(text(d)));
     if(errors.length===1)leafDialogs.splice(0,leafDialogs.length,errors[0]);
+    else if(confirmDialog&&leafDialogs.includes(confirmDialog))leafDialogs.splice(0,leafDialogs.length,confirmDialog);
+    else{
+      const confirms=leafDialogs.filter(d=>/Confirm Subscription|구독 확인/i.test(text(d)));
+      if(confirms.length===1)leafDialogs.splice(0,leafDialogs.length,confirms[0]);
+    }
   }
   if(leafDialogs.length===1){
     const dialog=leafDialogs[0];const t=text(dialog);
     if(/Unable to Complete Purchase|unable to charge|구매를 완료할 수 없/i.test(t)){
       button=unique(buttons(dialog).filter(b=>/^(Cancel|취소)$/i.test(label(b))));snapshot={kind:button?'error':'unknown'};
-    }else if(/Confirm Subscription|구독 확인/i.test(t)){
+    }else if(/Confirm Subscription|구독 확인/i.test(t)||dialog===confirmDialog){
       const cancelling=expected?.kind==='dismiss';
       button=unique(buttons(dialog).filter(b=>(cancelling?/^(Cancel|취소)$/i:/^(Confirm|확인)$/i).test(label(b))));
-      snapshot={kind:cancelling?(button?'dismiss':'unknown'):'confirm',canConfirm:!!button,product:product(dialog),price:price(dialog)};
+      const detProduct=product(dialog)||product(document.querySelector('main')||document.body)||'YouTube Premium';
+      const detPrice=price(dialog)||price(document.querySelector('main')||document.body);
+      snapshot={kind:cancelling?(button?'dismiss':'unknown'):'confirm',canConfirm:!!button,product:detProduct,price:detPrice};
     }else snapshot={kind:/password|verification|인증|암호|sign in/i.test(t)?'auth':'unknown'};
   }else if(leafDialogs.length>1)snapshot={kind:'ambiguous'};
   else {

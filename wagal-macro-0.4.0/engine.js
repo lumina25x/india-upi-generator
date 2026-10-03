@@ -28,10 +28,10 @@
     async start(options,target){
       if(this.active)throw Error('이미 실행 중입니다.');
       const settings=validate(options);
-      if(!target||target.kind!=='ready'||!target.product||!target.price)throw Error('상품과 금액을 확인할 수 있는 구독 화면부터 시작하세요.');
+      if(!target||!['ready','confirm'].includes(target.kind)||!target.product||!target.price)throw Error('상품과 금액을 확인할 수 있는 구독 화면부터 시작하세요.');
       this.active=true;this.cancelled=false;this.state={phase:'starting',attempt:0,message:'',logs:[],target,settings,startedAt:new Date().toISOString()};
       const now=this.io.now||Date.now;
-      let stage='ready',polls=0,confirmed=false,stageDeadline=now()+30000;
+      let stage=target.kind==='confirm'?'confirm':'ready',polls=0,confirmed=target.kind==='confirm',stageDeadline=now()+30000;
       this.emit('running','구독 화면을 확인하고 있습니다.');
       try{
         while(!this.cancelled){

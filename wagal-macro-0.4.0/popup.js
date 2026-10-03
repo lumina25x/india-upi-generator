@@ -23,19 +23,20 @@ async function send(type,extra={}){
   const result=await chrome.tabs.sendMessage(tabId,{type,...extra},{frameId:0});
   if(result?.error)throw Error(result.error);return result;
 }
-function updateStart(){$('start').disabled=checked?.kind!=='ready'||!$('consent').checked||busy;$('start').textContent=t(checked?.kind==='ready'?'start':'checkFirst');}
+function updateStart(){const canStart=['ready','confirm'].includes(checked?.kind);$('start').disabled=!canStart||!$('consent').checked||busy;$('start').textContent=t(canStart?'start':'checkFirst');}
 function inspectionView(target){const kind=['ready','active','list','confirm','error','auth','ambiguous'].includes(target?.kind)?target.kind:'unknown';return {badge:t(kind+'Badge'),title:t(kind+'Title'),detail:t(kind+'Detail')};}
 function showTarget(target){$('product').textContent=target?.product||t('emptyProduct');$('price').textContent=[target?.price,target?.kind==='active'?target.renewalText:null].filter(Boolean).join(' · ')||t('emptyPrice');}
 function render(s){
   state=s;const active=!!s.active,hasRun=!!s.startedAt;checked=s.checked||null;
   $('environment').hidden=!s.simulation;
   showTarget(checked||s.target);
-  $('setup').hidden=active||checked?.kind!=='ready';$('progress').hidden=!hasRun||!!checked;$('stop').hidden=!active;$('recheck').hidden=active;
+  const canStart=['ready','confirm'].includes(checked?.kind);
+  $('setup').hidden=active||!canStart;$('progress').hidden=!hasRun||!!checked;$('stop').hidden=!active;$('recheck').hidden=active;
   $('check').disabled=active||busy;$('open').disabled=active;if($('use-jitter'))$('use-jitter').disabled=active;$('reload').hidden=active||!['review','stopped'].includes(s.phase);
   if($('btn-open-review')){ $('btn-open-review').hidden=(s.phase!=='success'); $('btn-open-review').onclick=async()=>{ try{ await send('SHOW_SUCCESS_MODAL',{attempts:s.attempt}); window.close(); }catch(e){} }; }
   const view=checked?inspectionView(checked):null;
   $('connection').textContent=active?t('connected'):view?.badge||t('connected');
-  $('inspection').hidden=active||!checked||checked.kind==='ready';
+  $('inspection').hidden=active||!checked||canStart;
   if(view){$('inspection-title').textContent=view.title;$('inspection-detail').textContent=view.detail;}
   $('phase').textContent=t(s.phase||'idle');$('count').textContent=s.attempt||0;$('cap').textContent=t('count',{max:s.settings?.attempts===0?'∞':(s.settings?.attempts??50)});$('message').textContent=message(s.message);
   const seconds=hasRun?Math.max(0,Math.floor(((active?Date.now():Date.parse(s.endedAt||s.startedAt))-Date.parse(s.startedAt))/1000)):0;

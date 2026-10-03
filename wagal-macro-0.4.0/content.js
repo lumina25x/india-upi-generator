@@ -170,7 +170,7 @@
       if(msg.type==='START'){
         if(runner.active||starting)throw Error('이미 실행 중입니다.');
         RenewEngine.validate(msg.options);
-        if(!checked||checked.kind!=='ready'||Date.now()-checkTime>60000)throw Error('화면 점검을 다시 실행해 주세요. 점검은 1분간 유효합니다.');
+        if(!checked||!['ready','confirm'].includes(checked.kind)||Date.now()-checkTime>60000)throw Error('화면 점검을 다시 실행해 주세요. 점검은 1분간 유효합니다.');
         if(!msg.consent)throw Error('표시된 상품과 금액의 갱신 시도에 동의해 주세요.');
         starting=true;const rev=revision;
         try{

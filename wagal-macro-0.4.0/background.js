@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener((msg,sender,reply)=>{
     if(msg.type==='RS_ACQUIRE')return serial(async()=>{
       if(await lease())throw Error('다른 실행이 진행 중입니다. 실행 탭에서 중지해 주세요.');
       const screen=await inspect(tabId);
-      if(screen.kind!=='ready'||screen.frameId!==msg.target?.frameId||screen.product!==msg.target?.product||screen.price!==msg.target?.price)throw Error('점검 후 상품 화면이 변경되었습니다. 다시 점검해 주세요.');
+      if(!['ready','confirm'].includes(screen.kind)||screen.frameId!==msg.target?.frameId||screen.product!==msg.target?.product||screen.price!==msg.target?.price)throw Error('점검 후 상품 화면이 변경되었습니다. 다시 점검해 주세요.');
       const token=crypto.randomUUID();await chrome.storage.session.set({lease:{tabId,token,frameId:screen.frameId}});return {token};
     });
     if(msg.type==='RS_RELEASE')return serial(async()=>{const l=await lease();if(l?.tabId===tabId&&l.token===msg.token)await chrome.storage.session.remove('lease');return {};});
