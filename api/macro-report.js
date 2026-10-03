@@ -39,6 +39,9 @@ module.exports = async function handler(req, res) {
       ? body.client_type 
       : "extension";
 
+    const rawMemo = String(body.memo || "").trim();
+    const memo = rawMemo.substring(0, 100);
+
     const payload = {
       attempts: attempts,
       duration_sec: durationSec,
@@ -48,11 +51,11 @@ module.exports = async function handler(req, res) {
       client_type: clientType,
       created_at: new Date().toISOString()
     };
+    if (memo) payload.memo = memo;
 
-    // 1) Supabase macro_logs 테이블에 삽입 시도
-    let saved = false;
+    // 1) Supabase macro_logs 테이블에 삽입 시도 (통계 전용)
     try {
-      const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/macro_logs`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/macro_logs`, {
         method: "POST",
         headers: {
           "apikey": ANON_KEY,
@@ -62,32 +65,35 @@ module.exports = async function handler(req, res) {
         },
         body: JSON.stringify(payload)
       });
-      if (dbRes.ok || dbRes.status === 201) {
-        saved = true;
-      }
     } catch (dbErr) {
       console.log("macro_logs insert error:", dbErr);
     }
 
-    // 2) 만약 macro_logs 테이블이 아직 미생성된 경우 upi_logs 테이블에 보조 기록
-    if (!saved) {
-      try {
-        await fetch(`${SUPABASE_URL}/rest/v1/upi_logs`, {
-          method: "POST",
-          headers: {
-            "apikey": ANON_KEY,
-            "Authorization": `Bearer ${ANON_KEY}`,
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify({
-            upi_id: `macro-${attempts}th-attempt`,
-            type: "SUCCESS",
-            timestamp: new Date().toISOString().substring(0, 19).replace('T', ' '),
-            memo: `와갈매크로 v${version} 갱신 성공 (${attempts}회 시도, ${durationSec}초)`
-          })
-        });
-      } catch (fallbackErr) {}
+    // 2) 메인 사이트 실시간 성공 후기 피드(upi_logs)에도 즉시 기록
+    try {
+      const uniqueSuffix = Date.now().toString(36).slice(-4);
+      const displayId = `와갈매크로-${attempts}회#${uniqueSuffix}`;
+      const finalMemo = memo 
+        ? `${memo}` 
+        : `와갈매크로 갱신 성공 (${product}, ${attempts}회 시도)`;
+
+      await fetch(`${SUPABASE_URL}/rest/v1/upi_logs`, {
+        method: "POST",
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": `Bearer ${ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          upi_id: displayId,
+          type: "SUCCESS",
+          timestamp: new Date().toISOString().substring(0, 19).replace('T', ' '),
+          memo: finalMemo
+        })
+      });
+    } catch (feedErr) {
+      console.log("upi_logs insert error:", feedErr);
     }
 
     return res.status(200).json({

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.macro_logs (
     product TEXT DEFAULT 'YouTube Premium',
     currency TEXT DEFAULT 'INR',
     client_type TEXT DEFAULT 'extension' CHECK (client_type IN ('extension', 'bookmarklet', 'web_sim')),
+    memo TEXT DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
