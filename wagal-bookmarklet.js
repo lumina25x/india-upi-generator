@@ -34,27 +34,48 @@
 
   const product = scope => {
     const t = text(scope);
+    // YouTube Premium 시리즈
     if (/YouTube\s+Premium\s+Family/i.test(t)) return 'YouTube Premium Family';
     if (/YouTube\s+Premium\s+(?:Two-person|2-person|Duo)/i.test(t)) return 'YouTube Premium Two-person';
     if (/YouTube\s+Premium\s+Student/i.test(t)) return 'YouTube Premium Student';
     if (/YouTube\s+Premium\s+Individual/i.test(t)) return 'YouTube Premium Individual';
     if (/YouTube\s+Premium/i.test(t)) return 'YouTube Premium';
+
+    // YouTube Music 시리즈
+    if (/YouTube\s+Music\s+Family/i.test(t)) return 'YouTube Music Family';
+    if (/YouTube\s+Music\s+(?:Two-person|2-person|Duo)/i.test(t)) return 'YouTube Music Two-person';
+    if (/YouTube\s+Music\s+Student/i.test(t)) return 'YouTube Music Student';
+    if (/YouTube\s+Music\s+Individual/i.test(t)) return 'YouTube Music Individual';
+    if (/YouTube\s+Music/i.test(t)) return 'YouTube Music';
+
+    // 한글 명칭
+    if (/유튜브\s*프리미엄\s*패밀리/i.test(t)) return 'YouTube Premium Family';
+    if (/유튜브\s*프리미엄\s*(?:2인|듀오)/i.test(t)) return 'YouTube Premium Two-person';
+    if (/유튜브\s*프리미엄\s*학생/i.test(t)) return 'YouTube Premium Student';
+    if (/유튜브\s*프리미엄\s*개인/i.test(t)) return 'YouTube Premium Individual';
+    if (/유튜브\s*뮤직\s*패밀리/i.test(t)) return 'YouTube Music Family';
+    if (/유튜브\s*뮤직\s*(?:2인|듀오)/i.test(t)) return 'YouTube Music Two-person';
+    if (/유튜브\s*뮤직\s*학생/i.test(t)) return 'YouTube Music Student';
+    if (/유튜브\s*뮤직\s*개인/i.test(t)) return 'YouTube Music Individual';
+    if (/유튜브\s*뮤직/i.test(t)) return 'YouTube Music';
+    if (/유튜브\s*프리미엄/i.test(t)) return 'YouTube Premium';
+
     if (/YouTube/i.test(t)) return 'YouTube';
     return null;
   };
 
   const productLabels = scope => {
     const labels = Array.from(scope?.querySelectorAll('h1,h2,h3,h4,p,span,div,[role="heading"]') || [])
-      .filter(e => visible(e) && /^YouTube(?:\s+Premium(?:\s+(?:Family|Two-person|2-person|Duo|Student|Individual))?)?$/i.test(text(e)));
+      .filter(e => visible(e) && /^(?:YouTube|유튜브)(?:\s+(?:Premium|Music|프리미엄|뮤직)(?:\s+(?:Family|Two-person|2-person|Duo|Student|Individual|패밀리|2인|듀오|학생|개인))?)?$/i.test(text(e)));
     return labels.filter(e => !labels.some(child => child !== e && e.contains(child)));
   };
 
   const cleanCard = scope => {
     if (!scope) return false;
     const t = text(scope);
-    if (!/YouTube/i.test(t)) return false;
+    if (!/YouTube|유튜브/i.test(t)) return false;
     const headings = Array.from(scope.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).filter(visible);
-    return !headings.some(h => !/YouTube|Premium|Family|Two-person|2-person|Duo|Student|Individual|Subscriptions|구독/i.test(text(h)));
+    return !headings.some(h => !/YouTube|Premium|Music|Family|Two-person|2-person|Duo|Student|Individual|Subscriptions|구독|유튜브|프리미엄|뮤직/i.test(text(h)));
   };
 
   const price = scope => {
@@ -70,6 +91,58 @@
     const english = text(scope).match(new RegExp(`\\b(?:Renews?(?: on)?|Next billing date)\\s*:?\\s*${date}\\b`, 'i'));
     const korean = text(scope).match(/(?:다음 (?:갱신|결제)일|갱신 예정일)\s*:?\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일/);
     return english?.[0] || korean?.[0] || null;
+  };
+
+  const selectedPlanCard = () => {
+    // 1. Native or ARIA checked/selected
+    const checkedInputs = all('input[type="radio"]:checked, [role="radio"][aria-checked="true"], [role="checkbox"][aria-checked="true"], [aria-checked="true"], [aria-selected="true"]').filter(visible);
+    for (const el of checkedInputs) {
+      let card = el;
+      while (card && card !== document.body) {
+        if (product(card) && price(card)) return card;
+        card = card.parentElement;
+      }
+    }
+    // 2. Element with checkmark class, SVG check, or selected class
+    const checkElements = all('svg, span, div, i, [class*="check"], [class*="selected"], [class*="active"]').filter(e => {
+      if (!visible(e)) return false;
+      const cl = typeof e.className === 'string' ? e.className : '';
+      const al = e.getAttribute('aria-label') || '';
+      return /check|selected|active/i.test(cl) || /checked|selected/i.test(al);
+    });
+    for (const el of checkElements) {
+      let card = el.parentElement;
+      while (card && card !== document.body) {
+        if (product(card) && price(card)) {
+          const subProducts = Array.from(card.querySelectorAll('*')).filter(c => c !== card && product(c) && price(c));
+          if (subProducts.length === 0) return card;
+        }
+        card = card.parentElement;
+      }
+    }
+    // 3. Visual styling (Blue border or blue accent on checked radio circle)
+    const candidateCards = all('div, li, label, section').filter(e => {
+      if (!visible(e)) return false;
+      const p = product(e);
+      const pr = price(e);
+      if (!p || !pr) return false;
+      const subCards = Array.from(e.children).filter(c => product(c) && price(c));
+      return subCards.length === 0;
+    });
+    for (const card of candidateCards) {
+      try {
+        const style = getComputedStyle(card);
+        if (/rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(style.borderColor)) return card;
+        const blueChildren = Array.from(card.querySelectorAll('*')).filter(child => {
+          try {
+            const cs = getComputedStyle(child);
+            return /rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(cs.backgroundColor) || /rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(cs.color);
+          } catch (err) { return false; }
+        });
+        if (blueChildren.length > 0) return card;
+      } catch (err) {}
+    }
+    return null;
   };
 
   function inspectPage(expected) {
@@ -121,21 +194,33 @@
       snapshot = { kind: 'ambiguous' };
     } else {
       const scope = document.querySelector('main') || document.body;
-      const candidates = buttons().filter(b => /^(Renew|Resubscribe|갱신|재구독|다시 구독)(?:\b|\s|:)/i.test(label(b)) || /^(Renew|Resubscribe|갱신|재구독|다시 구독)$/i.test(label(b)));
+      const candidates = buttons().filter(b => /^(?:Renew|Resubscribe|Change Plan|Choose Plan|Select Plan|갱신|재구독|다시 구독|플랜 변경|요금제 변경)(?:\b|\s|:)/i.test(label(b)) || /^(?:Renew|Resubscribe|Change Plan|Choose Plan|Select Plan|갱신|재구독|다시 구독|플랜 변경|요금제 변경)$/i.test(label(b)));
       if (candidates.length === 1) {
         button = candidates[0];
-        let detectedPrice = price(button);
-        let card = button.parentElement;
-        while (card && card !== document.body) {
-          if (product(card)) break;
-          card = card.parentElement;
+        const selectedCard = selectedPlanCard();
+        let detectedProduct = null, detectedPrice = null;
+        if (selectedCard) {
+          detectedProduct = product(selectedCard);
+          detectedPrice = price(selectedCard);
         }
-        if (!card || card === document.body) {
-          card = document.querySelector('main') || document.body;
+        if (!detectedProduct) {
+          let card = button.parentElement;
+          while (card && card !== document.body) {
+            if (product(card)) break;
+            card = card.parentElement;
+          }
+          if (!card || card === document.body) {
+            card = document.querySelector('main') || document.body;
+          }
+          detectedProduct = product(card) || product(document.querySelector('main') || document.body) || 'YouTube Premium';
         }
-        let detectedProduct = product(card) || product(document.querySelector('main') || document.body) || 'YouTube Premium';
         if (!detectedPrice) {
-          detectedPrice = price(card) || price(document.querySelector('main') || document.body);
+          let card = button.parentElement;
+          while (card && card !== document.body) {
+            if (price(card)) break;
+            card = card.parentElement;
+          }
+          detectedPrice = price(button) || price(card) || price(document.querySelector('main') || document.body);
         }
         snapshot = { kind: 'ready', product: detectedProduct, price: detectedPrice };
         if (!snapshot.product || !snapshot.price) snapshot = { kind: 'unknown' };
