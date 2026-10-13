@@ -1,5 +1,5 @@
 /**
- * 와갈매크로 0.4.0 북마크릿 (Wagal Macro Bookmarklet v0.4.0)
+ * 와갈매크로 0.4.5 북마크릿 (Wagal Macro Bookmarklet v0.4.5)
  * 별도 확장 프로그램 설치 없이 브라우저 즐겨찾기 클릭 한 번으로 실행되는 완전 자립형 자동 갱신 엔진
  */
 (function() {
@@ -322,7 +322,7 @@
     </style>
     <div class="panel">
       <div class="header">
-        <span class="badge-title">WAGAL MACRO 0.4.0</span>
+        <span class="badge-title">WAGAL MACRO 0.4.5</span>
         <span id="badgeState" class="badge-state">준비</span>
       </div>
       <div id="targetBox" class="target-info">
@@ -528,7 +528,7 @@
           body: JSON.stringify({
             attempts: attemptCount || 1,
             memo: memo,
-            version: '0.4.0',
+            version: '0.4.5',
             product: product || 'YouTube Premium',
             client_type: 'bookmarklet'
           })

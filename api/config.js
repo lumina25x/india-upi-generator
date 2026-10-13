@@ -20,16 +20,16 @@ const DEFAULT_CONFIGS = {
     }
   },
   macro: {
-    latestVersion: "0.4.0",
-    downloadUrl: "https://india-upi.vercel.app/wagal-macro-0.4.0.zip",
+    latestVersion: "0.4.5",
+    downloadUrl: "https://india-upi.vercel.app/wagal-macro-0.4.5.zip",
     minSupportedVersion: "0.3.0",
     killSwitch: false,
     recommendedAttempts: 15,
     recommendedIntervalSec: 25,
     notice: {
       active: true,
-      title: "와갈매크로 v0.4.0 최신 배포 안내",
-      message: "애플 넷뱅킹 와리가리 갱신을 지원하는 v0.4.0 버전이 배포되었습니다."
+      title: "와갈매크로 v0.4.5 최신 배포 안내",
+      message: "프레임 탐색 및 Renew/Confirm 전환이 개선된 v0.4.5 버전이 배포되었습니다."
     }
   }
 };

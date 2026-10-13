@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
     // 시도 횟수 유효성 검사 (1회 ~ 500회 제한)
     const attempts = Math.max(1, Math.min(500, parseInt(body.attempts, 10) || 1));
     const durationSec = Math.max(0, parseInt(body.duration_sec, 10) || 0);
-    const version = String(body.version || "0.4.0").substring(0, 20);
+    const version = String(body.version || "0.4.5").substring(0, 20);
     const product = String(body.product || "YouTube Premium").substring(0, 50);
     const clientType = ["extension", "bookmarklet", "web_sim"].includes(body.client_type) 
       ? body.client_type 

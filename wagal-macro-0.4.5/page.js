@@ -1,0 +1,227 @@
+// Self-contained function serialized by chrome.scripting; no external code or requests.
+function renewPageAction(expected) {
+  const norm=s=>(s||'').replace(/\s+/g,' ').trim();
+  const visible=e=>!!e && e.getClientRects().length>0 && getComputedStyle(e).visibility!=='hidden' && getComputedStyle(e).display!=='none' && !e.closest('[hidden],[aria-hidden="true"]');
+  const roots=[document];
+  for(let i=0;i<roots.length;i++)for(const e of roots[i].querySelectorAll('*'))if(e.shadowRoot)roots.push(e.shadowRoot);
+  const all=selector=>roots.flatMap(r=>Array.from(r.querySelectorAll(selector)));
+  const text=e=>norm(e?.innerText||e?.textContent);
+  const usable=e=>visible(e)&&!e.disabled&&e.getAttribute('aria-disabled')!=='true';
+  const buttons=scope=>(scope?Array.from(scope.querySelectorAll('button,[role="button"],input[type="submit"]')):all('button,[role="button"],input[type="submit"]')).filter(usable);
+  const label=e=>norm(e.innerText||e.value||e.getAttribute('aria-label')||e.textContent);
+  const unique=items=>items.length===1?items[0]:null;
+  const product=scope=>{
+    const t=text(scope);
+    // YouTube Premium 시리즈
+    if(/YouTube\s+Premium\s+Family/i.test(t))return 'YouTube Premium Family';
+    if(/YouTube\s+Premium\s+(?:Two-person|2-person|Duo)/i.test(t))return 'YouTube Premium Two-person';
+    if(/YouTube\s+Premium\s+Student/i.test(t))return 'YouTube Premium Student';
+    if(/YouTube\s+Premium\s+Individual/i.test(t))return 'YouTube Premium Individual';
+    if(/YouTube\s+Premium/i.test(t))return 'YouTube Premium';
+
+    // YouTube Music 시리즈
+    if(/YouTube\s+Music\s+Family/i.test(t))return 'YouTube Music Family';
+    if(/YouTube\s+Music\s+(?:Two-person|2-person|Duo)/i.test(t))return 'YouTube Music Two-person';
+    if(/YouTube\s+Music\s+Student/i.test(t))return 'YouTube Music Student';
+    if(/YouTube\s+Music\s+Individual/i.test(t))return 'YouTube Music Individual';
+    if(/YouTube\s+Music/i.test(t))return 'YouTube Music';
+
+    // 한글 명칭
+    if(/유튜브\s*프리미엄\s*패밀리/i.test(t))return 'YouTube Premium Family';
+    if(/유튜브\s*프리미엄\s*(?:2인|듀오)/i.test(t))return 'YouTube Premium Two-person';
+    if(/유튜브\s*프리미엄\s*학생/i.test(t))return 'YouTube Premium Student';
+    if(/유튜브\s*프리미엄\s*개인/i.test(t))return 'YouTube Premium Individual';
+    if(/유튜브\s*뮤직\s*패밀리/i.test(t))return 'YouTube Music Family';
+    if(/유튜브\s*뮤직\s*(?:2인|듀오)/i.test(t))return 'YouTube Music Two-person';
+    if(/유튜브\s*뮤직\s*학생/i.test(t))return 'YouTube Music Student';
+    if(/유튜브\s*뮤직\s*개인/i.test(t))return 'YouTube Music Individual';
+    if(/유튜브\s*뮤직/i.test(t))return 'YouTube Music';
+    if(/유튜브\s*프리미엄/i.test(t))return 'YouTube Premium';
+
+    if(/YouTube/i.test(t))return 'YouTube';
+    return null;
+  };
+  const productLabels=scope=>{
+    const labels=Array.from(scope?.querySelectorAll('h1,h2,h3,h4,p,span,div,[role="heading"]')||[])
+      .filter(e=>visible(e)&&/^(?:YouTube|유튜브)(?:\s+(?:Premium|Music|프리미엄|뮤직)(?:\s+(?:Family|Two-person|2-person|Duo|Student|Individual|패밀리|2인|듀오|학생|개인))?)?$/i.test(text(e)));
+    return labels.filter(e=>!labels.some(child=>child!==e&&e.contains(child)));
+  };
+  const cleanCard=scope=>{
+    if(!scope)return false;
+    const t=text(scope);
+    if(!/YouTube|유튜브/i.test(t))return false;
+    const headings=Array.from(scope.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).filter(visible);
+    return !headings.some(h=>!/YouTube|Premium|Music|Family|Two-person|2-person|Duo|Student|Individual|Subscriptions|구독|유튜브|프리미엄|뮤직/i.test(text(h)));
+  };
+  const price=scope=>{
+    if(!scope)return null;
+    const values=[...text(scope).matchAll(/(?:₹|INR|Rs\.?)\s*([\d,]+(?:\.\d{1,2})?)/gi)].map(m=>'INR '+Number(m[1].replaceAll(',','')));
+    return values.length>0?values[0]:null;
+  };
+  const renewalText=scope=>{
+    const month='(?:January|February|March|April|May|June|July|August|September|October|November|December)';
+    const day='(?:0?[1-9]|[12][0-9]|3[01])';
+    const date=`(?:${day} ${month}(?:,? [0-9]{4})?|${month} ${day}(?:,? [0-9]{4})?|[0-9]{4}-[0-9]{2}-[0-9]{2})`;
+    const english=text(scope).match(new RegExp(`\\b(?:Renews?(?: on)?|Next billing date)\\s*:?\\s*${date}\\b`,'i'));
+    const korean=text(scope).match(/(?:다음 (?:갱신|결제)일|갱신 예정일)\s*:?\s*(?:\d{4}년\s*)?\d{1,2}월\s*\d{1,2}일/);
+    return english?.[0]||korean?.[0]||null;
+  };
+  const cardForLabel=title=>{
+    const linkedCard=title.closest('a,button,[role="button"],[data-test="subscription-card"],[data-testid="subscription-card"]');
+    if(linkedCard&&product(linkedCard)&&cleanCard(linkedCard))return linkedCard;
+    // Stop at the first local product container; never climb to borrow a sibling card's date.
+    let card=title.parentElement;
+    for(let depth=0;card&&depth<5;depth++,card=card.parentElement){
+      if(product(card))return cleanCard(card)?card:null;
+      if(card.matches('main,body,article,section,a,button,[role="button"]'))break;
+    }
+    return null;
+  };
+  const selectedPlanCard=()=>{
+    // 1. Native or ARIA checked/selected
+    const checkedInputs=all('input[type="radio"]:checked, [role="radio"][aria-checked="true"], [role="checkbox"][aria-checked="true"], [aria-checked="true"], [aria-selected="true"]').filter(visible);
+    for(const el of checkedInputs){
+      let card=el;
+      while(card&&card!==document.body){
+        if(product(card)&&price(card))return card;
+        card=card.parentElement;
+      }
+    }
+    // 2. Element with checkmark class, SVG check, or selected class
+    const checkElements=all('svg, span, div, i, [class*="check"], [class*="selected"], [class*="active"]').filter(e=>{
+      if(!visible(e))return false;
+      const cl=typeof e.className==='string'?e.className:'';
+      const al=e.getAttribute('aria-label')||'';
+      return /check|selected|active/i.test(cl)||/checked|selected/i.test(al);
+    });
+    for(const el of checkElements){
+      let card=el.parentElement;
+      while(card&&card!==document.body){
+        if(product(card)&&price(card)){
+          const subProducts=Array.from(card.querySelectorAll('*')).filter(c=>c!==card&&product(c)&&price(c));
+          if(subProducts.length===0)return card;
+        }
+        card=card.parentElement;
+      }
+    }
+    // 3. Visual styling (Blue border or blue accent on checked radio circle)
+    const candidateCards=all('div, li, label, section').filter(e=>{
+      if(!visible(e))return false;
+      const p=product(e);
+      const pr=price(e);
+      if(!p||!pr)return false;
+      const subCards=Array.from(e.children).filter(c=>product(c)&&price(c));
+      return subCards.length===0;
+    });
+    for(const card of candidateCards){
+      try{
+        const style=getComputedStyle(card);
+        if(/rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(style.borderColor))return card;
+        const blueChildren=Array.from(card.querySelectorAll('*')).filter(child=>{
+          try{
+            const cs=getComputedStyle(child);
+            return /rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(cs.backgroundColor)||/rgb\(\s*(?:0|10|30|50)\s*,\s*(?:11[0-9]|12[0-9]|150)\s*,\s*(?:22[0-9]|25[0-5])\s*\)/i.test(cs.color);
+          }catch(err){return false;}
+        });
+        if(blueChildren.length>0)return card;
+      }catch(err){}
+    }
+    return null;
+  };
+  let snapshot={kind:'unknown'},button=null;
+
+  // Confirm Subscription 모달 컨테이너 직접 탐색
+  let confirmDialog=null;
+  const confirmHeaders=all('h1,h2,h3,h4,div,span').filter(e=>visible(e)&&/^Confirm Subscription|구독 확인$/i.test(text(e)));
+  if(confirmHeaders.length>0){
+    let el=confirmHeaders[0].parentElement;
+    while(el&&el!==document.body){
+      if(buttons(el).some(b=>/^(Confirm|확인)$/i.test(label(b)))){
+        confirmDialog=el;
+        break;
+      }
+      el=el.parentElement;
+    }
+  }
+
+  const dialogs=all('[role="dialog"],[role="alertdialog"],[aria-modal="true"],dialog[open]').filter(visible);
+  if(confirmDialog&&!dialogs.includes(confirmDialog))dialogs.push(confirmDialog);
+
+  const leafDialogs=dialogs.filter(d=>!dialogs.some(other=>other!==d&&d.contains(other)));
+  const loadingDialogs=leafDialogs.filter(d=>!text(d)&&!Array.from(d.querySelectorAll('input,button,[role="button"]')).some(visible));
+  for(const d of loadingDialogs)leafDialogs.splice(leafDialogs.indexOf(d),1);
+  if(leafDialogs.length>1){
+    const errors=leafDialogs.filter(d=>/Unable to Complete Purchase|unable to charge|구매를 완료할 수 없/i.test(text(d)));
+    if(errors.length===1)leafDialogs.splice(0,leafDialogs.length,errors[0]);
+    else if(confirmDialog&&leafDialogs.includes(confirmDialog))leafDialogs.splice(0,leafDialogs.length,confirmDialog);
+    else{
+      const confirms=leafDialogs.filter(d=>/Confirm Subscription|구독 확인/i.test(text(d)));
+      if(confirms.length===1)leafDialogs.splice(0,leafDialogs.length,confirms[0]);
+    }
+  }
+  if(!leafDialogs.length&&loadingDialogs.length){snapshot={kind:'pending',reason:'empty-dialog'};}
+  else if(leafDialogs.length===1){
+    const dialog=leafDialogs[0];const t=text(dialog);
+    if(/Unable to Complete Purchase|unable to charge|구매를 완료할 수 없/i.test(t)){
+      button=unique(buttons(dialog).filter(b=>/^(Cancel|취소)$/i.test(label(b))));snapshot={kind:button?'error':'unknown'};
+    }else if(/Confirm Subscription|구독 확인/i.test(t)||dialog===confirmDialog){
+      const cancelling=expected?.kind==='dismiss';
+      button=unique(buttons(dialog).filter(b=>(cancelling?/^(Cancel|취소)$/i:/^(Confirm|확인)$/i).test(label(b))));
+      // Partial confirmation dialogs must not invent a product or borrow stale
+      // details from the page behind them; the runner waits for these fields.
+      const detProduct=product(dialog);
+      const detPrice=price(dialog);
+      snapshot={kind:cancelling?(button?'dismiss':'unknown'):'confirm',canConfirm:!!button,product:detProduct,price:detPrice};
+    }else snapshot={kind:/password|verification|인증|암호|sign in/i.test(t)?'auth':'unknown'};
+  }else if(leafDialogs.length>1)snapshot={kind:'ambiguous',reason:'multiple-dialogs',count:leafDialogs.length};
+  else {
+    const scope=document.querySelector('main')||document.body;const t=text(scope);
+    const candidates=buttons().filter(b=>/^(?:Renew|Resubscribe|Change Plan|Choose Plan|Select Plan|갱신|재구독|다시 구독|플랜 변경|요금제 변경)(?:\b|\s|:)/i.test(label(b))||/^(?:Renew|Resubscribe|Change Plan|Choose Plan|Select Plan|갱신|재구독|다시 구독|플랜 변경|요금제 변경)$/i.test(label(b)));
+    if(candidates.length===1){
+      button=candidates[0];
+      const selectedCard=selectedPlanCard();
+      let detectedProduct=null,detectedPrice=null;
+      if(selectedCard){
+        detectedProduct=product(selectedCard);
+        detectedPrice=price(selectedCard);
+      }
+      if(!detectedProduct){
+        let card=button.parentElement;
+        while(card&&card!==document.body){
+          if(product(card))break;
+          card=card.parentElement;
+        }
+        if(!card||card===document.body){
+          card=document.querySelector('main')||document.body;
+        }
+        detectedProduct=product(card)||product(document.querySelector('main')||document.body)||'YouTube Premium';
+      }
+      if(!detectedPrice){
+        let card=button.parentElement;
+        while(card&&card!==document.body){
+          if(price(card))break;
+          card=card.parentElement;
+        }
+        detectedPrice=price(button)||price(card)||price(document.querySelector('main')||document.body);
+      }
+      snapshot={kind:'ready',product:detectedProduct,price:detectedPrice};
+      if(!snapshot.product||!snapshot.price)snapshot={kind:'unknown'};
+    }
+    else if(candidates.length>1)snapshot={kind:'ambiguous',reason:'multiple-renew-buttons',count:candidates.length};
+    else if(productLabels(scope).length>1)snapshot={kind:'ambiguous',reason:'multiple-product-labels',count:productLabels(scope).length};
+    else if(productLabels(scope).length===1){
+      const card=cardForLabel(productLabels(scope)[0]);const cardText=text(card);const renewal=card&&renewalText(card);
+      if(card&&renewal&&!/cancelled|canceled|expired|만료|취소되었습니다/i.test(cardText))snapshot={kind:'success',product:product(card),price:price(card),renewalText:renewal};
+      else if(card&&(card.matches('a,button,[role="button"]')||Array.from(scope.querySelectorAll('h1,h2,[role="heading"]')).some(e=>visible(e)&&/^(Subscriptions|구독)$/i.test(text(e)))))snapshot={kind:'list',product:product(card),price:price(card)};
+      else if(all('[role="progressbar"],[aria-busy="true"]').some(visible))snapshot={kind:'pending'};
+    }
+    else if(all('[role="progressbar"],[aria-busy="true"]').some(visible))snapshot={kind:'pending'};
+    else if(all('input[type="password"]').some(visible))snapshot={kind:'auth'};
+  }
+  if(!expected)return snapshot;
+  const identityMatches=!['ready','confirm'].includes(expected.kind)||(expected.product===snapshot.product&&expected.price===snapshot.price);
+  if(snapshot.kind!==expected.kind||!identityMatches||!button||!usable(button))return {clicked:false};
+  // A single DOM click. Never dispatch an additional synthetic click event.
+  button.click();return {clicked:true};
+}
+if(typeof module!=='undefined')module.exports={renewPageAction};
