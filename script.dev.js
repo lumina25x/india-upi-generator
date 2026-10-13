@@ -252,7 +252,7 @@ async function fetchGlobalSupabaseData() {
     if (successRes.data && Array.isArray(successRes.data)) {
       successRes.data.forEach(row => {
         const id = String(row.upi_id || "").trim();
-        if (!id) return;
+        if (!id || id.startsWith("와갈매크로")) return;
         const exists = state.successList.some(s => s.id === id);
         if (!exists) {
           state.successList.unshift({
@@ -435,7 +435,7 @@ function loadStoredData() {
             timestamp: String(item.timestamp || `${item.date || ''} ${item.time || ''}`).trim() || getFormattedNow(),
             memo: String(item.memo ?? "").trim() || "성공 확인 완료 👍"
           };
-        }).filter(item => Boolean(item && item.id));
+        }).filter(item => Boolean(item && item.id && !item.id.startsWith("와갈매크로")));
       }
     }
 

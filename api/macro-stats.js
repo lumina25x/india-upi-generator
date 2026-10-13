@@ -41,9 +41,12 @@ module.exports = async function handler(req, res) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3500);
 
+    // v0.4.5 릴리즈 기준 성공담 이력 초기화 (이전 0.4.0 테스트/오류 제보 제외)
+    const RESET_CUTOFF = "2026-10-13T08:40:00.000Z";
+
     // upi_logs 테이블에서 와갈매크로 갱신 성공 내역 실시간 조회
     const dbRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/upi_logs?type=eq.SUCCESS&upi_id=ilike.${encodeURIComponent("와갈매크로*")}&order=created_at.desc&limit=100`,
+      `${SUPABASE_URL}/rest/v1/upi_logs?type=eq.SUCCESS&upi_id=ilike.${encodeURIComponent("와갈매크로*")}&created_at=gte.${encodeURIComponent(RESET_CUTOFF)}&order=created_at.desc&limit=100`,
       {
         headers: {
           apikey: ANON_KEY,
@@ -55,8 +58,12 @@ module.exports = async function handler(req, res) {
     clearTimeout(timeout);
 
     if (dbRes.ok) {
-      const rows = await dbRes.json();
-      if (Array.isArray(rows) && rows.length > 0) {
+      const rawRows = await dbRes.json();
+      const NEGATIVE_PATTERN = /안됨|안되|오류|에러|차단|실패|안 됨|안 됩|못했|판별|진전|안나옴/i;
+      const rows = Array.isArray(rawRows) 
+        ? rawRows.filter(r => !NEGATIVE_PATTERN.test(r.memo || ""))
+        : [];
+      if (rows.length > 0) {
         const attemptList = rows.map(r => {
           const idMatch = String(r.upi_id || "").match(/와갈매크로-(\d+)회/);
           if (idMatch && idMatch[1]) return parseInt(idMatch[1], 10);
