@@ -1291,7 +1291,7 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
         <div>
           <label style="font-size: 11.5px; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">성공 시도 횟수</label>
-          <input type="number" id="reviewAttempts" min="1" max="500" value="5" style="width: 100%; background: #070d17; border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; color: #f8fafc; font-size: 13px;">
+          <input type="number" id="reviewAttempts" min="1" max="500" placeholder="시도 횟수 (선택)" style="width: 100%; background: #070d17; border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; color: #f8fafc; font-size: 13px;">
         </div>
         <div>
           <label style="font-size: 11.5px; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 4px;">구독 플랜</label>
@@ -1308,7 +1308,7 @@
       <div style="margin-bottom: 12px;">
         <span style="font-size: 11.5px; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 6px;">빠른 선택 칩:</span>
         <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="reviewChips">
-          <button type="button" class="tag-chip active" style="background: rgba(112, 217, 210, 0.2); border: 1px solid #70d9d2; color: #70d9d2; font-weight: 700; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer;" data-text="5회 시도만에 바로 갱신 성공했습니다! 👍">⚡ 5회만에 성공!</button>
+          <button type="button" class="tag-chip" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer;" data-text="와갈매크로로 바로 갱신 성공했습니다! 👍">⚡ 바로 갱신 성공!</button>
           <button type="button" class="tag-chip" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer;" data-text="와갈매크로 덕분에 살았습니다 감사합니다! 🙏">🙏 덕분에 살았습니다</button>
           <button type="button" class="tag-chip" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer;" data-text="넷뱅킹 와리가리로 바로 뚫렸어요! 🔥">🔥 넷뱅킹 와리가리 성공</button>
           <button type="button" class="tag-chip" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer;" data-text="유튜브 앱 동기화까지 완료했습니다 📱">📱 앱 동기화 완료</button>
@@ -1320,7 +1320,7 @@
           <span>생생 후기 또는 팁 (직접 입력 가능)</span>
           <span id="reviewCharCount">0/80</span>
         </div>
-        <input type="text" id="reviewMemoInput" maxlength="80" value="5회 시도만에 바로 갱신 성공했습니다! 👍" placeholder="예: 넷뱅킹 선택 후 5회 만에 승인 통과!" style="width: 100%; background: #070d17; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; color: #f8fafc; font-size: 13px; outline: none;">
+        <input type="text" id="reviewMemoInput" maxlength="80" value="" placeholder="예: 넷뱅킹 선택 후 바로 갱신 승인 통과! 감사합니다." style="width: 100%; background: #070d17; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; color: #f8fafc; font-size: 13px; outline: none;">
       </div>
 
       <div style="background: rgba(254, 229, 0, 0.08); border: 1px solid rgba(254, 229, 0, 0.25); border-radius: 10px; padding: 9px 12px; margin-bottom: 16px; font-size: 11.5px; color: #fef08a; line-height: 1.45;">
@@ -1475,9 +1475,10 @@
     });
 
     async function submitReview(withCoupang) {
-      const attempts = parseInt(document.getElementById('reviewAttempts').value, 10) || 1;
+      const attemptsVal = parseInt(document.getElementById('reviewAttempts').value, 10);
+      const attempts = (Number.isInteger(attemptsVal) && attemptsVal > 0) ? attemptsVal : 1;
       const product = document.getElementById('reviewProduct').value || 'YouTube Premium';
-      const memo = memoInput.value.trim() || `${attempts}회 시도만에 갱신 성공했습니다! 👍`;
+      const memo = memoInput.value.trim() || (Number.isInteger(attemptsVal) && attemptsVal > 0 ? `${attemptsVal}회 시도만에 갱신 성공했습니다! 👍` : '와갈매크로 덕분에 갱신 성공했습니다! 👍');
 
       try {
         const res = await fetch('/api/macro-report', {
