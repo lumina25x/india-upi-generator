@@ -544,7 +544,7 @@
     };
   }
 
-  async function startMacro() {
+  async function startMacro(resumeCount) {
     if (isRunning) return;
     if (!detectedTarget || detectedTarget.kind !== 'ready') {
       alert('YouTube Renew 버튼이 있는 화면에서 실행해 주세요.');
@@ -552,10 +552,12 @@
     }
 
     isRunning = true;
-    attemptCount = 0;
+    attemptCount = Number.isInteger(resumeCount) ? resumeCount : 0;
+    let noActionTime = 0;
     ui.btnAction.textContent = '🛑 실행 중지';
     ui.btnAction.className = 'btn-danger';
-    updateStatus('실행 중', '와리가리 자동 갱신을 시작합니다...');
+    ui.countNum.textContent = attemptCount;
+    updateStatus('실행 중', resumeCount ? `[재개] 이전 ${resumeCount}회차에 이어 갱신을 계속 진행합니다...` : '와리가리 자동 갱신을 시작합니다...');
 
     let stage = 'ready';
     let confirmed = false;
@@ -594,6 +596,7 @@
         }
 
         if (action) {
+          noActionTime = 0;
           const res = inspectPage({ ...screen, kind: action });
           if (!isRunning) break;
 
@@ -618,6 +621,15 @@
             await sleep(1800);
           }
         } else {
+          noActionTime += 500;
+          if (noActionTime >= 180000) {
+            updateStatus('새로고침', '3분 무응답 감지: 페이지를 새로고침하고 자동으로 계속 진행합니다...');
+            try { sessionStorage.setItem('wagal_bookmarklet_resume', JSON.stringify({ active: true, attemptCount, timestamp: Date.now() })); } catch(e){}
+            location.reload();
+            return;
+          } else if (noActionTime >= 15000) {
+            ui.msgBox.textContent = `[${new Date().toLocaleTimeString()}] 화면 응답 대기 중입니다... (3분 무응답 시 자동 새로고침)`;
+          }
           await sleep(500);
         }
       }
@@ -631,6 +643,7 @@
 
   function stopMacro() {
     isRunning = false;
+    try { sessionStorage.removeItem('wagal_bookmarklet_resume'); } catch(e){}
     ui.btnAction.textContent = '🚀 다시 시작';
     ui.btnAction.className = 'btn-primary';
     updateStatus('중지됨', '매크로가 중지되었습니다.', '#94a3b8', 'rgba(148, 163, 184, 0.2)');
@@ -647,4 +660,20 @@
     window.__wagalBookmarkletActive = false;
     host.remove();
   };
+
+  try {
+    const raw = sessionStorage.getItem('wagal_bookmarklet_resume');
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data?.active && Date.now() - (data.timestamp || 0) < 300000) {
+        sessionStorage.removeItem('wagal_bookmarklet_resume');
+        const resumeTimer = setInterval(() => {
+          if (detectedTarget && detectedTarget.kind === 'ready') {
+            clearInterval(resumeTimer);
+            startMacro(data.attemptCount || 0);
+          }
+        }, 500);
+      }
+    }
+  } catch(e){}
 })();

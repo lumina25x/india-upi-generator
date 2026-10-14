@@ -212,7 +212,10 @@ function renewPageAction(expected) {
     else if(productLabels(scope).length===1){
       const card=cardForLabel(productLabels(scope)[0]);const cardText=text(card);const renewal=card&&renewalText(card);
       if(card&&renewal&&!/cancelled|canceled|expired|만료|취소되었습니다/i.test(cardText))snapshot={kind:'success',product:product(card),price:price(card),renewalText:renewal};
-      else if(card&&(card.matches('a,button,[role="button"]')||Array.from(scope.querySelectorAll('h1,h2,[role="heading"]')).some(e=>visible(e)&&/^(Subscriptions|구독)$/i.test(text(e)))))snapshot={kind:'list',product:product(card),price:price(card)};
+      else if(card&&(card.matches('a,button,[role="button"]')||Array.from(scope.querySelectorAll('h1,h2,[role="heading"]')).some(e=>visible(e)&&/^(Subscriptions|구독)$/i.test(text(e))))){
+        snapshot={kind:'list',product:product(card),price:price(card)};
+        button=card.matches('a,button,[role="button"]')?card:(card.querySelector('a,button,[role="button"]')||card);
+      }
       else if(all('[role="progressbar"],[aria-busy="true"]').some(visible))snapshot={kind:'pending'};
     }
     else if(all('[role="progressbar"],[aria-busy="true"]').some(visible))snapshot={kind:'pending'};

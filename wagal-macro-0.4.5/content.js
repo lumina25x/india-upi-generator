@@ -7,7 +7,13 @@
   chrome.storage.local.get('language').then(saved=>{if(saved.language)language=WagalI18n.normalize(saved.language);if(host)render(runner.state);}).catch(()=>{});
   chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.language){language=WagalI18n.normalize(changes.language.newValue||navigator.language);if(host)render(runner.state);}});
   const rpc=async(type,extra={})=>{const result=await chrome.runtime.sendMessage({type,...extra});if(result?.error)throw Error(result.error);return result;};
-  const runner=new RenewEngine.Runner({inspect:()=>rpc('RS_INSPECT'),act:async screen=>!!(await rpc('RS_ACT',{screen,token})).clicked,sleep:ms=>new Promise(r=>setTimeout(r,ms)),update:state=>render(state)});
+  const runner=new RenewEngine.Runner({
+    inspect:()=>rpc('RS_INSPECT'),
+    act:async screen=>!!(await rpc('RS_ACT',{screen,token})).clicked,
+    sleep:ms=>new Promise(r=>setTimeout(r,ms)),
+    update:state=>render(state),
+    reloadAndResume:async sessionData=>handleReloadAndResume(sessionData)
+  });
   let host,ui,successModalShown=false;
   function showSuccessModal(attemptCount, product) {
     if (successModalShown) return;
@@ -153,7 +159,117 @@
     ui.stop.textContent=WagalI18n.t('stop',language);ui.stop.hidden=!runner.active;
     if(state.phase==='success') showSuccessModal(state.attempt, state.target?.product);
   }
-  async function stop(){revision++;runner.stop();if(token){const old=token;token=null;await rpc('RS_RELEASE',{token:old}).catch(()=>{});}}
+  async function handleReloadAndResume(sessionData){
+    try{
+      const autoResumeData={
+        active:true,
+        target:sessionData.target,
+        options:sessionData.settings,
+        attempt:sessionData.attempt||0,
+        startedAt:sessionData.startedAt,
+        timestamp:Date.now(),
+        logs:(sessionData.logs||[]).slice(-80)
+      };
+      await chrome.storage.local.set({wagal_auto_resume:autoResumeData});
+      if(token){const old=token;token=null;await rpc('RS_RELEASE',{token:old}).catch(()=>{});}
+    }catch(e){}
+    window.location.reload();
+  }
+
+  (async function checkAutoResume(){
+    try{
+      const stored=await chrome.storage.local.get('wagal_auto_resume');
+      const auto=stored?.wagal_auto_resume;
+      if(!auto||!auto.active)return;
+      if(Date.now()-auto.timestamp>5*60*1000){
+        await chrome.storage.local.remove('wagal_auto_resume');
+        return;
+      }
+      const resumeLogs=[
+        ...(auto.logs||[]).slice(-50),
+        {
+          time:new Date().toISOString(),
+          phase:'running',
+          attempt:auto.attempt||0,
+          message:`🔄 화면 멈춤 감지로 페이지 새로고침 완료. ${auto.attempt||0}회차부터 자동으로 계속 진행합니다.`
+        }
+      ];
+      render({
+        phase:'running',
+        attempt:auto.attempt||0,
+        message:`🔄 페이지 새로고침 후 구독 화면 확인 중... (${auto.attempt||0}회차부터 재개)`,
+        logs:resumeLogs,
+        target:auto.target,
+        settings:auto.options,
+        startedAt:auto.startedAt
+      });
+      for(let i=0;i<40;i++){
+        if(token)break;
+        await new Promise(r=>setTimeout(r,500));
+        const observed=await rpc('RS_INSPECT').catch(()=>null);
+        if(!observed)continue;
+        if(observed.kind==='success'){
+          await chrome.storage.local.remove('wagal_auto_resume');
+          render({
+            phase:'success',
+            attempt:auto.attempt||1,
+            message:'대상 구독의 활성 상태와 갱신일을 확인했습니다. Apple 결제 내역도 확인하세요.',
+            logs:[...resumeLogs,{
+              time:new Date().toISOString(),
+              phase:'success',
+              attempt:auto.attempt||1,
+              message:'🎉 대상 구독의 갱신 성공을 확인했습니다!'
+            }],
+            target:auto.target,
+            settings:auto.options,
+            startedAt:auto.startedAt
+          });
+          showSuccessModal(auto.attempt||1,auto.target?.product);
+          return;
+        }
+        if(observed.kind==='list'){
+          await rpc('RS_NAVIGATE_LIST',{product:auto.target?.product}).catch(()=>{});
+          continue;
+        }
+        if(['ready','confirm'].includes(observed.kind)){
+          if(observed.product&&auto.target?.product&&observed.product!==auto.target.product){
+            await chrome.storage.local.remove('wagal_auto_resume');
+            return;
+          }
+          await chrome.storage.local.remove('wagal_auto_resume');
+          starting=true;
+          try{
+            const acquired=await rpc('RS_ACQUIRE',{target:observed});
+            token=acquired.token;
+            const runToken=token;
+            const target=observed;
+            checked=null;
+            runner.start(auto.options,target,{
+              initialAttempt:auto.attempt||0,
+              startedAt:auto.startedAt,
+              initialLogs:resumeLogs
+            }).finally(async()=>{
+              await rpc('RS_RELEASE',{token:runToken}).catch(()=>{});
+              if(token===runToken)token=null;
+            });
+            return;
+          }finally{
+            starting=false;
+          }
+        }
+      }
+      await chrome.storage.local.remove('wagal_auto_resume');
+    }catch(e){
+      await chrome.storage.local.remove('wagal_auto_resume').catch(()=>{});
+    }
+  })();
+
+  async function stop(){
+    revision++;
+    await chrome.storage.local.remove('wagal_auto_resume').catch(()=>{});
+    runner.stop();
+    if(token){const old=token;token=null;await rpc('RS_RELEASE',{token:old}).catch(()=>{});}
+  }
   chrome.runtime.onMessage.addListener((msg,sender,reply)=>{
     if(sender.id!==chrome.runtime.id)return;
     (async()=>{
@@ -170,7 +286,8 @@
       if(msg.type==='STOP'){await stop();return {ok:true};}
       if(msg.type==='START'){
         if(runner.active||starting)throw Error('이미 실행 중입니다.');
-        RenewEngine.validate(msg.options);
+        const runOptions={stageTimeout:180000,autoReload:true,...msg.options};
+        RenewEngine.validate(runOptions);
         if(!checked||!['ready','confirm'].includes(checked.kind)||Date.now()-checkTime>60000)throw Error('화면 점검을 다시 실행해 주세요. 점검은 1분간 유효합니다.');
         if(!msg.consent)throw Error('표시된 상품과 금액의 갱신 시도에 동의해 주세요.');
         starting=true;const rev=revision;
@@ -178,7 +295,7 @@
           const acquired=await rpc('RS_ACQUIRE',{target:checked});token=acquired.token;
           if(rev!==revision){await stop();return {ok:false};}
           const runToken=token;const target=checked;checked=null;
-          runner.start(msg.options,target).finally(async()=>{await rpc('RS_RELEASE',{token:runToken}).catch(()=>{});if(token===runToken)token=null;});
+          runner.start(runOptions,target).finally(async()=>{await rpc('RS_RELEASE',{token:runToken}).catch(()=>{});if(token===runToken)token=null;});
           return {ok:true};
         }finally{starting=false;}
       }

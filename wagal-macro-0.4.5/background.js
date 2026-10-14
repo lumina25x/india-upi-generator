@@ -40,6 +40,14 @@ chrome.runtime.onMessage.addListener((msg,sender,reply)=>{
       if(result.clicked){if(action==='ready'&&l.unboundHome){l.homeFrameId=fresh.frameId;l.unboundHome=false;}l.frameId=fresh.frameId;l.stage={ready:'confirm',confirm:'result',error:'dismiss',dismiss:'return'}[action];if(action==='confirm')l.confirmationFrameId=fresh.frameId;await chrome.storage.session.set({lease:l});}
       return result;
     });
+    if(msg.type==='RS_NAVIGATE_LIST')return serial(async()=>{
+      const screen=await inspect(tabId);
+      if(screen.kind==='list'){
+        const results=await chrome.scripting.executeScript({target:{tabId,frameIds:[screen.frameId]},func:renewPageAction,args:[{...screen,kind:'list'}]});
+        return results[0]?.result||{clicked:false};
+      }
+      return {clicked:false};
+    });
     return {error:'알 수 없는 요청입니다.'};
   })().then(reply,error=>reply({error:error.message}));return true;
 });

@@ -17,7 +17,7 @@
     reconnect:['Apple 페이지를 새로고침하고 다시 점검하세요.','Reload the Apple page, then check again.'],
     next:['다음 시도까지 {seconds}초','Next attempt in {seconds}s'],count:['/ {max}회','/ {max} attempts'],
     overlayCount:['{count} / {max}회','{count} / {max} attempts'],
-    idle:['준비','Ready'],starting:['시작 중','Starting'],running:['실행 중','Running'],waiting:['대기 중','Waiting'],
+    idle:['준비','Ready'],starting:['시작 중','Starting'],running:['실행 중','Running'],waiting:['대기 중','Waiting'],reloading:['새로고침 중','Reloading'],
     success:['갱신 확인','Renewal detected'],review:['확인 필요','Review needed'],limit:['한도 도달','Limit reached'],stopped:['중지됨','Stopped'],
     readyBadge:['점검 완료','Ready'],readyTitle:['갱신 준비 완료','Ready to renew'],readyDetail:['상품·금액을 확인하고 시작하세요.','Verify the product and price before starting.'],
     activeBadge:['구독 활성','Active'],activeTitle:['이미 활성화된 구독입니다','Subscription already active'],activeDetail:['추가 갱신 시도가 필요하지 않습니다.','No additional renewal attempt is needed.'],
@@ -30,6 +30,8 @@
   };
   const strings={ko:{},en:{}};for(const [key,values] of Object.entries(pairs)){strings.ko[key]=values[0];strings.en[key]=values[1];}
   const messages={
+    '화면 무응답 3분 감지: 페이지를 새로고침하고 자동으로 계속 진행합니다...':'Page unresponsive for 3 minutes. Reloading page and auto-resuming...',
+    '화면 응답 대기 중입니다... (3분 무응답 시 자동 새로고침)':'Waiting for page response... (Auto-reloads after 3 min)',
     '확인창 전환 중입니다. 대상이 하나로 확인될 때까지 기다립니다.':'Confirmation is transitioning. Waiting for a single identifiable target.',
     '화면 로딩 중입니다. 버튼이 준비될 때까지 기다립니다.':'Page loading. Waiting for the button to be ready.',
     '인증 화면이 감지되었습니다. 인증 후 다시 점검하세요.':'Authentication detected. Sign in and check again.',
